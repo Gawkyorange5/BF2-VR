@@ -1,0 +1,149 @@
+<?xml version='1.0' encoding='utf-8'?>
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003" DefaultTargets="Build" ToolsVersion="14.0">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="RunWDebugger|Win32">
+      <Configuration>RunWDebugger</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{7C7ECB05-FFDE-4A2F-B9D2-23CD8C5DF302}</ProjectGuid>
+    <Keyword>Win32Proj</Keyword>
+    <RootNamespace>RFX</RootNamespace>
+    <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='RunWDebugger|Win32'" Label="Configuration">
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v145</PlatformToolset>
+    <WholeProgramOptimization>false</WholeProgramOptimization>
+    <CharacterSet>MultiByte</CharacterSet>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Label="Shared">
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='RunWDebugger|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='RunWDebugger|Win32'">
+    <LinkIncremental>false</LinkIncremental>
+    <OutDir>$(ProjectDir)..\build\</OutDir>
+  </PropertyGroup>
+  <PropertyGroup>
+    <DXSDK_DIR Condition="'$(DXSDK_DIR)'==''">C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\</DXSDK_DIR>
+    <TargetName>RFX</TargetName>
+    <IncludePath>$(IncludePath);$(DXSDK_DIR)Include</IncludePath>
+    <OutDir>$(ProjectDir)..\build\</OutDir>
+    <IntDir>$(ProjectDir)..\obj\$(Configuration)\</IntDir>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='RunWDebugger|Win32'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <PrecompiledHeader>
+      </PrecompiledHeader>
+      <Optimization>MaxSpeed</Optimization>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;_USRDLL;RFX_EXPORTS;NOMINMAX;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <SDLCheck>true</SDLCheck>
+      <LanguageStandard>stdcpp14</LanguageStandard>
+      <AdditionalIncludeDirectories>$(ProjectDir)..\third_party\openxr\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+    </ClCompile>
+    <Link>
+      <LinkTimeCodeGeneration>UseLinkTimeCodeGeneration</LinkTimeCodeGeneration>
+      <SubSystem>Windows</SubSystem>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalDependencies>d3d9.lib;d3dx9.lib;d3d11.lib;dxgi.lib;stl_8_wrapper.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(ProjectDir);$(DXSDK_DIR)Lib\x86;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <TargetMachine>MachineX86</TargetMachine>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ClCompile Include="Refractor.cpp" />
+    <ClCompile Include="HudItems.cpp" />
+    <ClCompile Include="HudString.cpp" />
+    <ClCompile Include="IAT.cpp" />
+    <ClCompile Include="initDLL.cpp" />
+    <ClCompile Include="Memory.cpp" />
+    <ClCompile Include="ShaderManager.cpp" />
+    <!-- Keep native BF2 ABI declarations and naked hooks outside LTCG.
+         Optimize the owned VR core across translation units only. -->
+    <ClCompile Include="D3DWorkProfile.cpp"><WholeProgramOptimization>true</WholeProgramOptimization></ClCompile>
+    <ClCompile Include="VrPoseMath.cpp"><WholeProgramOptimization>true</WholeProgramOptimization></ClCompile>
+    <ClCompile Include="VrSettings.cpp"><WholeProgramOptimization>true</WholeProgramOptimization></ClCompile>
+    <ClCompile Include="LiveSettings.cpp"><WholeProgramOptimization>true</WholeProgramOptimization></ClCompile>
+    <ClCompile Include="VrSettingsMenu.cpp"><WholeProgramOptimization>true</WholeProgramOptimization></ClCompile>
+    <ClCompile Include="XrSessionClient.cpp"><WholeProgramOptimization>true</WholeProgramOptimization></ClCompile>
+    <ClCompile Include="HudCapture.cpp"><WholeProgramOptimization>true</WholeProgramOptimization></ClCompile>
+    <ClCompile Include="Bf2Adapter.cpp" />
+    <ClCompile Include="CleanVR.cpp"><WholeProgramOptimization>true</WholeProgramOptimization></ClCompile>
+    <ClCompile Include="ControllerInput.cpp"><WholeProgramOptimization>true</WholeProgramOptimization></ClCompile>
+    <ClCompile Include="ReloadAudio.cpp"><WholeProgramOptimization>true</WholeProgramOptimization></ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="Refractor.h" />
+    <ClInclude Include="BF2Classes.h" />
+    <ClInclude Include="BF2Stl.h" />
+    <ClInclude Include="bs\easy_bind.h" />
+    <ClInclude Include="bs\ebool.h" />
+    <ClInclude Include="bs\function_traits.h" />
+    <ClInclude Include="bs\lexical_cast.h" />
+    <ClInclude Include="bs\profile.h" />
+    <ClInclude Include="bs\string.h" />
+    <ClInclude Include="bs\string_functor.h" />
+    <ClInclude Include="bs\union_cast.h" />
+    <ClInclude Include="bs\utilities.h" />
+    <ClInclude Include="bs\vectors.h" />
+    <ClInclude Include="bs\vtable_hook.h" />
+    <ClInclude Include="bs\window.h" />
+    <ClInclude Include="HookedDirect3D9.h" />
+    <ClInclude Include="HookedDirect3DDevice9.h" />
+    <ClInclude Include="IAT.h" />
+    <ClInclude Include="ShaderHook.h" />
+    <ClInclude Include="VrPoseMath.h" />
+    <ClInclude Include="VrSettings.h" />
+    <ClInclude Include="LiveSettings.h" />
+    <ClInclude Include="LiveSettingsCatalog.inl" />
+    <ClInclude Include="VrSettingsMenu.h" />
+    <ClInclude Include="XrSessionClient.h" />
+    <ClInclude Include="HudCapture.h" />
+    <ClInclude Include="GunCrosshair.inl" />
+    <ClInclude Include="GunCrosshairDraw.inl" />
+    <ClInclude Include="GunScope.inl" />
+    <ClInclude Include="GunScopeCamera.inl" />
+    <ClInclude Include="GunScopeDraw.inl" />
+    <ClInclude Include="GunScopeShader.inl" />
+    <None Include="GunScope.hlsl" />
+    <ClInclude Include="Bf2Adapter.h" />
+    <ClInclude Include="AircraftProfiles.inl" />
+    <ClInclude Include="CleanVR.h" />
+    <ClInclude Include="D3DWorkProfile.h" />
+    <ClInclude Include="FrameTiming.h" />
+    <ClInclude Include="ControllerInput.h" />
+    <ClInclude Include="ReloadAudio.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="bs\vtable_counter.inc" />
+    <None Include="VehicleProfiles.inl" />
+    <None Include="GpuTiming.inl" />
+    <None Include="IdlePump.inl" />
+    <None Include="ManualReload.inl" />
+    <None Include="ReloadProfiles.inl" />
+    <None Include="ReloadContacts.inl" />
+    <None Include="ReloadGripRefinements.inl" />
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="ReloadAudio.rc" />
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>

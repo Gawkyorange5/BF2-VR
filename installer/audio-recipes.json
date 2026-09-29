@@ -1,0 +1,1162 @@
+[
+  {
+    "id": 1100,
+    "weapon": "usrif_m16a2",
+    "entry": "weapons/handheld/usrif_m4/sounds/stereo/m4_reload.wav",
+    "start": 11755,
+    "count": 3386,
+    "gain": 0.62,
+    "gainFirst": false,
+    "sha256": "245a7762a2687b57a20d2a8c2235ab475d33f536c5b38556dc4d52a075f9469d"
+  },
+  {
+    "id": 1101,
+    "weapon": "usrif_m16a2",
+    "entry": "weapons/handheld/usrif_m4/sounds/stereo/m4_reload.wav",
+    "start": 31810,
+    "count": 6557,
+    "gain": 0.62,
+    "gainFirst": false,
+    "sha256": "e56981a84f41871fd9fde0b3fd43707bfe0ac397319481f370a4d6b33e9e7074"
+  },
+  {
+    "id": 1102,
+    "weapon": "usrif_m16a2",
+    "entry": "weapons/handheld/usrif_m4/sounds/stereo/m4_reload.wav",
+    "start": 62102,
+    "count": 4037,
+    "gain": 0.62,
+    "gainFirst": false,
+    "sha256": "641359a3e91b593357dfae419e1216a0a2d6f2666be43c07a3df65bf8cf49d43"
+  },
+  {
+    "id": 1103,
+    "weapon": "usrif_m16a2",
+    "entry": "weapons/handheld/usrif_m4/sounds/stereo/m4_reload.wav",
+    "start": 66991,
+    "count": 2735,
+    "gain": 0.62,
+    "gainFirst": false,
+    "sha256": "82e351426c89cf87f0a9432d26b54a033cd83b3512b6333df3115a187e8794c4"
+  },
+  {
+    "id": 1104,
+    "weapon": "usrif_m203",
+    "entry": "weapons/handheld/usrif_m4/sounds/stereo/m4_reload.wav",
+    "start": 11755,
+    "count": 3386,
+    "gain": 0.6,
+    "gainFirst": false,
+    "sha256": "620c9bf8bfced889e7be4c4b92c66c66db0c098dbdd55d6e3d7c3c1b2272258d"
+  },
+  {
+    "id": 1105,
+    "weapon": "usrif_m203",
+    "entry": "weapons/handheld/usrif_m4/sounds/stereo/m4_reload.wav",
+    "start": 31810,
+    "count": 6557,
+    "gain": 0.6,
+    "gainFirst": false,
+    "sha256": "33126907669c81ab1984d32a8eefeae8a3908d132a79324927248c56ea1f0d89"
+  },
+  {
+    "id": 1106,
+    "weapon": "usrif_m203",
+    "entry": "weapons/handheld/usrif_m4/sounds/stereo/m4_reload.wav",
+    "start": 62102,
+    "count": 4037,
+    "gain": 0.6,
+    "gainFirst": false,
+    "sha256": "c9bd3d181647fdc3f0d659ff9c4d12458420f90971c986e21a14398cd4cb9688"
+  },
+  {
+    "id": 1107,
+    "weapon": "usrif_m203",
+    "entry": "weapons/handheld/usrif_m4/sounds/stereo/m4_reload.wav",
+    "start": 66991,
+    "count": 2735,
+    "gain": 0.6,
+    "gainFirst": false,
+    "sha256": "9f937bca82be008954140a2a0df33d657531889de3bd1cd69501868c324ffc7d"
+  },
+  {
+    "id": 1108,
+    "weapon": "rurif_ak47",
+    "entry": "weapons/handheld/rurif_ak47/sounds/ak47_reload_1p.wav",
+    "start": 15644,
+    "count": 4201,
+    "gain": 0.67,
+    "gainFirst": false,
+    "sha256": "e6ed9266bc1cced7f8741d5a19bd19d3118db9ca45672b1f3786fe85d1988481"
+  },
+  {
+    "id": 1109,
+    "weapon": "rurif_ak47",
+    "entry": "weapons/handheld/rurif_ak47/sounds/ak47_reload_1p.wav",
+    "start": 48069,
+    "count": 8911,
+    "gain": 0.67,
+    "gainFirst": false,
+    "sha256": "7dbb20f383c738df04570e8abcac1625e5e387aff9ea0a8575b66923d428025f"
+  },
+  {
+    "id": 1110,
+    "weapon": "rurif_ak47",
+    "entry": "weapons/handheld/rurif_ak47/sounds/ak47_reload_1p.wav",
+    "start": 79057,
+    "count": 2969,
+    "gain": 0.67,
+    "gainFirst": false,
+    "sha256": "fb7b95a532878bc78153a41549c2bb293526446382375d164f54ad58fcdeeeb3"
+  },
+  {
+    "id": 1111,
+    "weapon": "rurif_ak47",
+    "entry": "weapons/handheld/rurif_ak47/sounds/ak47_reload_1p.wav",
+    "start": 82246,
+    "count": 3724,
+    "gain": 0.67,
+    "gainFirst": false,
+    "sha256": "8c8d6ee8a4a57cc655e8aa17503ffa2a96fe1eee18806ffe7ee14dac97fc9067"
+  },
+  {
+    "id": 1112,
+    "weapon": "rurif_gp25",
+    "entry": "weapons/handheld/rurif_ak47/sounds/ak47_reload_1p.wav",
+    "start": 15644,
+    "count": 4201,
+    "gain": 0.67,
+    "gainFirst": false,
+    "sha256": "e6ed9266bc1cced7f8741d5a19bd19d3118db9ca45672b1f3786fe85d1988481"
+  },
+  {
+    "id": 1113,
+    "weapon": "rurif_gp25",
+    "entry": "weapons/handheld/rurif_ak47/sounds/ak47_reload_1p.wav",
+    "start": 48069,
+    "count": 8911,
+    "gain": 0.67,
+    "gainFirst": false,
+    "sha256": "7dbb20f383c738df04570e8abcac1625e5e387aff9ea0a8575b66923d428025f"
+  },
+  {
+    "id": 1114,
+    "weapon": "rurif_gp25",
+    "entry": "weapons/handheld/rurif_ak47/sounds/ak47_reload_1p.wav",
+    "start": 79057,
+    "count": 2969,
+    "gain": 0.67,
+    "gainFirst": false,
+    "sha256": "fb7b95a532878bc78153a41549c2bb293526446382375d164f54ad58fcdeeeb3"
+  },
+  {
+    "id": 1115,
+    "weapon": "rurif_gp25",
+    "entry": "weapons/handheld/rurif_ak47/sounds/ak47_reload_1p.wav",
+    "start": 82246,
+    "count": 3724,
+    "gain": 0.67,
+    "gainFirst": false,
+    "sha256": "8c8d6ee8a4a57cc655e8aa17503ffa2a96fe1eee18806ffe7ee14dac97fc9067"
+  },
+  {
+    "id": 1116,
+    "weapon": "rurif_ak101",
+    "entry": "weapons/handheld/rurif_gp30/sounds/gp30_reload_1p.wav",
+    "start": 13671,
+    "count": 2545,
+    "gain": 0.6,
+    "gainFirst": false,
+    "sha256": "7bbae9b3aed13fc93361ca6153946bb8bc6b01987dbd327b9d551774c4ba7d15"
+  },
+  {
+    "id": 1117,
+    "weapon": "rurif_ak101",
+    "entry": "weapons/handheld/rurif_gp30/sounds/gp30_reload_1p.wav",
+    "start": 55125,
+    "count": 8820,
+    "gain": 0.6,
+    "gainFirst": false,
+    "sha256": "9dcd0cf6cd74c42c208f860cee4125d6cc734396c188094e782ddae88a7e79cf"
+  },
+  {
+    "id": 1118,
+    "weapon": "rurif_ak101",
+    "entry": "weapons/handheld/rurif_gp30/sounds/gp30_reload_1p.wav",
+    "start": 85668,
+    "count": 3193,
+    "gain": 0.6,
+    "gainFirst": false,
+    "sha256": "70843ae8e6fdffa8fe28e3e7dc6f93c4665318998d6fd92339c5cdff8b219bef"
+  },
+  {
+    "id": 1119,
+    "weapon": "rurif_ak101",
+    "entry": "weapons/handheld/rurif_gp30/sounds/gp30_reload_1p.wav",
+    "start": 89082,
+    "count": 5582,
+    "gain": 0.6,
+    "gainFirst": false,
+    "sha256": "332fc5dc6712220fb4328fc027de69513b122f04df59c1b9c3ed384f52a0cec6"
+  },
+  {
+    "id": 1120,
+    "weapon": "rurif_gp30",
+    "entry": "weapons/handheld/rurif_gp30/sounds/gp30_reload_1p.wav",
+    "start": 13671,
+    "count": 2545,
+    "gain": 0.6,
+    "gainFirst": false,
+    "sha256": "7bbae9b3aed13fc93361ca6153946bb8bc6b01987dbd327b9d551774c4ba7d15"
+  },
+  {
+    "id": 1121,
+    "weapon": "rurif_gp30",
+    "entry": "weapons/handheld/rurif_gp30/sounds/gp30_reload_1p.wav",
+    "start": 55125,
+    "count": 8820,
+    "gain": 0.6,
+    "gainFirst": false,
+    "sha256": "9dcd0cf6cd74c42c208f860cee4125d6cc734396c188094e782ddae88a7e79cf"
+  },
+  {
+    "id": 1122,
+    "weapon": "rurif_gp30",
+    "entry": "weapons/handheld/rurif_gp30/sounds/gp30_reload_1p.wav",
+    "start": 85668,
+    "count": 3193,
+    "gain": 0.6,
+    "gainFirst": false,
+    "sha256": "70843ae8e6fdffa8fe28e3e7dc6f93c4665318998d6fd92339c5cdff8b219bef"
+  },
+  {
+    "id": 1123,
+    "weapon": "rurif_gp30",
+    "entry": "weapons/handheld/rurif_gp30/sounds/gp30_reload_1p.wav",
+    "start": 89082,
+    "count": 5582,
+    "gain": 0.6,
+    "gainFirst": false,
+    "sha256": "332fc5dc6712220fb4328fc027de69513b122f04df59c1b9c3ed384f52a0cec6"
+  },
+  {
+    "id": 1124,
+    "weapon": "usrif_g3a3",
+    "entry": "weapons/handheld/usrif_g3a3/sounds/g3a3_reload_1p3p.wav",
+    "start": 28804,
+    "count": 5463,
+    "gain": 0.55,
+    "gainFirst": false,
+    "sha256": "fe1ce84dd49fdb685d79c7a932ecdbf95499a78aa691178fd26cff8ca9ed2e10"
+  },
+  {
+    "id": 1125,
+    "weapon": "usrif_g3a3",
+    "entry": "weapons/handheld/usrif_g3a3/sounds/g3a3_reload_1p3p.wav",
+    "start": 60537,
+    "count": 8240,
+    "gain": 0.55,
+    "gainFirst": false,
+    "sha256": "fb3ca690fd3012917e5016bda8085d386134bd588faf5e512b48a4f4298e5e0a"
+  },
+  {
+    "id": 1126,
+    "weapon": "usrif_g3a3",
+    "entry": "weapons/handheld/usrif_g3a3/sounds/g3a3_reload_1p3p.wav",
+    "start": 13615,
+    "count": 5789,
+    "gain": 0.55,
+    "gainFirst": false,
+    "sha256": "91a09e5a28d1f29bacbac88c12a30f9bc7e61ba9b2d99b2884029b1646ad5f8b"
+  },
+  {
+    "id": 1127,
+    "weapon": "usrif_g3a3",
+    "entry": "weapons/handheld/usrif_g3a3/sounds/g3a3_reload_1p3p.wav",
+    "start": 91192,
+    "count": 3623,
+    "gain": 0.55,
+    "gainFirst": false,
+    "sha256": "9bef1347059ff35e97ffcbae1f29641838d0c355ed64b3e4c5c0765649445414"
+  },
+  {
+    "id": 1128,
+    "weapon": "usrif_sa80",
+    "entry": "weapons/handheld/usrif_sa80/sounds/sa80_1p_reload.wav",
+    "start": 10363,
+    "count": 2532,
+    "gain": 0.65,
+    "gainFirst": false,
+    "sha256": "373222a0b8f2275c4abc80adb3f881a8529f914e2e4781bf505ec308dfa2ae23"
+  },
+  {
+    "id": 1129,
+    "weapon": "usrif_sa80",
+    "entry": "weapons/handheld/usrif_sa80/sounds/sa80_1p_reload.wav",
+    "start": 55073,
+    "count": 4137,
+    "gain": 0.65,
+    "gainFirst": false,
+    "sha256": "ed534527504329066e9540e871b440bb4233c3efccfdb52bc32afb8034aa3586"
+  },
+  {
+    "id": 1130,
+    "weapon": "usrif_sa80",
+    "entry": "",
+    "start": 0,
+    "count": 1,
+    "gain": 0.65,
+    "gainFirst": false,
+    "sha256": "96a296d224f285c67bee93c30f8a309157f0daa35dc5b87e410b78630a09cfc7"
+  },
+  {
+    "id": 1131,
+    "weapon": "usrif_sa80",
+    "entry": "",
+    "start": 0,
+    "count": 1,
+    "gain": 0.65,
+    "gainFirst": false,
+    "sha256": "96a296d224f285c67bee93c30f8a309157f0daa35dc5b87e410b78630a09cfc7"
+  },
+  {
+    "id": 1132,
+    "weapon": "gbrif_sa80a2_l85",
+    "entry": "weapons/handheld/gbrif_sa80a2_l85/sounds/sa80a2_reload1p.wav",
+    "start": 18783,
+    "count": 4149,
+    "gain": 0.65,
+    "gainFirst": false,
+    "sha256": "5f73d867d37e13e4cbbd380c18f75fb9500658df7248f93670e34312f8f6f401"
+  },
+  {
+    "id": 1133,
+    "weapon": "gbrif_sa80a2_l85",
+    "entry": "weapons/handheld/gbrif_sa80a2_l85/sounds/sa80a2_reload1p.wav",
+    "start": 43659,
+    "count": 3326,
+    "gain": 0.65,
+    "gainFirst": false,
+    "sha256": "5d5eb6aaa04d0c84c2fc7843573b7ca05ba069b1e3cea43409d1520d4d1132c4"
+  },
+  {
+    "id": 1134,
+    "weapon": "gbrif_sa80a2_l85",
+    "entry": "",
+    "start": 0,
+    "count": 1,
+    "gain": 0.65,
+    "gainFirst": false,
+    "sha256": "96a296d224f285c67bee93c30f8a309157f0daa35dc5b87e410b78630a09cfc7"
+  },
+  {
+    "id": 1135,
+    "weapon": "gbrif_sa80a2_l85",
+    "entry": "",
+    "start": 0,
+    "count": 1,
+    "gain": 0.65,
+    "gainFirst": false,
+    "sha256": "96a296d224f285c67bee93c30f8a309157f0daa35dc5b87e410b78630a09cfc7"
+  },
+  {
+    "id": 1136,
+    "weapon": "sasrif_g36e",
+    "entry": "weapons/handheld/usrif_g36c/sounds/g36c_reload_1p.wav",
+    "start": 10702,
+    "count": 2969,
+    "gain": 0.7,
+    "gainFirst": false,
+    "sha256": "d1576367041a377e5b3a6515b5567a095795a0e310f2b530787425a143852069"
+  },
+  {
+    "id": 1137,
+    "weapon": "sasrif_g36e",
+    "entry": "weapons/handheld/usrif_g36c/sounds/g36c_reload_1p.wav",
+    "start": 38185,
+    "count": 5474,
+    "gain": 0.7,
+    "gainFirst": false,
+    "sha256": "cb87d6559e64bd467a972e53e0416ba1f46e234bfee7e774cf3f492be9d7d674"
+  },
+  {
+    "id": 1138,
+    "weapon": "sasrif_g36e",
+    "entry": "weapons/handheld/usrif_g36c/sounds/g36c_reload_1p.wav",
+    "start": 71442,
+    "count": 3087,
+    "gain": 0.7,
+    "gainFirst": false,
+    "sha256": "34603f131acf03f8d6fbd854d99aedb62d8e3ef399619f49d186258f3b3f5379"
+  },
+  {
+    "id": 1139,
+    "weapon": "sasrif_g36e",
+    "entry": "weapons/handheld/usrif_g36c/sounds/g36c_reload_1p.wav",
+    "start": 77741,
+    "count": 4164,
+    "gain": 0.7,
+    "gainFirst": false,
+    "sha256": "62a26e087f4db99ac4a64de7d27d7bc1f9a38be228a41bd815cff23d3a38029d"
+  },
+  {
+    "id": 1140,
+    "weapon": "sasrif_fn2000",
+    "entry": "weapons/handheld/sasrif_fn2000/sounds/fn2000_1p_reload.wav",
+    "start": 16334,
+    "count": 1156,
+    "gain": 1.0,
+    "gainFirst": false,
+    "sha256": "4ea94047f5454439119a10a6bd86f938f8eb825284bf574e82c2fde6c2d43acf"
+  },
+  {
+    "id": 1141,
+    "weapon": "sasrif_fn2000",
+    "entry": "weapons/handheld/sasrif_fn2000/sounds/fn2000_1p_reload.wav",
+    "start": 61594,
+    "count": 2451,
+    "gain": 1.0,
+    "gainFirst": false,
+    "sha256": "a9fc964ccda67259649e417240a5ed8fb50f5178ba3229cf4e5d5f842b9b28ec"
+  },
+  {
+    "id": 1142,
+    "weapon": "sasrif_fn2000",
+    "entry": "weapons/handheld/sasrif_fn2000/sounds/fn2000_1p_reload.wav",
+    "start": 82756,
+    "count": 1034,
+    "gain": 1.0,
+    "gainFirst": false,
+    "sha256": "e1cd6b7a73a5f256e1222e1a3327a59d61d6acfa63a76cccf4967b3e94387e89"
+  },
+  {
+    "id": 1143,
+    "weapon": "sasrif_fn2000",
+    "entry": "weapons/handheld/sasrif_fn2000/sounds/fn2000_1p_reload.wav",
+    "start": 83900,
+    "count": 1766,
+    "gain": 1.0,
+    "gainFirst": false,
+    "sha256": "fc240140fc87d5f6984c6cd58a1d9656448db252e3735a4b7ca6c5956ee82e16"
+  },
+  {
+    "id": 1144,
+    "weapon": "eurif_famas",
+    "entry": "weapons/handheld/eurif_famas/sounds/famas_reload1p.wav",
+    "start": 18614,
+    "count": 1193,
+    "gain": 0.7,
+    "gainFirst": false,
+    "sha256": "31f1c3c0c92be9281e5ade76321fb372e389e55017390664886919c6f4ab6178"
+  },
+  {
+    "id": 1145,
+    "weapon": "eurif_famas",
+    "entry": "weapons/handheld/eurif_famas/sounds/famas_reload1p.wav",
+    "start": 38169,
+    "count": 3162,
+    "gain": 0.7,
+    "gainFirst": false,
+    "sha256": "c360439b83cd271a3064a862d0859b682c3c0aa0ce256adef2bf24f682ef3c8c"
+  },
+  {
+    "id": 1146,
+    "weapon": "eurif_famas",
+    "entry": "weapons/handheld/eurif_famas/sounds/famas_reload1p.wav",
+    "start": 73627,
+    "count": 3107,
+    "gain": 0.7,
+    "gainFirst": false,
+    "sha256": "699b199a31ac9a3833dc6202ba185a67efaedfcadc73a121e5465ac173024ae5"
+  },
+  {
+    "id": 1147,
+    "weapon": "eurif_famas",
+    "entry": "weapons/handheld/eurif_famas/sounds/famas_reload1p.wav",
+    "start": 78728,
+    "count": 3959,
+    "gain": 0.7,
+    "gainFirst": false,
+    "sha256": "d8576ca080ead2477f7da1ce5faf49feb4256d42cf031c123660a0a4e9eeb0ce"
+  },
+  {
+    "id": 1148,
+    "weapon": "usrif_mp5_a3",
+    "entry": "weapons/handheld/usrif_mp5_a3/sounds/mp5_reload_1p.wav",
+    "start": 34618,
+    "count": 2222,
+    "gain": 0.7,
+    "gainFirst": false,
+    "sha256": "a42dfb4b825086d8fbfd1f87e3d4211fbe107651c38ffa0729b2970f199c28c0"
+  },
+  {
+    "id": 1149,
+    "weapon": "usrif_mp5_a3",
+    "entry": "weapons/handheld/usrif_mp5_a3/sounds/mp5_reload_1p.wav",
+    "start": 57710,
+    "count": 4963,
+    "gain": 0.7,
+    "gainFirst": false,
+    "sha256": "15b4799f60d0223e6733f104fa70d3c8cd2be7fec6d0965e575abcb8926395a2"
+  },
+  {
+    "id": 1150,
+    "weapon": "usrif_mp5_a3",
+    "entry": "weapons/handheld/usrif_mp5_a3/sounds/mp5_reload_1p.wav",
+    "start": 12356,
+    "count": 4181,
+    "gain": 0.7,
+    "gainFirst": false,
+    "sha256": "c4feeedf5f9f9d6cbb678bbaff917c1e2e2e300513ee95ee1b444e00dd34502f"
+  },
+  {
+    "id": 1151,
+    "weapon": "usrif_mp5_a3",
+    "entry": "weapons/handheld/usrif_mp5_a3/sounds/mp5_reload_1p.wav",
+    "start": 79656,
+    "count": 4027,
+    "gain": 0.7,
+    "gainFirst": false,
+    "sha256": "d20408aeedc049a92af783f1f1a957c4b913cf692d544a54951ebf2534826e65"
+  },
+  {
+    "id": 1152,
+    "weapon": "rurif_bizon",
+    "entry": "weapons/handheld/rurif_bizon/sounds/bizon_reload_1p_3p.wav",
+    "start": 13450,
+    "count": 5954,
+    "gain": 0.78,
+    "gainFirst": false,
+    "sha256": "446bf2bcb0d9859608063a1d45f3923bb40b23e6e96bedffe8dd9a40b354b217"
+  },
+  {
+    "id": 1153,
+    "weapon": "rurif_bizon",
+    "entry": "weapons/handheld/rurif_bizon/sounds/bizon_reload_1p_3p.wav",
+    "start": 40463,
+    "count": 6503,
+    "gain": 0.78,
+    "gainFirst": false,
+    "sha256": "47848d9c0a144e6846f3d333f4d338df75c0449e7332cd2e9d605b70e556bc3f"
+  },
+  {
+    "id": 1154,
+    "weapon": "rurif_bizon",
+    "entry": "weapons/handheld/rurif_bizon/sounds/bizon_reload_1p_3p.wav",
+    "start": 64565,
+    "count": 3459,
+    "gain": 0.78,
+    "gainFirst": false,
+    "sha256": "393b5f29f928eacd99896917c91b49443d03e8e1ed0cbb8b92f4e5ab385a465b"
+  },
+  {
+    "id": 1155,
+    "weapon": "rurif_bizon",
+    "entry": "weapons/handheld/rurif_bizon/sounds/bizon_reload_1p_3p.wav",
+    "start": 68134,
+    "count": 3308,
+    "gain": 0.78,
+    "gainFirst": false,
+    "sha256": "3130b756e2903bdd25c5e51e3a26de737d727af8a2c1669a05c0c5328aff6f9f"
+  },
+  {
+    "id": 1156,
+    "weapon": "chrif_type85",
+    "entry": "weapons/handheld/chrif_type85/sounds/type85_reload_1p.wav",
+    "start": 3528,
+    "count": 2569,
+    "gain": 0.6,
+    "gainFirst": false,
+    "sha256": "1caf5f3ac77a0669eeb6f2faba1fbd4aab56096e9efac207982a26995842d212"
+  },
+  {
+    "id": 1157,
+    "weapon": "chrif_type85",
+    "entry": "weapons/handheld/chrif_type85/sounds/type85_reload_1p.wav",
+    "start": 27382,
+    "count": 2606,
+    "gain": 0.6,
+    "gainFirst": false,
+    "sha256": "31e0b542711e39420e3e43b3a150fa9436b503db5c06de96e5ef33704c6f2538"
+  },
+  {
+    "id": 1158,
+    "weapon": "chrif_type85",
+    "entry": "weapons/handheld/chrif_type85/sounds/type85_reload_1p.wav",
+    "start": 51886,
+    "count": 3680,
+    "gain": 0.6,
+    "gainFirst": false,
+    "sha256": "64019e1d7228f6014581707abfdfb5da6d5b51f2a649c4d5145cf883e28e8214"
+  },
+  {
+    "id": 1159,
+    "weapon": "chrif_type85",
+    "entry": "weapons/handheld/chrif_type85/sounds/type85_reload_1p.wav",
+    "start": 58135,
+    "count": 2722,
+    "gain": 0.6,
+    "gainFirst": false,
+    "sha256": "aa67854702c75e91da595e7c60d0d0f362210f0cc0bae20c32032bc8745ab3f2"
+  },
+  {
+    "id": 1160,
+    "weapon": "eurif_fnp90",
+    "entry": "weapons/handheld/eurif_fnp90/sounds/fnp_reload_1p.wav",
+    "start": 15105,
+    "count": 771,
+    "gain": 1.0,
+    "gainFirst": false,
+    "sha256": "ee8afd17ab536d5cd13892bc07d937f6cb383ed35196087075c81c6e0387c5fc"
+  },
+  {
+    "id": 1161,
+    "weapon": "eurif_fnp90",
+    "entry": "weapons/handheld/eurif_fnp90/sounds/fnp_reload_1p.wav",
+    "start": 56158,
+    "count": 6170,
+    "gain": 1.0,
+    "gainFirst": false,
+    "sha256": "b693cec45573d20425f36dd5ea737a7da5d99fc2d9eb8111b62c854ce59de00e"
+  },
+  {
+    "id": 1162,
+    "weapon": "eurif_fnp90",
+    "entry": "weapons/handheld/eurif_fnp90/sounds/fnp_reload_1p.wav",
+    "start": 90679,
+    "count": 1931,
+    "gain": 1.0,
+    "gainFirst": false,
+    "sha256": "d99bf6022917aa7eb0954fa6632e53c889204a5c4fb7d229fe4923b9a0924407"
+  },
+  {
+    "id": 1163,
+    "weapon": "eurif_fnp90",
+    "entry": "weapons/handheld/eurif_fnp90/sounds/fnp_reload_1p.wav",
+    "start": 93575,
+    "count": 2122,
+    "gain": 1.0,
+    "gainFirst": false,
+    "sha256": "f128ded1aba0546fa20d85d23798b5898b81bc700d39003e7d5ff2866646b3ac"
+  },
+  {
+    "id": 1164,
+    "weapon": "sasrif_mp7",
+    "entry": "weapons/handheld/sasrif_mp7/sounds/mp7_reload_1p.wav",
+    "start": 6446,
+    "count": 2815,
+    "gain": 1.0,
+    "gainFirst": false,
+    "sha256": "13dab8067a6b32b17707e04e497784bab55d343114a5bd820a26cfe81a846ade"
+  },
+  {
+    "id": 1165,
+    "weapon": "sasrif_mp7",
+    "entry": "weapons/handheld/sasrif_mp7/sounds/mp7_reload_1p.wav",
+    "start": 42935,
+    "count": 4693,
+    "gain": 1.0,
+    "gainFirst": false,
+    "sha256": "e5b32349a9c51911578b89447858ee4e3d9488d93d077751af820fcdbddc1dd3"
+  },
+  {
+    "id": 1166,
+    "weapon": "sasrif_mp7",
+    "entry": "",
+    "start": 0,
+    "count": 1,
+    "gain": 1.0,
+    "gainFirst": false,
+    "sha256": "96a296d224f285c67bee93c30f8a309157f0daa35dc5b87e410b78630a09cfc7"
+  },
+  {
+    "id": 1167,
+    "weapon": "sasrif_mp7",
+    "entry": "",
+    "start": 0,
+    "count": 1,
+    "gain": 1.0,
+    "gainFirst": false,
+    "sha256": "96a296d224f285c67bee93c30f8a309157f0daa35dc5b87e410b78630a09cfc7"
+  },
+  {
+    "id": 1168,
+    "weapon": "rusht_saiga12",
+    "entry": "weapons/handheld/rusht_saiga12/sounds/saiga_reload_1p.wav",
+    "start": 10623,
+    "count": 2650,
+    "gain": 0.6,
+    "gainFirst": false,
+    "sha256": "b72f2112cb9ee84b6c641fb2674b7659fc1ddd24652edbed71425e351e60641f"
+  },
+  {
+    "id": 1169,
+    "weapon": "rusht_saiga12",
+    "entry": "weapons/handheld/rusht_saiga12/sounds/saiga_reload_1p.wav",
+    "start": 34936,
+    "count": 10167,
+    "gain": 0.6,
+    "gainFirst": false,
+    "sha256": "9053b169572a46623b6b520ce495bef9cac9df203bb5bcf17c80dde152e5689c"
+  },
+  {
+    "id": 1170,
+    "weapon": "rusht_saiga12",
+    "entry": "weapons/handheld/rusht_saiga12/sounds/saiga_reload_1p.wav",
+    "start": 61830,
+    "count": 5263,
+    "gain": 0.6,
+    "gainFirst": false,
+    "sha256": "afd12af61bddf52d4ef721726c5baa051a31bddd96670f88e0b489356cff9630"
+  },
+  {
+    "id": 1171,
+    "weapon": "rusht_saiga12",
+    "entry": "weapons/handheld/rusht_saiga12/sounds/saiga_reload_1p.wav",
+    "start": 69457,
+    "count": 4410,
+    "gain": 0.6,
+    "gainFirst": false,
+    "sha256": "e567983e03edf0bd53a6d264aa5c146d0767f830b12f7a34ca78b0e510dec0d1"
+  },
+  {
+    "id": 1172,
+    "weapon": "ussht_jackhammer",
+    "entry": "weapons/handheld/ussht_jackhammer/sounds/reload_1p.wav",
+    "start": 5258,
+    "count": 6643,
+    "gain": 0.43,
+    "gainFirst": false,
+    "sha256": "fce0c2402060ed65db72b9aa2a4c69df21da9eb7bb79dee03964ed20a62a175b"
+  },
+  {
+    "id": 1173,
+    "weapon": "ussht_jackhammer",
+    "entry": "weapons/handheld/ussht_jackhammer/sounds/reload_1p.wav",
+    "start": 81034,
+    "count": 15986,
+    "gain": 0.43,
+    "gainFirst": false,
+    "sha256": "870a27e3ed56ce65006b5cd5c07502b3ca67293ea0e63b38d225609f12a7a1f6"
+  },
+  {
+    "id": 1174,
+    "weapon": "ussht_jackhammer",
+    "entry": "",
+    "start": 0,
+    "count": 1,
+    "gain": 0.43,
+    "gainFirst": false,
+    "sha256": "96a296d224f285c67bee93c30f8a309157f0daa35dc5b87e410b78630a09cfc7"
+  },
+  {
+    "id": 1175,
+    "weapon": "ussht_jackhammer",
+    "entry": "",
+    "start": 0,
+    "count": 1,
+    "gain": 0.43,
+    "gainFirst": false,
+    "sha256": "96a296d224f285c67bee93c30f8a309157f0daa35dc5b87e410b78630a09cfc7"
+  },
+  {
+    "id": 1176,
+    "weapon": "rurif_dragunov",
+    "entry": "weapons/handheld/rurif_dragunov/sounds/dragunov_reload_1p3p.wav",
+    "start": 11798,
+    "count": 2755,
+    "gain": 0.75,
+    "gainFirst": false,
+    "sha256": "4bb819022c59b4242be633ead4ae43b929d8a4916c545ecd6c13841a35d1100b"
+  },
+  {
+    "id": 1177,
+    "weapon": "rurif_dragunov",
+    "entry": "weapons/handheld/rurif_dragunov/sounds/dragunov_reload_1p3p.wav",
+    "start": 31170,
+    "count": 12268,
+    "gain": 0.75,
+    "gainFirst": false,
+    "sha256": "b8be554baaf19d8f10acda525b968149c975a999d304854c9442909f3cc602f8"
+  },
+  {
+    "id": 1178,
+    "weapon": "rurif_dragunov",
+    "entry": "weapons/handheld/rurif_dragunov/sounds/dragunov_reload_1p3p.wav",
+    "start": 69144,
+    "count": 5032,
+    "gain": 0.75,
+    "gainFirst": false,
+    "sha256": "1817aa1b17603386b7aebb12444ebd4b21a212f612f5037a44bd4bfe1e5c0ce1"
+  },
+  {
+    "id": 1179,
+    "weapon": "rurif_dragunov",
+    "entry": "weapons/handheld/rurif_dragunov/sounds/dragunov_reload_1p3p.wav",
+    "start": 77836,
+    "count": 2646,
+    "gain": 0.75,
+    "gainFirst": false,
+    "sha256": "d23a0f472204f4aeab8616c7822fb7d87627b7b00f6a22d8450df3c9835056fc"
+  },
+  {
+    "id": 1180,
+    "weapon": "chsni_type88",
+    "entry": "weapons/handheld/chsni_type88/sounds/type88_reload_1p3p.wav",
+    "start": 11755,
+    "count": 3018,
+    "gain": 0.68,
+    "gainFirst": false,
+    "sha256": "8ff1d60628634382e1f313bea3ad07f557186821ba58aaf50858361f694b0444"
+  },
+  {
+    "id": 1181,
+    "weapon": "chsni_type88",
+    "entry": "weapons/handheld/chsni_type88/sounds/type88_reload_1p3p.wav",
+    "start": 31215,
+    "count": 1860,
+    "gain": 0.68,
+    "gainFirst": false,
+    "sha256": "70d3e2bfa0857ae25991a7e3f488b927c1dd27b44900cca6a244f560fc76abd9"
+  },
+  {
+    "id": 1182,
+    "weapon": "chsni_type88",
+    "entry": "weapons/handheld/chsni_type88/sounds/type88_reload_1p3p.wav",
+    "start": 62230,
+    "count": 3699,
+    "gain": 0.68,
+    "gainFirst": false,
+    "sha256": "684ede3d2231db544bcf6fa5d26648475a43fd13ddc66f837c03763f95a93a16"
+  },
+  {
+    "id": 1183,
+    "weapon": "chsni_type88",
+    "entry": "weapons/handheld/chsni_type88/sounds/type88_reload_1p3p.wav",
+    "start": 66150,
+    "count": 1764,
+    "gain": 0.68,
+    "gainFirst": false,
+    "sha256": "0c7addddba9a72b7dd525f056751c2578ddb88d3888eb9813e6904008c9785d4"
+  },
+  {
+    "id": 1184,
+    "weapon": "chsht_norinco982",
+    "entry": "",
+    "start": 0,
+    "count": 1,
+    "gain": 0.7,
+    "gainFirst": true,
+    "sha256": "96a296d224f285c67bee93c30f8a309157f0daa35dc5b87e410b78630a09cfc7"
+  },
+  {
+    "id": 1185,
+    "weapon": "chsht_norinco982",
+    "entry": "weapons/handheld/chsht_norinco982/sounds/norinco_reload_1p3p_02.wav",
+    "start": 0,
+    "count": 4390,
+    "gain": 0.7,
+    "gainFirst": true,
+    "sha256": "a96efaa2745d04f6c9ea95df88790cc432d39abd2960d776ffd221febbd1ca3b"
+  },
+  {
+    "id": 1186,
+    "weapon": "chsht_norinco982",
+    "entry": "weapons/handheld/chsht_norinco982/sounds/norinco_reload_1p3p_03.wav",
+    "start": 0,
+    "count": 2205,
+    "gain": 0.7,
+    "gainFirst": true,
+    "sha256": "401b717c8a04976ac62a6f914bf6432b82195a8a3b1b534c0ab1839eddef5aca"
+  },
+  {
+    "id": 1187,
+    "weapon": "chsht_norinco982",
+    "entry": "weapons/handheld/chsht_norinco982/sounds/norinco_reload_1p3p_03.wav",
+    "start": 2205,
+    "count": 4681,
+    "gain": 0.7,
+    "gainFirst": true,
+    "sha256": "8b2c653cbf4225eded14beb9d0a5041b73a027df93fa8db03eb4c4a1870000bf"
+  },
+  {
+    "id": 1188,
+    "weapon": "chsht_protecta",
+    "entry": "",
+    "start": 0,
+    "count": 1,
+    "gain": 0.59,
+    "gainFirst": true,
+    "sha256": "96a296d224f285c67bee93c30f8a309157f0daa35dc5b87e410b78630a09cfc7"
+  },
+  {
+    "id": 1189,
+    "weapon": "chsht_protecta",
+    "entry": "weapons/handheld/chsht_protecta/sounds/protecta_reload_1p2.wav",
+    "start": 0,
+    "count": 13230,
+    "gain": 0.59,
+    "gainFirst": true,
+    "sha256": "afd209081257a2c48496d3fd082f9d7f3829e7d401540e761c890fde8d353911"
+  },
+  {
+    "id": 1190,
+    "weapon": "chsht_protecta",
+    "entry": "",
+    "start": 0,
+    "count": 1,
+    "gain": 0.59,
+    "gainFirst": true,
+    "sha256": "96a296d224f285c67bee93c30f8a309157f0daa35dc5b87e410b78630a09cfc7"
+  },
+  {
+    "id": 1191,
+    "weapon": "chsht_protecta",
+    "entry": "",
+    "start": 0,
+    "count": 1,
+    "gain": 0.59,
+    "gainFirst": true,
+    "sha256": "96a296d224f285c67bee93c30f8a309157f0daa35dc5b87e410b78630a09cfc7"
+  },
+  {
+    "id": 1192,
+    "weapon": "gbrif_benelli_m4",
+    "entry": "",
+    "start": 0,
+    "count": 1,
+    "gain": 0.85,
+    "gainFirst": true,
+    "sha256": "96a296d224f285c67bee93c30f8a309157f0daa35dc5b87e410b78630a09cfc7"
+  },
+  {
+    "id": 1193,
+    "weapon": "gbrif_benelli_m4",
+    "entry": "weapons/handheld/gbrif_benelli_m4/sounds/remington_reload_02.wav",
+    "start": 0,
+    "count": 3758,
+    "gain": 0.85,
+    "gainFirst": true,
+    "sha256": "e6f2b64d6ad4c9b12e673153073df8887c94cd3903152dfdda3d0d1a85aa7155"
+  },
+  {
+    "id": 1194,
+    "weapon": "gbrif_benelli_m4",
+    "entry": "",
+    "start": 0,
+    "count": 1,
+    "gain": 0.85,
+    "gainFirst": true,
+    "sha256": "96a296d224f285c67bee93c30f8a309157f0daa35dc5b87e410b78630a09cfc7"
+  },
+  {
+    "id": 1195,
+    "weapon": "gbrif_benelli_m4",
+    "entry": "",
+    "start": 0,
+    "count": 1,
+    "gain": 0.85,
+    "gainFirst": true,
+    "sha256": "96a296d224f285c67bee93c30f8a309157f0daa35dc5b87e410b78630a09cfc7"
+  },
+  {
+    "id": 1196,
+    "weapon": "usrif_remington11-87",
+    "entry": "",
+    "start": 0,
+    "count": 1,
+    "gain": 0.85,
+    "gainFirst": true,
+    "sha256": "96a296d224f285c67bee93c30f8a309157f0daa35dc5b87e410b78630a09cfc7"
+  },
+  {
+    "id": 1197,
+    "weapon": "usrif_remington11-87",
+    "entry": "weapons/handheld/usrif_remington11-87/sounds/remington_reload_02.wav",
+    "start": 0,
+    "count": 3758,
+    "gain": 0.85,
+    "gainFirst": true,
+    "sha256": "e6f2b64d6ad4c9b12e673153073df8887c94cd3903152dfdda3d0d1a85aa7155"
+  },
+  {
+    "id": 1198,
+    "weapon": "usrif_remington11-87",
+    "entry": "weapons/handheld/usrif_remington11-87/sounds/remington_reload_03.wav",
+    "start": 0,
+    "count": 3197,
+    "gain": 0.85,
+    "gainFirst": true,
+    "sha256": "4a5d41706fc8af843634d2f75a7903e8545cd6bc52440f16f8897f6368427e30"
+  },
+  {
+    "id": 1199,
+    "weapon": "usrif_remington11-87",
+    "entry": "weapons/handheld/usrif_remington11-87/sounds/remington_reload_03.wav",
+    "start": 3197,
+    "count": 2888,
+    "gain": 0.85,
+    "gainFirst": true,
+    "sha256": "8e051b34a47c82d63fa21f4e940e8f4dc3cddd52574abd57d2245f3165a464d0"
+  },
+  {
+    "id": 1200,
+    "weapon": "usrif_m24",
+    "entry": "weapons/handheld/usrif_m24/sounds/m24_reload_1p.wav",
+    "start": 45092,
+    "count": 7276,
+    "gain": 0.63,
+    "gainFirst": true,
+    "sha256": "78a3650e2ab4a84266dc898ac691013574ae839e9488836d27c06789a8405c65"
+  },
+  {
+    "id": 1201,
+    "weapon": "usrif_m24",
+    "entry": "weapons/handheld/usrif_m24/sounds/m24_reload_1p.wav",
+    "start": 70008,
+    "count": 8379,
+    "gain": 0.63,
+    "gainFirst": true,
+    "sha256": "f425735ee8f8e6af6db0ef84fdeea8fdde82fa613cdefb9a713ba1100661ffdb"
+  },
+  {
+    "id": 1202,
+    "weapon": "usrif_m24",
+    "entry": "weapons/handheld/usrif_m24/sounds/m24_shift_1p.wav",
+    "start": 8379,
+    "count": 10584,
+    "gain": 0.63,
+    "gainFirst": true,
+    "sha256": "0edcc7e267b0ab60c6885c8da430e6764ac57bbd1e0cdfb34f6319ade097b2b2"
+  },
+  {
+    "id": 1203,
+    "weapon": "usrif_m24",
+    "entry": "weapons/handheld/usrif_m24/sounds/m24_shift_1p.wav",
+    "start": 19845,
+    "count": 10583,
+    "gain": 0.63,
+    "gainFirst": true,
+    "sha256": "85b90489178ed7026ed96b019f88da8acf3e91a501b28b251cb4d64c4c7c1e98"
+  },
+  {
+    "id": 1204,
+    "weapon": "ussni_m95_barret",
+    "entry": "weapons/handheld/ussni_m95_barret/sounds/barrett_1p_reload.wav",
+    "start": 46010,
+    "count": 7277,
+    "gain": 0.75,
+    "gainFirst": true,
+    "sha256": "de18c1f6ba70b8e9e741dbbfa9e2c0004d07ae4c5a4a6dad82b1c33fff73e9bf"
+  },
+  {
+    "id": 1205,
+    "weapon": "ussni_m95_barret",
+    "entry": "weapons/handheld/ussni_m95_barret/sounds/barrett_1p_reload.wav",
+    "start": 71846,
+    "count": 8379,
+    "gain": 0.75,
+    "gainFirst": true,
+    "sha256": "04704bc37dcdda23056b6656af3ac3fd2aef5eadbd010e421dfd787aae761ac7"
+  },
+  {
+    "id": 1206,
+    "weapon": "ussni_m95_barret",
+    "entry": "weapons/handheld/ussni_m95_barret/sounds/barrett_shift_1p.wav",
+    "start": 8379,
+    "count": 10584,
+    "gain": 0.75,
+    "gainFirst": true,
+    "sha256": "e782a405b5e76aaa7d78afcd11eb6d8f4939386d6772ad23daf8efad73b9a7bd"
+  },
+  {
+    "id": 1207,
+    "weapon": "ussni_m95_barret",
+    "entry": "weapons/handheld/ussni_m95_barret/sounds/barrett_shift_1p.wav",
+    "start": 19845,
+    "count": 10583,
+    "gain": 0.75,
+    "gainFirst": true,
+    "sha256": "9b2d4263f2c13f8dd3aad9db1b6057a8772291d01444818adbbf3f93e3d0b52a"
+  },
+  {
+    "id": 1208,
+    "weapon": "gbrif_l96a1",
+    "entry": "weapons/handheld/gbrif_l96a1/sounds/l96a1_reload1p.wav",
+    "start": 37742,
+    "count": 7276,
+    "gain": 0.63,
+    "gainFirst": true,
+    "sha256": "3271f35396a6a1960eabc326ad4cb84fdc6abbd5bd13c43359d2f9a52b68f1f0"
+  },
+  {
+    "id": 1209,
+    "weapon": "gbrif_l96a1",
+    "entry": "weapons/handheld/gbrif_l96a1/sounds/l96a1_reload1p.wav",
+    "start": 58983,
+    "count": 8379,
+    "gain": 0.63,
+    "gainFirst": true,
+    "sha256": "0942263c8f9a20bc500aedd74c028a705fe122438549335bea3b92ade1857ab7"
+  },
+  {
+    "id": 1210,
+    "weapon": "gbrif_l96a1",
+    "entry": "weapons/handheld/gbrif_l96a1/sounds/l96_shift_1p.wav",
+    "start": 8379,
+    "count": 10584,
+    "gain": 0.63,
+    "gainFirst": true,
+    "sha256": "8651ac5aaf00d0127b80b3f040cd41d12fa9f8a713074735401d0300301d1c84"
+  },
+  {
+    "id": 1211,
+    "weapon": "gbrif_l96a1",
+    "entry": "weapons/handheld/gbrif_l96a1/sounds/l96_shift_1p.wav",
+    "start": 19845,
+    "count": 10583,
+    "gain": 0.63,
+    "gainFirst": true,
+    "sha256": "056cd292aedcdd559d499250201a29a4d0d3f7d33d71a2beaea994921fe428b9"
+  },
+  {
+    "id": 1212,
+    "weapon": "usrif_m4",
+    "entry": "weapons/handheld/usrif_m4/sounds/stereo/m4_reload.wav",
+    "start": 10804,
+    "count": 5513,
+    "gain": 0.62,
+    "gainFirst": false,
+    "sha256": "5b6765bb956d59997e6de90aafb1d86ab5d187dcb498dc51b3c040da60862d4e"
+  },
+  {
+    "id": 1213,
+    "weapon": "usrif_m4",
+    "entry": "weapons/handheld/usrif_m4/sounds/stereo/m4_reload.wav",
+    "start": 31531,
+    "count": 8600,
+    "gain": 0.62,
+    "gainFirst": false,
+    "sha256": "ac7830bc3932efd24f32c29874228202327cc225c2fd2242a7729c4ace5786ce"
+  },
+  {
+    "id": 1214,
+    "weapon": "usrif_m4",
+    "entry": "weapons/handheld/usrif_m4/sounds/stereo/m4_reload.wav",
+    "start": 61739,
+    "count": 4631,
+    "gain": 0.62,
+    "gainFirst": false,
+    "sha256": "2ff134b37f93aaa58e00d52ac249c1073ef41c45d278794299dc89666f67d259"
+  },
+  {
+    "id": 1215,
+    "weapon": "usrif_m4",
+    "entry": "weapons/handheld/usrif_m4/sounds/stereo/m4_reload.wav",
+    "start": 66480,
+    "count": 4521,
+    "gain": 0.62,
+    "gainFirst": false,
+    "sha256": "0769164954ee73b8315d441d8b5f7fa71f8490ed22cd261700f4310af8d2566e"
+  }
+]

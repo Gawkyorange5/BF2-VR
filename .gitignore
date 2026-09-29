@@ -1,0 +1,15 @@
+build/
+obj/
+*.pdb
+*.ilk
+*.obj
+*.log
+*.user
+.vs/
+**/reload_audio/
+BF2.exe
+BF2-VR.exe
+*.pcm
+*.wav
+*.mp4
+*.jpg
