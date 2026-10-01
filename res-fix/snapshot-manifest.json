@@ -1,0 +1,144 @@
+{
+  "publishedDate": "2026-10-01",
+  "purpose": "BF2 headset resolution reference for BF2142VR",
+  "sourceSnapshot": "private-r63 resolution files only; no gameplay release",
+  "bf2142Verified": false,
+  "files": [
+    {
+      "path": "reference/RFX/AutoResolution.cpp",
+      "kind": "complete source file; LF line endings",
+      "sourceRevision": "private-r63 (resolution path established in r60/r61)",
+      "sourceRelativePath": "RFX/AutoResolution.cpp",
+      "originalFileSha256": "2a39a8c186cc64ee318b18588ce3f0b6294b99883f5065856a3d0561481f2dc2",
+      "sha256": "9dee063191a7d1377be5529d29ccea99458eff499a431a19947912294fb7bd83"
+    },
+    {
+      "path": "reference/RFX/AutoResolution.h",
+      "kind": "complete source file; LF line endings",
+      "sourceRevision": "private-r63 (resolution path established in r60/r61)",
+      "sourceRelativePath": "RFX/AutoResolution.h",
+      "originalFileSha256": "8ed575bd462465dc02e2dcf80e0f8d9c6499c445fb9439b4fd92a30728e60f64",
+      "sha256": "f87943c5d1f177bcc825ec9d9095652316110cee15c237502a2256e19d11d3ae"
+    },
+    {
+      "path": "reference/RFX/RenderWindow.cpp",
+      "kind": "complete source file; LF line endings",
+      "sourceRevision": "private-r63 (resolution path established in r60/r61)",
+      "sourceRelativePath": "RFX/RenderWindow.cpp",
+      "originalFileSha256": "211030724a230d78a8edd1457090c5efcc97369b530cbfc0fdbe82ad6edfc2d3",
+      "sha256": "211030724a230d78a8edd1457090c5efcc97369b530cbfc0fdbe82ad6edfc2d3"
+    },
+    {
+      "path": "reference/RFX/RenderWindow.h",
+      "kind": "complete source file; LF line endings",
+      "sourceRevision": "private-r63 (resolution path established in r60/r61)",
+      "sourceRelativePath": "RFX/RenderWindow.h",
+      "originalFileSha256": "a9a334ea2bc0553a8c0b5e5623d62e069eb062e030e8af94aed9ad6971f380b3",
+      "sha256": "a9a334ea2bc0553a8c0b5e5623d62e069eb062e030e8af94aed9ad6971f380b3"
+    },
+    {
+      "path": "reference/tools/VrResolution.cs",
+      "kind": "complete source file; LF line endings",
+      "sourceRevision": "private-r63 (resolution path established in r60/r61)",
+      "sourceRelativePath": "tools/VrResolution.cs",
+      "originalFileSha256": "32639a4e7b473f57442cfd6f2e498a29a4627305d34ee31e6117351e5bc8169e",
+      "sha256": "dd24391b7f0aa5bde5c5999097822bd5be4f2d30c3754296464e4a1e810d1119"
+    },
+    {
+      "path": "reference/tools/VrResolutionPlan.cs",
+      "kind": "complete source file; LF line endings",
+      "sourceRevision": "private-r63 (resolution path established in r60/r61)",
+      "sourceRelativePath": "tools/VrResolutionPlan.cs",
+      "originalFileSha256": "e06ebf01ef7962ab3d3ae052ffbe096adfa80fb32839fc8735b0dfe3cbf3d110",
+      "sha256": "e06ebf01ef7962ab3d3ae052ffbe096adfa80fb32839fc8735b0dfe3cbf3d110"
+    },
+    {
+      "path": "reference/installer/ResolutionChoice.cs",
+      "kind": "complete source file; LF line endings",
+      "sourceRevision": "private-r63 installer preference helper",
+      "sourceRelativePath": "installer/ResolutionChoice.cs",
+      "originalFileSha256": "79216e6ab52951a754e85ebe1b7c658d1ff7b33731079f6d52f3d1b5c1d9855f",
+      "sha256": "79216e6ab52951a754e85ebe1b7c658d1ff7b33731079f6d52f3d1b5c1d9855f"
+    },
+    {
+      "path": "reference/integration/OpenXRAbiChecks.excerpts.cpp",
+      "kind": "verbatim source excerpts with headings",
+      "sourceRevision": "private-r63",
+      "origins": [
+        {
+          "sourceRelativePath": "RFX/XrSessionClient.cpp",
+          "startLine": 16,
+          "endLine": 22,
+          "sha256Utf8Excerpt": "bcb384ad3521e6c688e979f515810f8a4bb686f0d18e11c73b280e8e3cf5cf28"
+        }
+      ],
+      "sha256": "029dc3872d3d4a557fac0d8add0e89d61542fc37049921a058f23a406cb77cb7"
+    },
+    {
+      "path": "reference/integration/ProbeEntryPoint.excerpts.cs",
+      "kind": "verbatim source excerpts with headings",
+      "sourceRevision": "private-r63",
+      "origins": [
+        {
+          "sourceRelativePath": "tools/VrSettingsApp.cs",
+          "startLine": 15,
+          "endLine": 22,
+          "sha256Utf8Excerpt": "8d77b7751196c8e723b255717fc0abcc949e6f00d72bf38e9d71457bc3d6d69a"
+        }
+      ],
+      "sha256": "05309dc8a51ef0772447f6caea8a4d237807cc3742625f09780dab1dab4fd650"
+    },
+    {
+      "path": "reference/integration/RuntimeSizing.excerpts.cpp",
+      "kind": "verbatim source excerpts with headings",
+      "sourceRevision": "private-r63",
+      "origins": [
+        {
+          "sourceRelativePath": "RFX/XrSessionClient.cpp",
+          "startLine": 264,
+          "endLine": 278,
+          "sha256Utf8Excerpt": "8bc5d0b51fabeeee6d17d2f451bb6364f3f588d5621de41e09139b05bfa1ba9d"
+        },
+        {
+          "sourceRelativePath": "RFX/XrSessionClient.cpp",
+          "startLine": 337,
+          "endLine": 369,
+          "sha256Utf8Excerpt": "cfacb0264c38972f9b448287e87d102f8311c1bc9b030f28efbb1f3e7a41b420"
+        }
+      ],
+      "sha256": "27120ec9619e0207022ecdf8214eac2b885e981faddb3f10018dd5434f83d88b"
+    },
+    {
+      "path": "reference/integration/DesktopPresentation.excerpts.cpp",
+      "kind": "verbatim source excerpts with headings",
+      "sourceRevision": "private-r63",
+      "origins": [
+        {
+          "sourceRelativePath": "RFX/CleanVR.cpp",
+          "startLine": 130,
+          "endLine": 135,
+          "sha256Utf8Excerpt": "b741ac1769e9db92d4f9d8b4fdb1031fccd2b8a31ee1260cda92f65da6e61f9f"
+        },
+        {
+          "sourceRelativePath": "RFX/CleanVR.cpp",
+          "startLine": 148,
+          "endLine": 158,
+          "sha256Utf8Excerpt": "9486030862cc45ae1279d00b22e77c83ee85bc88dcfce08682362a0644be4156"
+        },
+        {
+          "sourceRelativePath": "RFX/CleanVR.cpp",
+          "startLine": 179,
+          "endLine": 188,
+          "sha256Utf8Excerpt": "136c5ad593c564d4b1d000d6f8833a3f6c855eea2d0b951a8d7807a8ede3ee90"
+        },
+        {
+          "sourceRelativePath": "RFX/CleanVR.cpp",
+          "startLine": 375,
+          "endLine": 398,
+          "sha256Utf8Excerpt": "2d48cbe5f5461035aacd48fa3982610a6343f97557f1c2150eabe6bf57da4c4c"
+        }
+      ],
+      "sha256": "46f83e6cd6d1692c55d5ac3aaaeaf318f730b52c6b3fb007eb4c083a2bdfb56e"
+    }
+  ]
+}
