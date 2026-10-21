@@ -5,6 +5,12 @@ from the private development series. Reverted experiments are not advertised
 as features. The maintainer tested and accepted the public-package candidate.
 The final launcher adds `+restart` to skip intro movies.
 
+## Installer revision 2
+
+Public setup choices and descriptions have been cleaned up. The shortcut list
+is labeled as installed mods. This packaging correction preserves the same r134
+gameplay code, controller bindings, settings and `+restart` launch arguments.
+
 ## Bug fixes, not just new features
 
 The sections below include retained fixes as well as additions. For the dedicated
@@ -93,11 +99,10 @@ gadgets; death/respawn and vehicles; installation and compatibility.
 - DZB2 Stinger/Javelin sight, targeting HUD and native lock-on behavior/audio support.
 - Javelin alternate-template motion support, left support handle, and sight alignment fixes.
 - DZB2 laptop family motion controls with handle alignment, active deployment, and
-  post-throw arm-state fixes. Survival laptop aliases and enter-to-activate logic retained.
+  post-throw arm-state fixes.
 - Active throws for profiled DZB2 mines/explosives, smoke/black grenades, beacon,
   sensor and grapple, plus relevant hand-alignment fixes.
 - Compatible original-DZB2 launcher included, with local shader compatibility preparation.
-- Survival's existing aliases and runtime integrations remain in the shared DLL.
 
 ## Rendering, installation and retained optimizations
 
@@ -124,4 +129,4 @@ gadgets; death/respawn and vehicles; installation and compatibility.
 - Physical crouch/prone, physical steering wheels/flight controls and independent
   dual-wield equipment are not part of this release. Crouch/prone use buttons.
 - Other mods can inherit compatible behavior, but unknown weapons/vehicles may need
-  explicit profiles. DZB2 and Survival game content are separate installations.
+  explicit profiles. DZB2 game content is a separate installation.

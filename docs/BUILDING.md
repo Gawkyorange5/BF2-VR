@@ -12,8 +12,7 @@ launcher. This build does not download or modify a game installation.
 
 ## Runtime source
 
-The source in `src/` is the accepted r134 runtime, including the unified
-Survival integration. Before building, run:
+The source in `src/` is the accepted r134 runtime. Before building, run:
 
     python tools/prepare_audio_placeholders.py
 

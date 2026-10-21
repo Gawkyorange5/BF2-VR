@@ -48,8 +48,9 @@ gameplay works. Setup does not download game executables or the hotfix.
    Video.con, progress or player name. Existing working controls can be retained
    by clearing this checkbox. Other custom keyboard bindings will be replaced
    if you enable it.
-5. Choose the shortcut's game/mod. The usual choice is **bf2**. Choosing DZB2
-   makes the shortcut use its compatibility launcher.
+5. Choose an already installed game/mod for the shortcut. The usual choice
+   is **bf2**. Choosing DZB2 uses its compatibility launcher. This list does
+   not install any additional game content.
 6. Choose a render mode:
    - **Keep current**: retain your existing mode. New installs default to
      automatic headset resolution.
@@ -117,11 +118,6 @@ the main game's INI, the launcher copies that changed INI on the next launch
 and backs up the previous DZB2 INI alongside it. BF2's Documents graphics profile
 is shared; the launcher does not reset your graphics settings.
 
-The same r134 code retains Survival's weapon aliases, laptop deployment and
-activation support. This release does not install, replace or modify Survival
-scripts, maps, loadouts or progression. Launch Survival using its existing
-configured launcher. The DZB2 command specifically selects `mods/DZB2`.
-
 ## Steam edition
 
 The optional loader uses **the original BF2.exe through Steam**, avoiding the
@@ -142,7 +138,7 @@ Steam launch also loads VR; use restoration to return to your prior setup.
 Run this Setup over public v1.0.0 or the accepted private r134. Keep current
 resolution and leave controller bindings unchecked to retain your existing
 preferences. The installer refuses an unknown/newer runtime so it cannot
-silently overwrite newer Survival DLL work.
+silently overwrite a newer custom DLL build.
 
 The `.bf2-vr` folder contains the current install journal and backups. During an
 update, the previous journal is kept in a `.bf2-vr-history-...` folder. Keep both.

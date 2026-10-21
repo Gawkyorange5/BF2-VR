@@ -39,5 +39,4 @@ should apply the included controller profile.
 
 This is a PC VR mod, not a standalone Quest APK. Battlefield 2 and DZB2 assets
 are not included. Setup creates the VR executable from your own BF2.exe and
-generates sound cues from your own installed archives. Original game archives,
-Survival scripts, and the original BF2.exe are not overwritten.
+generates sound cues from your own installed archives. Original game archives, mod scripts, and the original BF2.exe are not overwritten.

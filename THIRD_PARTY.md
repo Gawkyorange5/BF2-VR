@@ -26,13 +26,13 @@ Numerical weapon/seat/mesh-mask profiles describe compatibility with stock asset
 
 OpenXR loader includes JsonCpp (Baptiste Lepilleur and The JsonCpp Authors), with the MIT notice in licenses/JsonCpp-LICENSE.txt. Reference: https://github.com/KhronosGroup/OpenXR-SDK/blob/release-1.1.62/.reuse/dep5 . The public loader has only its local PDB filename metadata sanitized; executable code is unchanged.
 
-## DZB2 and Survival compatibility
+## DZB2 compatibility
 
 DZB2 assets remain a separate installation. The maintainer confirmed permission
 from DZB2's developer for the ongoing project; this package does not redistribute
 DZB2 meshes, textures, animations, sounds, maps or scripts. Numerical profiles
-and template aliases provide VR compatibility. Survival's own assets and scripts
-are not part of this installer.
+and template aliases provide VR compatibility. Mod assets and scripts are not
+part of this installer.
 
 The DZB2 shader helper includes the BF2-specific adapter developed from the
 MIT-licensed BF2142VR shader-memory work. Its existing license notice is retained.

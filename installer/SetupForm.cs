@@ -13,14 +13,14 @@ namespace BF2VR {
   CheckBox bindings=new CheckBox(),shortcut=new CheckBox(),ready=new CheckBox(),steam=new CheckBox();Button install=new Button(),remove=new Button(),browse=new Button();
   Label status=new Label();bool busy;
   public SetupForm(){
-   Text="BF2-VR Setup · v1.1.0 · r134";ClientSize=new Size(730,780);MinimumSize=Size;StartPosition=FormStartPosition.CenterScreen;Font=new Font("Segoe UI",10);AutoScaleMode=AutoScaleMode.Dpi;
+   Text="BF2-VR Setup · v1.1.0 · installer rev 2 · r134";ClientSize=new Size(730,780);MinimumSize=Size;StartPosition=FormStartPosition.CenterScreen;Font=new Font("Segoe UI",10);AutoScaleMode=AutoScaleMode.Dpi;
    var title=new Label{Text="Battlefield 2 VR",Font=new Font("Segoe UI",20,FontStyle.Bold),AutoSize=true,Location=new Point(20,15)};Controls.Add(title);
    AddText("1. Patch BF2 to 1.5 and play a map successfully flat-screen first.\n2. Connect your headset and select its OpenXR runtime.\n3. Close BF2, select the game folder and your profile, then install.",20,65,690,70);
    AddText("Battlefield 2 folder (contains BF2.exe)",20,143,600,25);folder.SetBounds(20,171,595,28);Controls.Add(folder);browse.Text="Browse…";browse.SetBounds(625,169,85,30);Controls.Add(browse);
    browse.Click+=delegate{using(var d=new FolderBrowserDialog{Description="Choose the Battlefield 2 game folder",SelectedPath=folder.Text})if(d.ShowDialog()==DialogResult.OK){folder.Text=d.SelectedPath;RefreshMods();}};
    AddText("BF2 profile for controller bindings",20,210,310,25);profile.SetBounds(20,238,310,30);profile.DropDownStyle=ComboBoxStyle.DropDownList;Controls.Add(profile);
    foreach(string p in InstallEngine.Profiles())profile.Items.Add(Path.GetFileName(p));if(profile.Items.Count>0)profile.SelectedIndex=0;
-   AddText("Desktop shortcut game/mod",365,210,340,25);mod.SetBounds(365,238,345,30);mod.DropDownStyle=ComboBoxStyle.DropDownList;Controls.Add(mod);
+   AddText("Desktop shortcut (installed mods)",365,210,340,25);mod.SetBounds(365,238,345,30);mod.DropDownStyle=ComboBoxStyle.DropDownList;Controls.Add(mod);
    bindings.Text="Apply recommended controller bindings (backs up Controls.con)";bindings.Checked=profile.Items.Count>0;bindings.SetBounds(20,281,690,27);Controls.Add(bindings);
    shortcut.Text="Create a Battlefield 2 VR desktop shortcut";shortcut.Checked=true;shortcut.SetBounds(20,312,690,27);Controls.Add(shortcut);
    ready.Text="My game is patched to 1.5 and I have played a map flat-screen successfully.";ready.SetBounds(20,347,690,28);Controls.Add(ready);
@@ -40,7 +40,7 @@ namespace BF2VR {
   }
   void AddText(string text,int x,int y,int w,int h){Controls.Add(new Label{Text=text,Location=new Point(x,y),Size=new Size(w,h)});}
   void Append(string text){if(InvokeRequired){Invoke(new Action<string>(Append),text);return;}log.AppendText(text+Environment.NewLine);}
-  void RefreshMods(){string previous=mod.Text;mod.Items.Clear();string d=Path.Combine(folder.Text,"mods");if(Directory.Exists(d))foreach(string p in Directory.GetDirectories(d))if(File.Exists(Path.Combine(p,"init.con")))mod.Items.Add(Path.GetFileName(p));if(mod.Items.Contains(previous))mod.SelectedItem=previous;else if(mod.Items.Contains("bf2"))mod.SelectedItem="bf2";else if(mod.Items.Count>0)mod.SelectedIndex=0;}
+  void RefreshMods(){string previous=mod.Text;mod.Items.Clear();string d=Path.Combine(folder.Text,"mods");if(Directory.Exists(d))foreach(string p in Directory.GetDirectories(d))if(File.Exists(Path.Combine(p,"init.con"))&&Path.GetFileName(p).IndexOf("survival",StringComparison.OrdinalIgnoreCase)<0)mod.Items.Add(Path.GetFileName(p));if(mod.Items.Contains(previous))mod.SelectedItem=previous;else if(mod.Items.Contains("bf2"))mod.SelectedItem="bf2";else if(mod.Items.Count>0)mod.SelectedIndex=0;}
   static string FindGame(){foreach(string k in new[]{@"SOFTWARE\EA Games\Battlefield 2",@"SOFTWARE\Electronic Arts\EA Games\Battlefield 2"})using(var key=Registry.LocalMachine.OpenSubKey(k)){var p=key==null?null:key.GetValue("InstallDir") as string;if(p!=null&&File.Exists(Path.Combine(p,"BF2.exe")))return p;}string beside=AppDomain.CurrentDomain.BaseDirectory;return File.Exists(Path.Combine(beside,"BF2.exe"))?beside:"";}
   static string MissingDependencies(string game){var absent=new System.Collections.Generic.List<string>();foreach(string name in new[]{"d3dx9_43.dll","MSVCP140.dll","VCRUNTIME140.dll","MSVCP71.dll","MSVCR71.dll"})if(!File.Exists(Path.Combine(game,name))&&!File.Exists(Path.Combine(Environment.SystemDirectory,name)))absent.Add(name);return String.Join(", ",absent);}
   async Task Run(bool uninstall){string g=folder.Text.Trim();if(!Directory.Exists(g)){MessageBox.Show(this,"Choose an existing Battlefield 2 folder.");return;}

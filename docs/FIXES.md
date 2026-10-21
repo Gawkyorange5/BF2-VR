@@ -69,7 +69,7 @@ headset, graphics driver, or vehicle has been exhaustively tested.
 - Refined defib paddle positions, rubbing/charge timing and revive detection; assisted reach
   supports seated use. DZB2 defib variants use the profiled VR interaction.
 - Corrected laptop handle alignment, stuck arms during holding, and stuck holding poses after
-  release. The original DZB2 laptop family and Survival aliases retain active deployment.
+  release. The original DZB2 laptop family retains active deployment.
 - Corrected the alternate Javelin's stuck arms, support-handle pickup and sight presentation.
 - Restored controller-directed guidance for the profiled SRAW/ERYX/DZB2 guided launchers.
 - Preserved native targeting, lock HUD and sound behavior for supported Stinger/Javelin profiles.

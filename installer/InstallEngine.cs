@@ -59,7 +59,7 @@ namespace BF2VR {
    string installedRuntime=Path.Combine(folder,"RFX.dll");
    if(File.Exists(installedRuntime)){
     string code=new PeImage(File.ReadAllBytes(installedRuntime)).TextHash();
-    if(!new[]{"f824ba53583c621c68533a0c94ef8808d8abcd6d16ab136a32eaa17fcc19ad38","8c500e1b3be73b111525b00f574aa403c1006283caa203589cc3ebb4d10bafe5"}.Contains(code))throw new IOException("The installed VR code is not the approved r134 baseline or public v1.0.0. It may contain newer Survival work. No files changed; merge that build before installing this release.");
+    if(!new[]{"f824ba53583c621c68533a0c94ef8808d8abcd6d16ab136a32eaa17fcc19ad38","8c500e1b3be73b111525b00f574aa403c1006283caa203589cc3ebb4d10bafe5"}.Contains(code))throw new IOException("The installed VR code is not the approved r134 baseline or public v1.0.0. It may contain a newer custom build. No files changed; merge that build before installing this release.");
    }
    if(steam&&File.Exists(Path.Combine(folder,"dinput8.dll"))&&HashFile(Path.Combine(folder,"dinput8.dll"))!=PeImage.Hash(Resource("payload.dinput8.dll")))throw new IOException("Another dinput8.dll loader is already installed. It was not replaced.");
    string stateDir=Path.Combine(folder,StateFolder);string previous=null;
