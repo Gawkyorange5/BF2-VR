@@ -1,6 +1,61 @@
 // Scope replay remains on the D3D9 GPU. The ordinary two-eye atlas transports
 // the composited lens; no scope readback, D3D11 upload or XR layer is added.
 #include "GunScopeShader.inl"
+#include <d3dx9tex.h>
+#include "LauncherArtworkDraw.inl"
+#include "StingerArtwork.inl"
+IDirect3DTexture9* stingerTextures[3]{};bool stingerArtworkAttempted=false;
+void LoadStingerArtwork(){
+    if(stingerArtworkAttempted)return;stingerArtworkAttempted=true;
+    const unsigned char* data[]={stingerStingercrosshairData,stingerLockboxData,stingerLockboxlockedData};
+    const unsigned sizes[]={sizeof(stingerStingercrosshairData),sizeof(stingerLockboxData),sizeof(stingerLockboxlockedData)};
+    for(unsigned i=0;i<3;++i)D3DXCreateTextureFromFileInMemoryEx(device,data[i],sizes[i],D3DX_DEFAULT_NONPOW2,D3DX_DEFAULT_NONPOW2,
+        1,0,D3DFMT_A8R8G8B8,D3DPOOL_MANAGED,D3DX_FILTER_NONE,D3DX_FILTER_NONE,0,nullptr,nullptr,&stingerTextures[i]);
+    Log("STINGER116 native optic artwork loaded=%d,%d,%d",!!stingerTextures[0],!!stingerTextures[1],!!stingerTextures[2]);
+}
+IDirect3DTexture9* launcherRingTexture=nullptr;
+IDirect3DTexture9* launcherReticleTexture=nullptr;
+bool launcherRingAttempted=false;
+void CreateLauncherReticle(){
+    // Reconstruct the permanent black etching: three inward notches and a
+    // hollow centre circle, measured against the stock SRAW/ERYX reference.
+    // Generate once at first use; no per-frame CPU drawing or extra replay.
+    constexpr unsigned size=512;
+    IDirect3DTexture9* texture=nullptr;
+    if(FAILED(device->CreateTexture(size,size,1,0,D3DFMT_A8R8G8B8,D3DPOOL_MANAGED,&texture,nullptr)))return;
+    D3DLOCKED_RECT locked{};
+    if(FAILED(texture->LockRect(0,&locked,nullptr,0))){Release(texture);return;}
+    for(unsigned y=0;y<size;++y){
+        auto* row=reinterpret_cast<DWORD*>(static_cast<BYTE*>(locked.pBits)+y*locked.Pitch);
+        for(unsigned x=0;x<size;++x){
+            const float u=(x+.5f)/size-.5f,v=(y+.5f)/size-.5f;
+            const float radius=std::hypot(u,v);
+            const float notch=std::max(0.f,.034f-std::min(std::abs(v),v<0?std::abs(u):1.f));
+            const float distance=std::min(std::abs(radius-(.320f-notch)),std::abs(radius-.035f));
+            const float alpha=std::max(0.f,std::min(1.f,(.0027f+.5f/size-distance)*size));
+            row[x]=static_cast<DWORD>(alpha*255.f+.5f)<<24;
+        }
+    }
+    const HRESULT hr=texture->UnlockRect(0);
+    if(SUCCEEDED(hr))launcherReticleTexture=texture;else Release(texture);
+    Log("SCOPE97 permanent black SRAW/ERYX reticle created=%d",launcherReticleTexture?1:0);
+}
+void LoadLauncherRing(){
+    if(launcherRingAttempted)return;launcherRingAttempted=true;
+    CreateLauncherReticle();
+    wchar_t path[MAX_PATH]{};const DWORD n=GetModuleFileNameW(nullptr,path,MAX_PATH);
+    if(!n||n>=MAX_PATH)return;
+    wchar_t* slash=wcsrchr(path,L'\\');if(!slash)return;
+    const size_t remaining=MAX_PATH-static_cast<size_t>(slash+1-path);
+    if(wcscpy_s(slash+1,remaining,L"BF2-VR-LauncherLink.tga"))return;
+    HRESULT hr=D3DXCreateTextureFromFileExW(device,path,256,256,1,0,D3DFMT_A8R8G8B8,
+        D3DPOOL_MANAGED,D3DX_FILTER_NONE,D3DX_FILTER_NONE,0,nullptr,nullptr,&launcherRingTexture);
+    // Separate DZB2 installations may not contain the legacy loose TGA.
+    // Carry the same native artwork in the DLL, as for other launcher HUDs.
+    if(!launcherRingTexture)hr=D3DXCreateTextureFromFileInMemoryEx(device,launcherArtConnection,sizeof(launcherArtConnection),
+        256,256,1,0,D3DFMT_A8R8G8B8,D3DPOOL_MANAGED,D3DX_FILTER_NONE,D3DX_FILTER_NONE,0,nullptr,nullptr,&launcherRingTexture);
+    Log("SCOPE96 original BF2 missile-connection artwork loaded=%d hr=%08X",launcherRingTexture?1:0,(unsigned)hr);
+}
 IDirect3DTexture9* gunScopeTexture=nullptr;
 IDirect3DSurface9* gunScopeSurface=nullptr;
 IDirect3DPixelShader9* gunScopeShader=nullptr;
@@ -10,6 +65,9 @@ bool gunScopeCaptured=false;
 ULONGLONG gunScopeRetryAfter=0;
 unsigned gunScopeReplayFailures=0;
 void ResetGunScope(){
+    ResetLauncherArtwork();
+    for(auto& texture:stingerTextures)Release(texture);stingerArtworkAttempted=false;
+    Release(launcherRingTexture);Release(launcherReticleTexture);launcherRingAttempted=false;
     Release(gunScopeSurface);Release(gunScopeTexture);Release(gunScopeShader);Release(gunScopeState);
     gunScopeWidth=gunScopeHeight=0;gunScopeFormat=D3DFMT_UNKNOWN;gunScopeCaptured=false;
     gunScopeRetryAfter=0;gunScopeReplayFailures=0;Engine::ScopeAvailable(true);
@@ -65,22 +123,46 @@ void DrawGunScope(){
     Engine::ScopeView lens{};Mat intoEye{},projection{};Vec eye{};float visibility=0;
     if(!Engine::ScopeEye(lens,intoEye,projection,eye,visibility))return;
     const float relief=lens.center.z-eye.z;if(relief<=.03f)return;
-    struct Vertex{float x,y,z,rhw,u,v,s,t;};Vertex vertices[4];
+    struct Vertex{float x,y,z,rhw,u,v,s,t,a,b;};Vertex vertices[32];
     // The same finite bore zero used to render the telescope.
     const Vec hit=Add(eye,Scale(Sub({0,0,100},eye),relief/(100-eye.z)));
     // Match the wider capture without zooming or enlarging the metal lens.
     const float scale=lens.relief/(relief*lens.coverage);
+    const bool drawnPose=lens.reflex||Length(Position(lens.aperture))>.001f;
+    const Mat captureInverse=Inverse(lens.camera);
     const float corners[4][2]={{-1,-1},{-1,1},{1,-1},{1,1}};
-    for(int i=0;i<4;++i){
-        const float u=corners[i][0],v=corners[i][1];
+    const unsigned count=lens.geometry?lens.geometry->count:4;
+    if(count<3||count>32)return;
+    for(unsigned i=0;i<count;++i){
+        const float u=lens.geometry?lens.geometry->outline[i][0]:corners[i][0];
+        const float v=lens.geometry?lens.geometry->outline[i][1]:corners[i][1];
         const Vec local=Add(lens.center,{u*lens.radius,v*lens.radius,0}),p=Point(local,intoEye);
         if(!std::isfinite(p.x+p.y+p.z)||p.z<.018f)return;
         const float x=p.x/p.z*projection.m[0][0]+projection.m[2][0],y=p.y/p.z*projection.m[1][1]+projection.m[2][1];
         if(!std::isfinite(x+y)||std::abs(x)>8||std::abs(y)>8)return;
+        float sceneU=.5f+(local.x-hit.x)/lens.radius*.5f*scale;
+        float sceneV=.5f-(local.y-hit.y)/lens.radius*.5f*scale;
+        float reticleU=(sceneU-.5f)*lens.coverage,reticleV=(sceneV-.5f)*lens.coverage;
+        if(drawnPose){
+            // Reproject the current drawn sight ray into this pair's capture.
+            // Aperture offsets redirect through the bore for angled ERYX glass.
+            // This also keeps 1x scenery aligned when the native pose advances
+            // between the scope replay and the ordinary world/weapon draw.
+            Vec ray={(local.x-hit.x)/(relief*lens.magnification),
+                (local.y-hit.y)/(relief*lens.magnification),1};
+            if(lens.geometry&&!Engine::MeasuredScopeRay(lens,eye,local,ray,reticleU,reticleV))return;
+            const Vec captured=Direction(Direction(ray,lens.bore),captureInverse);
+            if(captured.z<=.05f)return;
+            sceneU=.5f+captured.x/(captured.z*lens.tangent)*.5f;
+            sceneV=.5f-captured.y/(captured.z*lens.tangent)*.5f;
+        }
         vertices[i]={(x+1)*.5f*gunScopeWidth-.5f,(1-y)*.5f*gunScopeHeight-.5f,
-            projection.m[2][2]+projection.m[3][2]/p.z,1/p.z,u,v,
-            .5f+(local.x-hit.x)/lens.radius*.5f*scale,.5f-(local.y-hit.y)/lens.radius*.5f*scale};
+            projection.m[2][2]+projection.m[3][2]/p.z,1/p.z,u,v,sceneU,sceneV,reticleU,reticleV};
     }
+    if(lens.launcher||lens.connectionRing||lens.nativeHud==15)LoadLauncherRing();
+    if(lens.stinger)LoadStingerArtwork();
+    IDirect3DTexture9 *nativeBase=nullptr,*nativeBox=nullptr,*nativeStatus=nullptr;float nativeBoxWidth=.1f;
+    if(lens.nativeHud)LauncherSightTextures(lens,nativeBase,nativeBox,nativeStatus,nativeBoxWidth);
     bool ok=true;if(!gunScopeState)ok=SUCCEEDED(device->CreateStateBlock(D3DSBT_ALL,&gunScopeState));
     if(ok)ok=SUCCEEDED(gunScopeState->Capture());
     if(!ok){ScopeFailure("state capture");return;}
@@ -95,11 +177,26 @@ void DrawGunScope(){
         const auto check=[&](HRESULT hr){ok=SUCCEEDED(hr)&&ok;};
         D3DVIEWPORT9 vp{0,0,gunScopeWidth,gunScopeHeight,0,1};check(device->SetViewport(&vp));
         check(device->SetVertexShader(nullptr));check(device->SetPixelShader(gunScopeShader));
-        check(device->SetFVF(D3DFVF_XYZRHW|D3DFVF_TEX2));check(device->SetStreamSourceFreq(0,1));
+        check(device->SetFVF(D3DFVF_XYZRHW|D3DFVF_TEX3));check(device->SetStreamSourceFreq(0,1));
         check(device->SetTexture(0,gunScopeTexture));
+        check(device->SetTexture(1,lens.stinger?stingerTextures[0]:(lens.launcher||lens.connectionRing)?launcherRingTexture:nullptr));
+        check(device->SetTexture(2,lens.stinger?stingerTextures[lens.seekerLocked?2:1]:(lens.launcher||lens.nativeHud==15)?launcherReticleTexture:nullptr));
+        check(device->SetTexture(3,nativeBase));check(device->SetTexture(4,nativeBox));check(device->SetTexture(5,nativeStatus));
         const float lensPixels=std::min(gunScopeWidth*projection.m[0][0],gunScopeHeight*projection.m[1][1])*lens.radius/relief;
-        const float constants[]={visibility,std::max(.0015f,std::min(.015f,.65f/std::max(1.f,lensPixels))),lens.coverage,0};
+        const float constants[]={visibility,std::max(.0015f,std::min(.015f,.65f/std::max(1.f,lensPixels))),lens.coverage,lens.reflex?1.f:0.f};
         check(device->SetPixelShaderConstantF(0,constants,1));
+        const float native[]={lens.launcher?1.f:0.f,lens.connected&&launcherRingTexture?1.f:0.f,(lens.launcher||lens.nativeHud==15)&&launcherReticleTexture?1.f:0.f,lens.stinger&&stingerTextures[0]?1.f:0.f};
+        check(device->SetPixelShaderConstantF(1,native,1));
+        const Vec target=lens.seekerDirection;
+        const float targetScale=lens.relief*lens.magnification/(2*lens.radius*std::max(.01f,target.z));
+        const bool mark=lens.seekerTracking&&target.z>.1f&&(lens.nativeHud?nativeBox!=nullptr:lens.stinger&&stingerTextures[lens.seekerLocked?2:1]);
+        const float seeker[]={target.x*targetScale,-target.y*targetScale,lens.nativeHud?nativeBoxWidth:(lens.seekerLocked?64.f/190.f:32.f/190.f),mark?1.f:0.f};
+        check(device->SetPixelShaderConstantF(2,seeker,1));
+        const float shape[]={lens.geometry?1.f:0.f,0,0,0};
+        check(device->SetPixelShaderConstantF(3,shape,1));
+        const float custom[]={float(lens.nativeHud),nativeBase?1.f:0.f,lens.seekerLocked?1.f:0.f,nativeStatus?1.f:0.f};
+        const float flags[]={lens.hudHeat?1.f:0.f,lens.hudClip?1.f:0.f,0,0};
+        check(device->SetPixelShaderConstantF(4,custom,1));check(device->SetPixelShaderConstantF(5,flags,1));
         for(auto s:{D3DRS_FOGENABLE,D3DRS_LIGHTING,D3DRS_ZWRITEENABLE,D3DRS_ALPHATESTENABLE,
                    D3DRS_SCISSORTESTENABLE,D3DRS_STENCILENABLE,D3DRS_SRGBWRITEENABLE,
                    D3DRS_ALPHABLENDENABLE,D3DRS_SEPARATEALPHABLENDENABLE})check(device->SetRenderState(s,FALSE));
@@ -111,8 +208,20 @@ void DrawGunScope(){
         check(device->SetSamplerState(0,D3DSAMP_MINFILTER,D3DTEXF_LINEAR));check(device->SetSamplerState(0,D3DSAMP_MAGFILTER,D3DTEXF_LINEAR));
         check(device->SetSamplerState(0,D3DSAMP_MIPFILTER,D3DTEXF_NONE));check(device->SetSamplerState(0,D3DSAMP_SRGBTEXTURE,0));
         check(device->SetSamplerState(0,D3DSAMP_ADDRESSU,D3DTADDRESS_CLAMP));check(device->SetSamplerState(0,D3DSAMP_ADDRESSV,D3DTADDRESS_CLAMP));
-        for(unsigned i=0;i<2;++i){check(device->SetTextureStageState(i,D3DTSS_TEXCOORDINDEX,i));check(device->SetTextureStageState(i,D3DTSS_TEXTURETRANSFORMFLAGS,D3DTTFF_DISABLE));}
-        if(ok)check(device->DrawPrimitiveUP(D3DPT_TRIANGLESTRIP,2,vertices,sizeof(Vertex)));
+        for(unsigned i=0;i<3;++i){check(device->SetTextureStageState(i,D3DTSS_TEXCOORDINDEX,i));check(device->SetTextureStageState(i,D3DTSS_TEXTURETRANSFORMFLAGS,D3DTTFF_DISABLE));}
+        check(device->SetSamplerState(1,D3DSAMP_MINFILTER,D3DTEXF_LINEAR));check(device->SetSamplerState(1,D3DSAMP_MAGFILTER,D3DTEXF_LINEAR));
+        check(device->SetSamplerState(1,D3DSAMP_MIPFILTER,D3DTEXF_NONE));check(device->SetSamplerState(1,D3DSAMP_SRGBTEXTURE,0));
+        check(device->SetSamplerState(1,D3DSAMP_ADDRESSU,D3DTADDRESS_CLAMP));check(device->SetSamplerState(1,D3DSAMP_ADDRESSV,D3DTADDRESS_CLAMP));
+        check(device->SetSamplerState(2,D3DSAMP_MINFILTER,D3DTEXF_LINEAR));check(device->SetSamplerState(2,D3DSAMP_MAGFILTER,D3DTEXF_LINEAR));
+        check(device->SetSamplerState(2,D3DSAMP_MIPFILTER,D3DTEXF_NONE));check(device->SetSamplerState(2,D3DSAMP_SRGBTEXTURE,0));
+        check(device->SetSamplerState(2,D3DSAMP_ADDRESSU,D3DTADDRESS_CLAMP));check(device->SetSamplerState(2,D3DSAMP_ADDRESSV,D3DTADDRESS_CLAMP));
+        for(unsigned i=3;i<6;++i){
+            check(device->SetSamplerState(i,D3DSAMP_MINFILTER,D3DTEXF_LINEAR));check(device->SetSamplerState(i,D3DSAMP_MAGFILTER,D3DTEXF_LINEAR));
+            check(device->SetSamplerState(i,D3DSAMP_MIPFILTER,D3DTEXF_NONE));check(device->SetSamplerState(i,D3DSAMP_SRGBTEXTURE,0));
+            check(device->SetSamplerState(i,D3DSAMP_ADDRESSU,D3DTADDRESS_CLAMP));check(device->SetSamplerState(i,D3DSAMP_ADDRESSV,D3DTADDRESS_CLAMP));
+        }
+        if(ok)check(device->DrawPrimitiveUP(lens.geometry?D3DPT_TRIANGLEFAN:D3DPT_TRIANGLESTRIP,
+            count-2,vertices,sizeof(Vertex)));
         check(device->EndScene());
     }else ok=false;
     if(changed){ok=SUCCEEDED(device->SetRenderTarget(0,previous))&&ok;ok=SUCCEEDED(device->SetDepthStencilSurface(depth))&&ok;}

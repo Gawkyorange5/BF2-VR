@@ -1,38 +1,127 @@
-# BF2-VR 1.0.0 — r45 public release
+# BF2-VR v1.1.0 — changes since public v1.0.0 / r45
 
-The first public package of the creator-confirmed r45 OpenXR gameplay baseline.
+Gameplay basis: accepted **r134**. This release gathers the retained changes
+from the private development series. Reverted experiments are not advertised
+as features. The maintainer tested and accepted the public-package candidate.
+The final launcher adds `+restart` to skip intro movies.
 
-## Start here
+## Bug fixes, not just new features
 
-**Patch Battlefield 2 to 1.5 and successfully play a flat-screen match first.** Then download **BF2-VR-Setup.exe**, run it, select your game folder and numbered BF2 profile, and install. Connect the headset and start the **Battlefield 2 VR** shortcut.
+The sections below include retained fixes as well as additions. For the dedicated
+fix list, see [Fixes since the first public release](docs/FIXES.md): movement and
+smooth turning; HUD/crosshairs/optics; gripping and manual reloads; physical
+gadgets; death/respawn and vehicles; installation and compatibility.
 
-[Complete installation instructions](https://github.com/Gawkyorange5/BF2-VR/blob/main/docs/INSTALL.md) · [All controller buttons](https://github.com/Gawkyorange5/BF2-VR/blob/main/docs/CONTROLS.md) · [Supported manual reloads](https://github.com/Gawkyorange5/BF2-VR/blob/main/docs/MANUAL-RELOADS.md)
+## Motion, view and interface
 
-The ZIP contains the same installer plus offline guides and notices. You only need one download. GitHub's automatic source-code archives are for development.
+- Head-directed movement, including sprint, with a menu option.
+- Roomscale body follow through native collision movement and adjustable lean allowance.
+- Snap turning alongside smooth turning; the modes exclude each other.
+- Smooth-turn timing and camera improvements that removed the reported regular stepping.
+- Head-following HUD behavior and correction of the HUD climbing with gun recoil.
+- Vehicle HUD visibility/alpha fixes at headset resolution.
+- Gun-following crosshairs and hit feedback in the original game's color.
+- Fixed flat-screen infantry crosshair leakage for knife, grenade, defibs and other gadgets.
+- Optional gun crosshairs, optional sight proximity hiding, adjustable hiding sensitivity,
+  and shotgun exclusion from sight proximity hiding.
+- Smooth-turn crosshair duplication and stale optic lens fixes.
+- In-headset settings organization, persistent physical-slot adjustment and selected-slot preview.
+- Windowed headset-resolution pointer correction to keep menu clicks inside the game window.
 
-## Included
+## Hands, inventory and gadgets
 
-- OpenXR stereo and motion-controlled weapons, hands and bullet aiming.
-- Full-body or arms-only presentation, smoothing and two-hand weapon support.
-- Manual magazines, shells, pumps and bolts across 29 supported weapon profiles, with interaction sounds and immediate firing after the required steps.
-- Gun-following crosshair, five stock sniper scopes, stereo HUD scale/depth controls.
-- Vehicle head aiming, right-stick adjustment, seat anchoring and aircraft roll/tilt.
-- Controller menu/spawn pointing, locomotion, smooth turning, parachute and vehicle controls.
-- Inside-headset settings and the desktop settings app.
-- A single-file installer with backups and removal/restoration.
+- Adjustable virtual shoulder stock. Turning it off keeps two-hand support with free aim;
+  stock smoothing is available when enabled.
+- Physical body equipment or button-based equipment selection.
+- Hold-grip, toggle-grip and glued-to-hand carry modes; physical slot swaps remain available
+  while glued. Optional empty-handed spawn in physical mode.
+- Simultaneous visible holstered gear, configurable slot positions, and persistent offsets.
+- Gadget 1 on the left shoulder, gadget 2 on the right shoulder, and optional gadget 3
+  behind the head when the kit provides it. Primary right hip, sidearm left hip,
+  grenade right chest and knife at the waistband.
+- Physical throwing with greater release velocity and tumbling for dropped display items;
+  ordinary dropped gear returns to its slot. Supported deployables use native active objects.
+- Active physical grenade, medkit, ammo, C4, mine and claymore release paths.
+- Optional grenade cooking and corrected pin-sound timing.
+- C4 block/detonator handling, off-hand detonator placement and lifecycle fixes.
+- Physical knife stabs/swings and throwing-knife hits.
+- Two physical defib paddles, deliberate rubbing charge, whole-body revive detection,
+  and an optional assisted reach mode for seated play.
+- Medkit/ammo/grenade/knife wrist and item alignment corrections.
+- Physical shoulder radio: right hand near the left shoulder, hold right trigger,
+  make a small directional selection, release to choose. Menu-style pointer feedback;
+  infantry and supported vehicle radio remain in stereo.
+- Ladder acquisition corrections and crouch toggle/button layout changes.
+- Optional arms-out airborne wingsuit glide; parachute still needed for a safe landing.
 
-**Tap both stick clicks to recenter; hold both to open VR settings.** Left menu button tap opens the kit screen; hold opens pause.
+## Manual reloading
 
-SteamVR is not required with a compatible 32-bit OpenXR runtime such as VDXR. No game executable or game media is distributed: Setup builds a separate VR launcher from your own executable and creates reload sound cues from your installed game files. The original BF2.exe is retained.
+- **189 reload profiles** across stock and DZB2 weapons, including aliases and the XM25.
+  Coverage expanded through SMGs, assault rifles, LMGs, snipers, shotguns and pistols.
+- Native magazine/handle contacts, detachable magazines, shells, pumps, bolt actions,
+  LMG cover/belt interactions and revolver speed loaders where profiled.
+- B ejects supported pistol/MP7 magazines in manual mode; G18 also permits a physical pull.
+- Manual reload on/off option. B performs normal reload with manual mode off;
+  manual mode prevents ordinary automatic empty-magazine reloads. Vehicle reload unchanged.
+- Optional magwell alignment guide, stable seating and corrected completion-animation behavior.
+- Partial reload charging behavior and reinserting the same magazine corrected.
+- Weapon-specific magazine grips, speed-loader grips and drum alignment refinements.
+- Action-timed audio reconstructed locally, expanded from 116 to **822 resources**
+  including reload, pin and targeting cues. No game audio is bundled in the public download.
 
-## Verification and current limits
+## Death views and vehicles
 
-Isolated install, rollback, profile/shortcut and uninstall checks passed. All 116 reconstructed reload cues match the r45 baseline exactly, and a native x86 probe loaded RFX at process startup and installed all three expected hooks. Gameplay code matches r45. See [verification details](https://github.com/Gawkyorange5/BF2-VR/blob/main/docs/VERIFICATION.md).
+- Optional on-foot helmet death view following the downed body, with looser arms/body,
+  terrain-clearance fixes, kit-menu suicide handling and respawn-flow correction.
+- Separate optional vehicle helmet death view following a crash's roll from the seat.
+  Native wreck disappearance still limits how long the cockpit can remain visible.
+- Land-vehicle attitude follows the chassis, with role-specific HUD/view handling.
+- Expanded seat classification and flight controls for DZB2 factions, tanks/APCs,
+  helicopters, jets, mounted guns and remote gunner systems.
+- Head aiming for supported tank/turret/gunner seats and APC wire-missile guidance profiles.
+- Right-stick look-around support in transport drivers, vehicle left-grip weapon switching,
+  and hold-Y **CHANGE SEATS** wheel requesting F1–F8.
+- Upright tilted seat-wheel presentation and fixes for missing panel rendering.
+- Audited personal-weapon passenger seats automatically hold the gun in the right hand;
+  left grip supports it and right grip remains exit.
 
-A full BF2 match under the new launcher filename has not yet been verified. The established headset setup is Quest 3 / Touch-style controllers / VDXR. Other installations need compatibility feedback. AK support-arm poses still need refinement. Frame rate depends on the system, scene, graphics settings and runtime; no fixed FPS is promised.
+## Sights and DZB2 support
 
-## Planned next work
+- Expanded physical rifle/sniper optics, 1x reflex/red dots and launcher optics.
+- SRAW/ERYX native reticle and firing/guidance indicators, controller-directed guidance,
+  and separate adjustable launcher magnification.
+- DZB2 Stinger/Javelin sight, targeting HUD and native lock-on behavior/audio support.
+- Javelin alternate-template motion support, left support handle, and sight alignment fixes.
+- DZB2 laptop family motion controls with handle alignment, active deployment, and
+  post-throw arm-state fixes. Survival laptop aliases and enter-to-activate logic retained.
+- Active throws for profiled DZB2 mines/explosives, smoke/black grenades, beacon,
+  sensor and grapple, plus relevant hand-alignment fixes.
+- Compatible original-DZB2 launcher included, with local shader compatibility preparation.
+- Survival's existing aliases and runtime integrations remain in the shared DLL.
 
-LMG manual reloads; physical weapon/gadget slots; physical crouch/prone; infantry launcher scopes; physical gadget actions; throwing medkits, ammo boxes and grenades; physical defibrillator interactions.
+## Rendering, installation and retained optimizations
 
-Credits and third-party licensing are included in the repository and offline guide.
+- Automatic OpenXR-recommended per-eye rendering, game-resolution alternative,
+  and custom percentage setting; existing preferences survive installation.
+- Compatibility handling for shared/transferred images and discrete-GPU reports.
+- Retained HUD-pass/transfer, menu lookup and reload/body filtering improvements.
+  The rejected later body-rendering cache and abandoned renderer experiments are excluded.
+- Supported 1.5 code identification, explicit pre-hotfix DVD guidance, optional Steam
+  original-executable loader, and a separate large-address-aware VR executable.
+- Transactional install/update, rollback, protected user edits, and backed-up controls.
+- Clean public packaging preserves r134 code and rebuilds sounds from local assets.
+
+## Known limits and future work
+
+- Performance varies by hardware, runtime render size, AA, map and mod. No fixed FPS
+  or maximum-settings guarantee is made, and packaging adds no new performance experiment.
+- Use Medium Lighting for the tested DZB2 VR setup. High Lighting froze rendering in
+  prior testing. AC-130/remote-camera freezes remain a reported issue, not a solved claim.
+- Steam and diverse GPUs/headsets still need public testing; a successful installer
+  check does not prove gameplay on every system.
+- Vehicle passengers are supported through audited templates. Their pose can still
+  be imperfect. Wreck models disappearing remains a native game limitation.
+- Physical crouch/prone, physical steering wheels/flight controls and independent
+  dual-wield equipment are not part of this release. Crouch/prone use buttons.
+- Other mods can inherit compatible behavior, but unknown weapons/vehicles may need
+  explicit profiles. DZB2 and Survival game content are separate installations.

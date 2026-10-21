@@ -10,7 +10,6 @@ const Settings& Config(){
     static Settings s;static bool loaded=false;if(loaded)return s;loaded=true;
     char path[MAX_PATH];sprintf_s(path,"%svr_stereo.ini",GamePath());
     s.enabled=GetPrivateProfileIntA("openxr","enable",1,path)!=0;s.srgb=GetPrivateProfileIntA("openxr","srgb",1,path)!=0;s.hands=GetPrivateProfileIntA("hands","enable",1,path)!=0;
-    s.manualReload=GetPrivateProfileIntA("reload","manual",1,path)!=0;
     s.reloadSounds=GetPrivateProfileIntA("reload","sounds",1,path)!=0;
     s.chargingHandle=(int)GetPrivateProfileIntA("reload","charging_handle",1,path);
     if(s.chargingHandle<0||s.chargingHandle>2)s.chargingHandle=1;
@@ -37,26 +36,80 @@ namespace { ULONGLONG tuningLast=0; }
 void InvalidateTuning(){tuningLast=0;}
 TuneSettings Tuning(){
     static TuneSettings s;auto& last=tuningLast;const auto now=GetTickCount64();
-    if(last&&now-last<500)return s;last=now;
+    if(last&&now-last<500)return s;
+    const bool forced=last==0;last=now;
     char path[MAX_PATH];sprintf_s(path,"%svr_stereo.ini",GamePath());
+    // Keep the existing live-edit polling interval, but parse the complete
+    // catalog only after an edit. Menu Apply invalidates this cache explicitly.
+    // On a metadata failure use the original reader, including its defaults.
+    static WIN32_FILE_ATTRIBUTE_DATA previous{};static bool stampValid=false;
+    WIN32_FILE_ATTRIBUTE_DATA stamp{};
+    const bool haveStamp=GetFileAttributesExA(path,GetFileExInfoStandard,&stamp)!=FALSE;
+    const bool unchanged=haveStamp&&stampValid&&
+        CompareFileTime(&stamp.ftLastWriteTime,&previous.ftLastWriteTime)==0&&
+        CompareFileTime(&stamp.ftCreationTime,&previous.ftCreationTime)==0&&
+        stamp.nFileSizeHigh==previous.nFileSizeHigh&&stamp.nFileSizeLow==previous.nFileSizeLow;
+    if(!forced&&unchanged)return s;
+    // Snapshot before reading: an edit during the reads triggers another load
+    // at the next poll instead of being mistaken for an already-loaded version.
+    previous=stamp;stampValid=haveStamp;
     const auto number=[&](const char* section,const char* key,float def,float lo,float hi){
         char d[32],b[32];sprintf_s(d,"%.4f",def);GetPrivateProfileStringA(section,key,d,b,32,path);
         char* end=nullptr;const float f=strtof(b,&end);
         return end!=b&&!*end&&std::isfinite(f)&&f>=lo&&f<=hi?f:def;
     };
-    const bool smooth=GetPrivateProfileIntA("input","smooth_turn",1,path)!=0;
+    s.gpuCompatibility=number("graphics","compatibility",0.f,0.f,2.f);
+    s.adaptiveReadback=GetPrivateProfileIntA("graphics","adaptive_readback",1,path)!=0;
+    s.resolutionMode=number("graphics","resolution_mode",0.f,0.f,2.f);
+    s.eyeResolutionPercent=number("graphics","eye_resolution_percent",100.f,25.f,150.f);
+    s.steamLaunch=GetPrivateProfileIntA("graphics","steam_launch",0,path)!=0;
+    const bool snap=GetPrivateProfileIntA("input","snap_turn",0,path)!=0;
+    const bool smooth=!snap&&GetPrivateProfileIntA("input","smooth_turn",1,path)!=0;
     const float turn=number("input","turn_speed",240.f,10.f,1500.f);
     static bool turnReported=false;
     if(!turnReported||smooth!=s.smoothTurn||turn!=s.turnSpeed){
         turnReported=true;Log("SETTINGS44 live turn smooth=%d speed=%.1f counts/s (%.2fx default)",smooth?1:0,turn,turn/240.f);
     }
     s.smoothTurn=smooth;s.turnSpeed=turn;
+    s.virtualStock=GetPrivateProfileIntA("hands","virtual_stock",1,path)!=0;
+    s.aimSmoothing=GetPrivateProfileIntA("hands","aim_smoothing",1,path)!=0;
+    s.snapTurn=snap;
+    s.snapAngle=number("input","snap_angle",45.f,15.f,90.f);
+    s.hmdMovement=GetPrivateProfileIntA("input","hmd_movement",1,path)!=0;
+    s.roomscale=GetPrivateProfileIntA("input","roomscale",1,path)!=0;
+    s.wingsuit=GetPrivateProfileIntA("input","wingsuit",0,path)!=0;
+    s.roomscaleRadius=number("input","roomscale_radius",.18f,.08f,.5f);
+    s.helmetDeathView=GetPrivateProfileIntA("body","helmet_death_view",1,path)!=0;
+    s.vehicleHelmetDeathView=GetPrivateProfileIntA("vehicle","helmet_death_view",1,path)!=0;
+    s.bodySlots=GetPrivateProfileIntA("inventory","body_slots",1,path)!=0;
+    s.grenadeCooking=GetPrivateProfileIntA("inventory","grenade_cooking",0,path)!=0;
+    s.physicalRadio=GetPrivateProfileIntA("input","physical_radio",1,path)!=0;
+    s.radioSensitivity=number("input","radio_sensitivity",3.f,1.f,5.f);
+    s.gluedItems=GetPrivateProfileIntA("inventory","glued_items",0,path)!=0;
+    s.manualReload=GetPrivateProfileIntA("reload","manual",1,path)!=0;
+    s.magazineGuide=GetPrivateProfileIntA("reload","magazine_guide",1,path)!=0;
+    s.holdGrip=GetPrivateProfileIntA("inventory","hold_grip",1,path)!=0;
+    s.spawnEmptyHands=GetPrivateProfileIntA("inventory","spawn_empty_hands",1,path)!=0;
+    s.physicalDefib=GetPrivateProfileIntA("inventory","physical_defib",1,path)!=0;
+    s.assistedRevive=GetPrivateProfileIntA("inventory","assisted_revive",0,path)!=0;
+    s.slotHeight=number("inventory","hip_below_head",.72f,.45f,1.1f);
+    s.slotRadius=number("inventory","slot_radius",.15f,.08f,.23f);
+    const char* slots[]={"left_shoulder","right_shoulder","primary","secondary","grenade","knife","rear_head"};
+    for(int i=0;i<7;++i)for(int axis=0;axis<3;++axis){
+        char key[48];sprintf_s(key,"%s_%c",slots[i],"xyz"[axis]);
+        s.slotOffsets[i][axis]=number("inventory_slots",key,0.f,-.65f,.65f);
+    }
+    s.bodyHeadFollow=GetPrivateProfileIntA("body","head_follow",1,path)!=0;
     s.hudScale=number("hud","scale",.85f,.35f,1.4f);
     s.hudDepth=number("hud","depth",12.f,2.f,30.f);
     s.hudFov=number("hud","vertical_fov",60.f,30.f,90.f);
+    s.vehicleHudStrength=number("hud","vehicle_opacity",1.f,1.f,4.f);
     s.gunCrosshair=GetPrivateProfileIntA("hud","gun_crosshair",1,path)!=0;
+    s.hideCrosshairAtSights=GetPrivateProfileIntA("hud","hide_crosshair_at_sights",1,path)!=0;
+    s.crosshairHideSensitivity=number("hud","crosshair_hide_sensitivity",70.f,25.f,150.f);
     s.gunScopes=GetPrivateProfileIntA("scopes","enable",1,path)!=0;
     s.scopeMagnification=number("scopes","magnification",4.f,1.f,8.f);
+    s.launcherMagnification=number("scopes","launcher_magnification",1.5f,1.f,4.f);
     s.gunCrosshairDistance=number("hud","gun_crosshair_distance",25.f,3.f,100.f);
     s.gunCrosshairDegrees=number("hud","gun_crosshair_degrees",.6f,.15f,2.f);
     s.headAim=GetPrivateProfileIntA("vehicle","head_aim",1,path)!=0;
@@ -65,6 +118,7 @@ TuneSettings Tuning(){
     s.useNativeArms=GetPrivateProfileIntA("body","use_native_arms",1,path)!=0;
     s.bodyWeaponDepth=GetPrivateProfileIntA("body","weapon_depth",1,path)!=0;
     s.highDetailHands=GetPrivateProfileIntA("body","high_detail_hands",1,path)!=0;
+    s.bodySetback=number("body","setback",.06f,0.f,.15f);
     s.aimStickSpeed=number("vehicle","aim_stick_speed",75.f,10.f,180.f);
     s.headGain=number("vehicle","head_gain",4000.f,100.f,10000.f);
     s.headMaxSpeed=number("vehicle","head_max_speed",900.f,50.f,2000.f);

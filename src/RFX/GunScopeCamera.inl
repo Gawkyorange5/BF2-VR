@@ -35,7 +35,40 @@ void EndScope(){
 }
 bool ScopeEye(ScopeView& out,Mat& gunToEye,Mat& projection,Vec& eyeInGun,float& visibility){
     if(!ScopeReady()||scopePass||!eyeActive||activeEye<0||activeEye>1)return false;
-    visibility=scopeView.visibility[activeEye];if(visibility<.02f)return false;
-    out=scopeView;gunToEye=Mul(scopeView.gun,Inverse(views[1].eye));projection=views[1].projection;
-    eyeInGun=Point(Position(views[1].eye),Inverse(scopeView.gun));return true;
+    if(!scopeWeapon||handWeapon!=scopeWeapon||Value<void*>(scopeWeapon,0x28)!=handOwner)return false;
+    out=scopeView;
+    // The lens must use the SAME native instance transform as the visible
+    // housing. Predicting it again from FireFrame before renderer interpolation
+    // gave the M4/AK74U and angled ERYX a second, moving "ghost" glass disc.
+    // Keep the accepted sniper path unchanged (its aperture remains implicit).
+    if(out.reflex||Length(Position(out.aperture))>.001f){
+        void* mesh=Value<void*>(handWeapon,0x38);Mat drawn{};
+        if(Value<void*>(mesh)!=render+0x21B350||Value<int>(mesh,0x28C)!=0||
+           !Read(Value<void*>(Value<void*>(mesh,0x25C)),0,drawn)||!Rigid(drawn))return false;
+        out.bore=drawn;out.gun=Mul(out.aperture,drawn);
+        if(out.geometry){
+            const auto& g=*out.geometry;void* definition=Value<void*>(mesh,0x258);
+            if(g.count<3||g.count>32||g.part>=16||Value<void*>(definition)!=render+0x21A760)return false;
+            const int parts=Value<int>(definition,0x120);
+            if(parts<1||parts>32||g.part>=static_cast<unsigned>(parts))return false;
+            Mat attached=drawn;
+            if(g.part&&(!Read(Value<void*>(Value<void*>(mesh,0x25C),g.part*4),0,attached)||!Rigid(attached)))return false;
+            // Follow the actual cover/slide palette, not an independently
+            // predicted pose. A reload can articulate this part away from root.
+            out.gun=Mul(g.local,attached);out.aperture=Mul(out.gun,Inverse(drawn));
+            if(!Rigid(out.gun)||Length(Position(out.aperture))>1.5f)return false;
+        }
+        const Vec e=Point(Position(views[1].eye),Inverse(out.gun));
+        const Vec forward=Direction(Row(views[1].eye,2),Inverse(out.gun));
+        const float relief=out.center.z-e.z,farRelief=out.reflex?.75f:.48f;
+        if(relief<.035f||relief>farRelief||forward.z<.88f)return false;
+        const float radial=ScopeEyeOffset(out,e);
+        const auto clamp=[](float v){return std::max(0.f,std::min(1.f,v));};
+        out.visibility[activeEye]=clamp((1.2f-radial)*3.f)*clamp((relief-.035f)/.025f)*clamp((farRelief-relief)/.10f);
+        static unsigned reports=0;if(reports++<4)Log("SCOPE96 lens uses drawn native mesh; prediction difference=%.4fm",Length(Sub(Position(out.gun),Position(scopeView.gun))));
+    }
+    visibility=out.visibility[activeEye];if(visibility<.02f)return false;
+    out.connected=(out.launcher||out.connectionRing)&&LauncherConnected(handWeapon);
+    gunToEye=Mul(out.gun,Inverse(views[1].eye));projection=views[1].projection;
+    eyeInGun=Point(Position(views[1].eye),Inverse(out.gun));return true;
 }

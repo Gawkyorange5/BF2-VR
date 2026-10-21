@@ -23,6 +23,8 @@ bool Running();
 // Cached driver-reported UMA capability, matched to the native game's adapter.
 // Missing feature support or an adapter mismatch returns false.
 bool UnifiedMemoryAdapter(unsigned vendor,unsigned adapter,unsigned subsystem,unsigned revision);
+bool MatchingGraphicsAdapter(unsigned vendor,unsigned adapter,unsigned subsystem,unsigned revision);
+HRESULT GraphicsStatus(); // diagnostic device-removal status; no GPU wait
 void EyeSize(int eye,unsigned& width,unsigned& height);
 void MatchEyeTransfer(unsigned nativeWidth,unsigned nativeHeight); // before acquiring either eye image
 struct TransferTiming {double wait=0,copy=0,map=0,write=0,submit=0;};
@@ -30,7 +32,7 @@ TransferTiming UploadTiming(); // subsets of total upload wall time, current fra
 bool QuadSize(unsigned width,unsigned height);
 bool HudSize(unsigned width,unsigned height);
 // A separately retained menu image; allocated/uploaded only while open.
-bool SettingsOverlay(const XrPosef&,float width,float height,const unsigned char* bgra,unsigned pixelsWide,unsigned pixelsHigh);
+bool SettingsOverlay(const XrPosef&,float width,float height,const unsigned char* bgra,unsigned pixelsWide,unsigned pixelsHigh,bool transparent=false);
 void HideSettingsOverlay();
 bool Upload(int surface,const unsigned char* bgra,unsigned pitch); // 0/1 eyes, 2 cinema, 3 alpha HUD
 struct TransferRegion {int surface;unsigned x,y,width,height;};
@@ -39,7 +41,7 @@ struct TransferRegion {int surface;unsigned x,y,width,height;};
 enum class BatchResult {Unavailable,Failed,Uploaded};
 BatchResult UploadAtlas(const unsigned char* bgra,unsigned pitch,unsigned width,unsigned height,const TransferRegion* regions,unsigned count);
 void ResetTransfer(); // release the reusable D3D11 transfer atlas
-bool SubmitEyes(const XrPosef* hudPose=nullptr,float hudWidth=0,float hudHeight=0);
+bool SubmitEyes(const XrPosef* hudPose=nullptr,float hudWidth=0,float hudHeight=0,bool hudUnpremultiplied=false);
 bool SubmitQuad(const XrPosef& pose,float width,float height);
 bool SubmitRetained(); // resubmit the last released cinema image through a loading stall
 bool RefreshCinemaFrame(); // end stale timing without sending a black/empty frame

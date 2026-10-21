@@ -36,6 +36,9 @@ struct HandTargets {
     Mat rightPalm, leftPalm;
     bool rightValid = false, leftValid = false, palmsValid = false;
     bool supportPressed = false, wasSupporting = false;
+    bool freeHands = false; // independent palm orientation while holstered or using paddles
+    bool virtualStock = true;
+    bool aimSmoothing = true;
     std::uint64_t frame = 0, origin = 0;
     std::int64_t time = 0;
     // A pump stroke slides the support hand; retain the captured gun attitude

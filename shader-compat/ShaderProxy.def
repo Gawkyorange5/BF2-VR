@@ -1,0 +1,5 @@
+LIBRARY d3dx9_25
+EXPORTS
+    D3DXCreateEffect=_ProxyCreateEffect@36 @46
+    D3DXCreateEffectCompiler=_ProxyCreateCompiler@28 @47
+    D3DXCreateEffectPool=_ProxyCreatePool@4 @61

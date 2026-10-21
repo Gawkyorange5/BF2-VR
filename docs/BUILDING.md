@@ -1,25 +1,56 @@
-# Building
+# Building v1.1.0
 
-## Setup only
+## Rebuild the installer
 
-Use Windows 10/11, .NET Framework 4.8 and Python 3. From the repository root:
+On Windows with Python 3 and .NET Framework 4.8, run:
 
     python tools/build_setup.py
 
-Output: build/BF2-VR-Setup.exe. No network access or game installation is used by this command. It embeds the checked release payload, configuration, controls and audio recipes. Do not substitute an installed RFX.dll directly: it contains locally generated game audio.
+Output: `build/BF2-VR-Setup.exe`. It embeds the reviewed, asset-free runtime
+payload, current settings application, controls, local audio recipes and DZB2
+launcher. This build does not download or modify a game installation.
 
-## Runtime
+## Runtime source
 
-Open src/RFX.sln with Visual Studio's C++ desktop tools and a Windows SDK. The checked project uses toolset v145, Win32, configuration RunWDebugger (the historical configuration name; optimization is enabled). Set DXSDK_DIR to a DirectX SDK June 2010 installation if necessary. OpenXR headers and the STL wrapper import library are included. Keep the selective whole-program optimization boundaries in the project; the native BF2 hook translation units have ABI-sensitive code.
+The source in `src/` is the accepted r134 runtime, including the unified
+Survival integration. Before building, run:
 
-The public ReloadAudio.rc intentionally contains no game audio. Build the DLL, then use tools/prepare_runtime.py before placing it in payload/RFX.dll for packaging. A DLL with no .rsrc section can receive a new resource section during Setup; the release baseline preserves its original resource address space. The public r45 payload keeps the confirmed runtime's executable code; only resource payloads and local PDB path metadata are removed.
+    python tools/prepare_audio_placeholders.py
 
-Desktop settings sources are in src/tools. They compile as an x86 .NET Framework Windows Forms app referencing System.Windows.Forms and System.Drawing.
+This creates 822 zero-filled `.pcm` resource inputs with the reserved sizes;
+they contain no game audio. Do not replace existing locally generated audio.
+Open `src/RFX.sln` with Visual Studio's C++ desktop tools, toolset v145,
+Win32 / RunWDebugger (historical name; optimized). Supply a DirectX SDK June
+2010 installation through DXSDK_DIR. OpenXR headers and the established STL
+import library are included. Preserve the project optimization/ABI boundaries.
+
+For distribution, run `python tools/prepare_runtime.py <built-RFX.dll> payload/RFX.dll`.
+It removes local PDB path metadata and zeroes audio while preserving resource
+layout and the Windows manifest. Never ship an installed runtime with game audio.
+
+The v1.1.0 release payload uses the accepted binary without recompiling its
+gameplay code. Rebuilding native source may produce different machine code;
+review the installer's accepted code IDs and rerun compatibility/loader checks
+before distributing a custom build. Do not bypass unknown-build rejection.
+
+## Local sound generation
+
+`installer/audio-recipes.json` contains only numeric recipes and source archive
+entry names/hashes. Setup rebuilds sound resources from the owner's stock and
+optional DZB2 installation. Missing optional DZB2 sounds are silent; the DZB2
+launcher refreshes them when the mod becomes available. Resource updates retain
+the original resource VirtualSize, relocation address and image size.
+
+## Other sources
+
+Desktop settings: `src/tools/`. Installer/DZB2 launcher: `installer/`.
+Shader compatibility adapter: `shader-compat/`. Optional DirectInput loader:
+`steam-loader/`. Their third-party notices are in `THIRD_PARTY.md` and `licenses/`.
 
 ## Verification
 
-verification/InstallerChecks.cs compiles with the installer core and the same embedded resources, with INSTALLER_VERIFY defined, as a separate console executable. This define allows isolated profile directories only for the checks; it is absent from the production installer. It accepts a fresh fixture folder, a local supported BF2.exe, the local game directory, repository directory and a private baseline source directory containing the locally generated PCM. It copies required inputs into the fixture and never launches or edits the live game. Do not commit the fixture or game inputs.
-
-verification/LoaderProbe.cpp is a minimal x86 native executable with the three import slots used by RFX. Applying the same PE import function to its copy verifies startup loading and hook installation without invoking BF2 rendering/game initialization. This is a loader smoke check, not an in-headset gameplay test.
-
-See VERIFICATION.md for the scope/results of the release checks. The public package must exclude BF2.exe, locally generated BF2-VR.exe, game archives, extracted assets, PCM/WAV, PDBs, personal logs and profiles other than the reviewed Controls.con.
+See `VERIFICATION.md`. The installer harness is compiled separately with
+INSTALLER_VERIFY for isolated fixture profiles and without registry updates.
+It requires the maintainer's own supported game and private baseline inputs.
+Those fixtures, executables, archives, audio, personal profiles and logs must
+never be committed. Native loader probes do not establish in-headset gameplay.

@@ -2,6 +2,8 @@
 #include "bs\window.h"
 #include "Refractor.h"
 #include "IAT.h"
+#include "AutoResolution.h"
+#include "RenderWindow.h"
 #include "HookedDirect3D9.h"
 #include "ShaderHook.h"
 #include "VrSettings.h"
@@ -46,6 +48,7 @@ HWND WINAPI MyCreateWindowExA(
 {
 	HWND retVal = pOrigCreateWindowExA(dwExStyle, lpClassName, "RFX"/*lpWindowName*/,
 		WS_VISIBLE, 0, 0, get_resolution().x(), get_resolution().y(), hWndParent, hMenu, hInstance, nullptr/*lpParam*/);
+	CleanVR::RenderWindow::Attach(retVal);
 
 	pWindow = new bs::IWindow(retVal);
 	DICE::init(pWindow);
@@ -81,6 +84,10 @@ BOOL WINAPI MyPeekMessage(LPMSG lpMsg, HWND hWnd, UINT wMsgFilterMin, UINT wMsgF
 			// TODO: support for multiple monitors?
 			if (lpMsg->wParam == VK_RETURN)
 			{
+				if(CleanVR::RenderWindow::TogglePreview()){
+					lpMsg->message=WM_NULL;
+					break;
+				}
 				fullscreen = !fullscreen;
 				pWindow->setBorder(!fullscreen);
 				pWindow->setClientSize(get_resolution() / (fullscreen ? 1 : 2)); // window size is half the screen resolution
@@ -124,6 +131,7 @@ BOOL APIENTRY DllMain(HMODULE hModule, DWORD  dwReason, LPVOID lpReserved)
 	switch (dwReason)
 	{
 	case DLL_PROCESS_ATTACH:
+        CleanVR::AutoResolution::Install(hExe);
 		
 		pOrigPeekMessage = IAT::hook_function("PeekMessageA", hExe, MyPeekMessage);
 		pOrigCreateWindowExA = IAT::hook_function("CreateWindowExA", hExe, MyCreateWindowExA);

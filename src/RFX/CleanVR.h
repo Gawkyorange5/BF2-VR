@@ -6,6 +6,7 @@ void AttachDevice(IDirect3DDevice9*);
 void BeforeReset();
 void AfterReset(IDirect3DDevice9*,HRESULT);
 void AfterEndScene(IDirect3DDevice9*);
+void ReportRenderFailure(const char* operation,HRESULT result);
 bool BeforePresent(IDirect3DDevice9*); // true suppresses a stereo replay Present
 bool BeforeNativePresent(); // BF2 presents its swap chain without the device wrapper
 bool BeginHud();

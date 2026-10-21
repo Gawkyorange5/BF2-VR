@@ -1,40 +1,53 @@
-using System;
-using System.IO;
-using System.Linq;
-using BF2VR;
+using System;using System.IO;using System.Linq;using System.Text;using System.Runtime.InteropServices;using System.Collections.Generic;using System.Web.Script.Serialization;using BF2VR;
 class InstallerChecks {
+ [DllImport("kernel32.dll",CharSet=CharSet.Unicode,SetLastError=true)]static extern bool CreateHardLink(string newName,string existing,IntPtr security);
+ static void Link(string from,string to){Directory.CreateDirectory(Path.GetDirectoryName(to));if(!CreateHardLink(to,from,IntPtr.Zero))throw new System.ComponentModel.Win32Exception(Marshal.GetLastWin32Error());}
  static void Check(bool ok,string label){if(!ok)throw new Exception("FAIL: "+label);Console.WriteLine("PASS: "+label);}
+ static string H(string p){return PeImage.Hash(File.ReadAllBytes(p));}
+ static string Text(string p){return new PeImage(File.ReadAllBytes(p)).TextHash();}
+ static bool Refused(Action action){try{action();return false;}catch(IOException){return true;}catch(InvalidDataException){return true;}}
  static int Main(string[] args){try{
-  string folder=Path.GetFullPath(args[0]),stock=args[1],game=args[2],repo=args[3],baseline=args[4];
-  if(Directory.Exists(folder))throw new Exception("Use a new isolated directory for verification.");
-  Directory.CreateDirectory(folder);Directory.CreateDirectory(Path.Combine(folder,"mods","bf2"));
-  File.Copy(stock,Path.Combine(folder,"BF2.exe"));File.Copy(Path.Combine(game,"RendDX9.dll"),Path.Combine(folder,"RendDX9.dll"));
-  File.Copy(Path.Combine(game,"mods","bf2","Objects_client.zip"),Path.Combine(folder,"mods","bf2","Objects_client.zip"));
-  string profile=Path.Combine(folder,"test-profile");Directory.CreateDirectory(profile);File.WriteAllText(Path.Combine(profile,"Controls.con"),"original-profile-for-restoration");
-  File.WriteAllText(Path.Combine(folder,"RFX.dll"),"previous-mod-for-backup");File.WriteAllText(Path.Combine(folder,"vr_stereo.ini"),"[existing]\nretained=1\n");
-  string original=PeImage.Hash(File.ReadAllBytes(stock));var pe=new PeImage(File.ReadAllBytes(stock));
-  Check(!pe.HasRfx(),"stock executable has no RFX import");PeImage.ValidateGame(folder);
-  byte[] patched=pe.AddRfxImport();Check(new PeImage(patched).HasRfx(),"RFX import added to a copy");Check(new PeImage(patched).TextHash()==pe.TextHash(),"game executable code preserved");Check(PeImage.Hash(new PeImage(patched).AddRfxImport())==PeImage.Hash(patched),"import patch is idempotent");
-  bool refused=false;byte[] bad=(byte[])File.ReadAllBytes(stock).Clone();bad[1024]^=1;File.WriteAllBytes(Path.Combine(folder,"BF2.exe"),bad);try{PeImage.ValidateGame(folder);}catch(InvalidDataException){refused=true;}Check(refused,"unsupported game code rejected");File.Copy(stock,Path.Combine(folder,"BF2.exe"),true);
-  refused=false;try{new PeImage(new byte[20]);}catch(InvalidDataException){refused=true;}Check(refused,"truncated executable rejected");
-  var cues=ReloadAudioBuilder.Generate(Path.Combine(folder,"mods","bf2","Objects_client.zip"),File.ReadAllText(Path.Combine(repo,"installer","audio-recipes.json")));
-  var recipes=new System.Web.Script.Serialization.JavaScriptSerializer().Deserialize<AudioRecipe[]>(File.ReadAllText(Path.Combine(repo,"installer","audio-recipes.json")));
-  int exact=0;foreach(var a in recipes){byte[] expected=File.ReadAllBytes(Path.Combine(baseline,"reload_audio",a.weapon+"-"+((a.id-1100)%4)+".pcm"));var actual=cues[a.id];Check(actual.Length==expected.Length,"audio cue length "+a.id);int max=0;for(int i=0;i<actual.Length;i+=2)max=Math.Max(max,Math.Abs(BitConverter.ToInt16(actual,i)-BitConverter.ToInt16(expected,i)));if(max==0)exact++;Check(max<=1,"audio cue sample parity "+a.id);}
-  Console.WriteLine("AUDIO: "+exact+"/116 bit-identical; all within 1 PCM16 quantization unit.");
-  string shortcut=Path.Combine(folder,"probe.lnk");typeof(InstallEngine).GetMethod("MakeShortcut",System.Reflection.BindingFlags.NonPublic|System.Reflection.BindingFlags.Static).Invoke(null,new object[]{shortcut,folder,"bf2"});Check(File.Exists(shortcut),"desktop shortcut creation into isolated folder");
-  Type shellType=Type.GetTypeFromProgID("WScript.Shell");object shell=Activator.CreateInstance(shellType);object link=shellType.InvokeMember("CreateShortcut",System.Reflection.BindingFlags.InvokeMethod,null,shell,new object[]{shortcut});var lt=link.GetType();string targetPath=(string)lt.InvokeMember("TargetPath",System.Reflection.BindingFlags.GetProperty,null,link,null);string wd=(string)lt.InvokeMember("WorkingDirectory",System.Reflection.BindingFlags.GetProperty,null,link,null);string arguments=(string)lt.InvokeMember("Arguments",System.Reflection.BindingFlags.GetProperty,null,link,null);Check(String.Equals(targetPath,Path.Combine(folder,"BF2-VR.exe"),StringComparison.OrdinalIgnoreCase)&&String.Equals(wd,folder,StringComparison.OrdinalIgnoreCase)&&arguments=="+menu 1 +modPath mods/bf2","shortcut target, game directory and mod arguments");System.Runtime.InteropServices.Marshal.FinalReleaseComObject(link);System.Runtime.InteropServices.Marshal.FinalReleaseComObject(shell);
-  var engine=new InstallEngine{Log=Console.WriteLine,FailAfter=3};bool failed=false;try{engine.Install(folder,profile,false,"bf2");}catch(IOException){failed=true;}
-  Check(failed&&!Directory.Exists(Path.Combine(folder,".bf2-vr")),"simulated mid-install failure fully rolled back");Check(File.ReadAllText(Path.Combine(folder,"RFX.dll"))=="previous-mod-for-backup","prior DLL restored after failure");Check(!File.Exists(Path.Combine(folder,"BF2-VR.exe")),"generated executable removed after failure");
-  engine.FailAfter=-1;engine.Install(folder,profile,false,"bf2");
-  Check(PeImage.Hash(File.ReadAllBytes(Path.Combine(folder,"BF2.exe")))==original,"original BF2.exe untouched");Check(File.ReadAllText(Path.Combine(folder,"vr_stereo.ini"))=="[existing]\nretained=1\n","existing INI preserved");Check(PeImage.Hash(File.ReadAllBytes(Path.Combine(profile,"Controls.con")))==PeImage.Hash(File.ReadAllBytes(Path.Combine(repo,"profiles","Controls.con"))),"recommended bindings installed");
-  refused=false;try{engine.Install(folder,profile,false,"bf2");}catch(IOException){refused=true;}Check(refused,"existing backup journal cannot be overwritten");
-  // Keep an installed DLL outside the fixture for the native loader smoke check.
-  File.Copy(Path.Combine(folder,"RFX.dll"),Path.Combine(Path.GetDirectoryName(folder),"RFX-generated.dll"),true);
-  engine.Uninstall(folder);Check(File.ReadAllText(Path.Combine(profile,"Controls.con"))=="original-profile-for-restoration","profile restored");Check(File.ReadAllText(Path.Combine(folder,"RFX.dll"))=="previous-mod-for-backup","previous mod restored");Check(!File.Exists(Path.Combine(folder,"BF2-VR.exe"))&&!Directory.Exists(Path.Combine(folder,".bf2-vr")),"uninstall removes owned files and journal");
-  File.Delete(Path.Combine(folder,"vr_stereo.ini"));engine.Install(folder,profile,false,"bf2");Check(File.Exists(Path.Combine(folder,"vr_stereo.ini")),"fresh settings installed");
-  string target=Path.Combine(profile,"Controls.con"),installed=File.ReadAllText(target);File.WriteAllText(target,"user-edited-after-install");refused=false;try{engine.Uninstall(folder);}catch(IOException){refused=true;}Check(refused && File.ReadAllText(target)=="user-edited-after-install" && Directory.Exists(Path.Combine(folder,".bf2-vr")),"post-install edits and backups preserved on conflict");
-  File.WriteAllText(target,installed);engine.Uninstall(folder);Check(File.ReadAllText(target)=="original-profile-for-restoration","conflict recovery restores original bindings");
-  Check(PeImage.Hash(File.ReadAllBytes(Path.Combine(folder,"BF2.exe")))==original,"original executable unchanged after all checks");
-  return 0;
+  string game=args[0],root=Path.GetFullPath(args[1]),repo=Path.GetFullPath(args[2]),old=args[3],baseline=args[4];
+  if(Directory.Exists(root))throw new Exception("Use a new fixture directory.");Directory.CreateDirectory(root);
+  string f=Path.Combine(root,"Game with spaces"),profile=Path.Combine(root,"test profile");Directory.CreateDirectory(f);Directory.CreateDirectory(profile);
+  foreach(string n in new[]{"BF2.exe","RendDX9.dll","d3dx9_25.dll"})File.Copy(Path.Combine(game,n),Path.Combine(f,n));
+  string recipes=File.ReadAllText(Path.Combine(repo,"installer","audio-recipes.json"));var audio=ReloadAudioBuilder.Recipes(recipes);
+  foreach(string a in audio.Where(a=>a.mod=="bf2"&&a.archive!="").Select(a=>a.archive).Distinct())Link(Path.Combine(game,a.Replace('/','\\')),Path.Combine(f,a.Replace('/','\\')));
+  File.WriteAllText(Path.Combine(f,"mods","bf2","init.con"),"rem fixture\r\n");File.WriteAllText(Path.Combine(profile,"Controls.con"),"original-controls");
+  string stock=H(Path.Combine(f,"BF2.exe")),renderer=H(Path.Combine(f,"RendDX9.dll"));PeImage.ValidateGame(f);
+  var bytes=File.ReadAllBytes(Path.Combine(f,"BF2.exe"));var pe=new PeImage(bytes);byte[] patched=pe.AddRfxImport();Check(new PeImage(patched).HasRfx()&&new PeImage(patched).TextHash()==pe.TextHash(),"EXE import edit preserves executable code");Check(PeImage.Hash(new PeImage(patched).AddRfxImport())==PeImage.Hash(patched),"EXE import operation is idempotent");
+  var e=new InstallEngine{Log=Console.WriteLine,FailAfter=3};Check(Refused(()=>e.Install(f,profile,false,"bf2")),"injected installation failure reported");Check(!File.Exists(Path.Combine(f,"RFX.dll"))&&!Directory.Exists(Path.Combine(f,".bf2-vr")),"failed fresh install rolls back completely");
+  e.FailAfter=-1;e.Install(f,profile,false,"bf2",0);Check(Text(Path.Combine(f,"RFX.dll"))==Text(baseline),"clean install keeps exact accepted r134 code");
+  Check(File.ReadAllText(Path.Combine(f,"vr_stereo.ini")).Contains("resolution_mode=0"),"headset resolution choice saved");
+  Check(H(Path.Combine(profile,"Controls.con"))==H(Path.Combine(repo,"profiles","Controls.con")),"current controller profile installed");
+  Check(File.Exists(Path.Combine(f,"Launch DZB2 VR.cmd"))&&File.Exists(Path.Combine(f,"BF2-VR-DZB2.exe")),"DZB2 command/helper installed before DZB2 is present");
+  byte[] exe=File.ReadAllBytes(Path.Combine(f,"BF2-VR.exe"));int nt=BitConverter.ToInt32(exe,0x3c);Check((BitConverter.ToUInt16(exe,nt+22)&32)!=0,"generated VR executable is large-address-aware");
+  File.Copy(Path.Combine(f,"RFX.dll"),Path.Combine(root,"stock-generated.dll"));e.Uninstall(f);Check(!File.Exists(Path.Combine(f,"RFX.dll"))&&File.ReadAllText(Path.Combine(profile,"Controls.con"))=="original-controls","fresh uninstall restores profile and removes owned runtime");
+  // Emulate an existing v1 installation subsequently updated to accepted r134.
+  Directory.CreateDirectory(Path.Combine(f,".bf2-vr","backup"));File.Copy(baseline,Path.Combine(f,"RFX.dll"));
+  var oldState=new InstallState{Version="1.0.0-r45",Game=f,Complete=true};oldState.Files.Add(new InstalledFile{Target=Path.Combine(f,"RFX.dll"),InstalledHash=H(old)});
+  string oldJson=new JavaScriptSerializer().Serialize(oldState);File.WriteAllText(Path.Combine(f,".bf2-vr","install.json"),oldJson);
+  string prefs="[graphics]\r\nresolution_mode=0\r\n[body]\r\ncustom_slot=1.234\r\n";File.WriteAllText(Path.Combine(f,"vr_stereo.ini"),prefs);
+  e.FailAfter=3;Check(Refused(()=>e.Install(f,null,false,"bf2")),"failed upgrade reported");Check(H(Path.Combine(f,"RFX.dll"))==H(baseline)&&File.ReadAllText(Path.Combine(f,".bf2-vr","install.json"))==oldJson,"failed upgrade restores r134 and exact old journal");
+  e.FailAfter=-1;e.Install(f,null,false,"bf2");Check(File.ReadAllText(Path.Combine(f,"vr_stereo.ini"))==prefs,"Keep current preserves settings and slot data byte for byte");
+  e.Uninstall(f);Check(H(Path.Combine(f,"RFX.dll"))==H(baseline)&&File.ReadAllText(Path.Combine(f,".bf2-vr","install.json"))==oldJson,"successful upgrade can return to exact r134 with original journal");
+  e.Install(f,null,false,"bf2",2);Check(File.ReadAllText(Path.Combine(f,"vr_stereo.ini")).Contains("resolution_mode=2")&&File.ReadAllText(Path.Combine(f,"vr_stereo.ini")).Contains("custom_slot=1.234"),"game resolution changes only requested preference");e.Uninstall(f);Check(File.ReadAllText(Path.Combine(f,"vr_stereo.ini"))==prefs,"restore recovers exact pre-choice settings");
+  File.Copy(old,Path.Combine(f,"RFX.dll"),true);e.Install(f,null,false,"bf2");e.Uninstall(f);Check(H(Path.Combine(f,"RFX.dll"))==H(old),"public v1 upgrade and restore");
+  File.WriteAllBytes(Path.Combine(f,"RFX.dll"),new byte[9]);Check(Refused(()=>e.Install(f,null,false,"bf2")),"unknown/newer runtime rejected before changes");File.Copy(baseline,Path.Combine(f,"RFX.dll"),true);
+  string otherLoader=Path.Combine(f,"dinput8.dll");File.WriteAllText(otherLoader,"another mod's loader");Check(Refused(()=>e.Install(f,null,false,"bf2",-1,true))&&File.ReadAllText(otherLoader)=="another mod's loader","another mod's optional loader is protected");File.Delete(otherLoader);
+  // Install DZB2 after the base installation. Archive links are read-only inputs.
+  foreach(string a in audio.Where(a=>a.mod=="DZB2"&&a.archive!="").Select(a=>a.archive).Distinct())Link(Path.Combine(game,a.Replace('/','\\')),Path.Combine(f,a.Replace('/','\\')));
+  File.Copy(Path.Combine(game,"mods","DZB2","Mod.desc"),Path.Combine(f,"mods","DZB2","Mod.desc"));
+  e.Install(f,null,false,"bf2",-1,true);Check(File.Exists(Path.Combine(f,"dinput8.dll")),"optional original-executable loader installed");
+  string cache=Path.Combine(root,"DZB2 cache");string dest=Dzb2Launcher.Prepare(f,cache,Console.WriteLine);
+  Check(File.Exists(Path.Combine(dest,"mods","DZB2","Mod.desc")),"DZB2 mods junction resolves to installed assets");Check(H(Path.Combine(dest,"d3dx9_25.dll"))==PeImage.Hash(Dzb2Launcher.Resource("payload.DZB2-shader-compat.dll")),"exact tested shader proxy installed only in compatibility copy");
+  Check(H(Path.Combine(f,"d3dx9_25.dll"))==Dzb2Launcher.OriginalShader,"original root renderer dependency unchanged");Check(!File.Exists(Path.Combine(dest,"dinput8.dll")),"renamed compatibility runtime does not copy optional Steam loader");
+  Check(Text(Path.Combine(dest,"RFX.dll"))==Text(baseline),"DZB2 runtime preserves exact r134 code");File.Copy(Path.Combine(dest,"RFX.dll"),Path.Combine(root,"dzb2-generated.dll"));
+  File.AppendAllText(Path.Combine(dest,"vr_stereo.ini"),"\r\n[local]\r\nretained=1\r\n");string saved=H(Path.Combine(dest,"vr_stereo.ini"));Dzb2Launcher.Prepare(f,cache,Console.WriteLine);Check(H(Path.Combine(dest,"vr_stereo.ini"))==saved,"DZB2 preferences survive subsequent launches");
+  byte[] installedIni=File.ReadAllBytes(Path.Combine(f,"vr_stereo.ini"));File.AppendAllText(Path.Combine(f,"vr_stereo.ini"),"\r\n[new-root]\r\nchanged=1\r\n");Dzb2Launcher.Prepare(f,cache,Console.WriteLine);Check(H(Path.Combine(dest,"vr_stereo.ini"))==H(Path.Combine(f,"vr_stereo.ini"))&&File.Exists(Path.Combine(dest,"vr_stereo.ini.before-root-settings.bak")),"changed main settings propagated with compatibility backup");File.WriteAllBytes(Path.Combine(f,"vr_stereo.ini"),installedIni);
+  e.Uninstall(f);Check(!File.Exists(Path.Combine(f,"dinput8.dll")),"restore removes owned Steam loader");
+  e.Install(f,profile,false,"bf2");string control=File.ReadAllText(Path.Combine(profile,"Controls.con"));File.WriteAllText(Path.Combine(profile,"Controls.con"),"user-edit");Check(Refused(()=>e.Uninstall(f))&&File.ReadAllText(Path.Combine(profile,"Controls.con"))=="user-edit","later user edits protected on restore");File.WriteAllText(Path.Combine(profile,"Controls.con"),control);e.Uninstall(f);
+  Check(H(Path.Combine(f,"BF2.exe"))==stock&&H(Path.Combine(f,"RendDX9.dll"))==renderer,"original game executable and renderer unchanged through all checks");
+  Console.WriteLine("Completed isolated verification; no game process launched.");return 0;
  }catch(Exception e){Console.Error.WriteLine(e);return 1;}}
 }

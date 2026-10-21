@@ -1,0 +1,3290 @@
+{
+  "stinger_audio/TargetTrack.pcm": {
+    "id": 4000,
+    "bytes": 9134
+  },
+  "stinger_audio/TargetLock.pcm": {
+    "id": 4001,
+    "bytes": 2500
+  },
+  "reload_audio/usrif_m16a2-0.pcm": {
+    "id": 1100,
+    "bytes": 6772
+  },
+  "reload_audio/usrif_m16a2-1.pcm": {
+    "id": 1101,
+    "bytes": 13114
+  },
+  "reload_audio/usrif_m16a2-2.pcm": {
+    "id": 1102,
+    "bytes": 8074
+  },
+  "reload_audio/usrif_m16a2-3.pcm": {
+    "id": 1103,
+    "bytes": 5470
+  },
+  "reload_audio/usrif_m203-0.pcm": {
+    "id": 1104,
+    "bytes": 6772
+  },
+  "reload_audio/usrif_m203-1.pcm": {
+    "id": 1105,
+    "bytes": 13114
+  },
+  "reload_audio/usrif_m203-2.pcm": {
+    "id": 1106,
+    "bytes": 8074
+  },
+  "reload_audio/usrif_m203-3.pcm": {
+    "id": 1107,
+    "bytes": 5470
+  },
+  "reload_audio/rurif_ak47-0.pcm": {
+    "id": 1108,
+    "bytes": 8402
+  },
+  "reload_audio/rurif_ak47-1.pcm": {
+    "id": 1109,
+    "bytes": 17822
+  },
+  "reload_audio/rurif_ak47-2.pcm": {
+    "id": 1110,
+    "bytes": 5938
+  },
+  "reload_audio/rurif_ak47-3.pcm": {
+    "id": 1111,
+    "bytes": 7448
+  },
+  "reload_audio/rurif_gp25-0.pcm": {
+    "id": 1112,
+    "bytes": 8402
+  },
+  "reload_audio/rurif_gp25-1.pcm": {
+    "id": 1113,
+    "bytes": 17822
+  },
+  "reload_audio/rurif_gp25-2.pcm": {
+    "id": 1114,
+    "bytes": 5938
+  },
+  "reload_audio/rurif_gp25-3.pcm": {
+    "id": 1115,
+    "bytes": 7448
+  },
+  "reload_audio/rurif_ak101-0.pcm": {
+    "id": 1116,
+    "bytes": 5090
+  },
+  "reload_audio/rurif_ak101-1.pcm": {
+    "id": 1117,
+    "bytes": 17640
+  },
+  "reload_audio/rurif_ak101-2.pcm": {
+    "id": 1118,
+    "bytes": 6386
+  },
+  "reload_audio/rurif_ak101-3.pcm": {
+    "id": 1119,
+    "bytes": 11164
+  },
+  "reload_audio/rurif_gp30-0.pcm": {
+    "id": 1120,
+    "bytes": 5090
+  },
+  "reload_audio/rurif_gp30-1.pcm": {
+    "id": 1121,
+    "bytes": 17640
+  },
+  "reload_audio/rurif_gp30-2.pcm": {
+    "id": 1122,
+    "bytes": 6386
+  },
+  "reload_audio/rurif_gp30-3.pcm": {
+    "id": 1123,
+    "bytes": 11164
+  },
+  "reload_audio/usrif_g3a3-0.pcm": {
+    "id": 1124,
+    "bytes": 10926
+  },
+  "reload_audio/usrif_g3a3-1.pcm": {
+    "id": 1125,
+    "bytes": 16480
+  },
+  "reload_audio/usrif_g3a3-2.pcm": {
+    "id": 1126,
+    "bytes": 11578
+  },
+  "reload_audio/usrif_g3a3-3.pcm": {
+    "id": 1127,
+    "bytes": 7246
+  },
+  "reload_audio/usrif_sa80-0.pcm": {
+    "id": 1128,
+    "bytes": 5064
+  },
+  "reload_audio/usrif_sa80-1.pcm": {
+    "id": 1129,
+    "bytes": 8274
+  },
+  "reload_audio/usrif_sa80-2.pcm": {
+    "id": 1130,
+    "bytes": 2
+  },
+  "reload_audio/usrif_sa80-3.pcm": {
+    "id": 1131,
+    "bytes": 2
+  },
+  "reload_audio/gbrif_sa80a2_l85-0.pcm": {
+    "id": 1132,
+    "bytes": 8298
+  },
+  "reload_audio/gbrif_sa80a2_l85-1.pcm": {
+    "id": 1133,
+    "bytes": 6652
+  },
+  "reload_audio/gbrif_sa80a2_l85-2.pcm": {
+    "id": 1134,
+    "bytes": 2
+  },
+  "reload_audio/gbrif_sa80a2_l85-3.pcm": {
+    "id": 1135,
+    "bytes": 2
+  },
+  "reload_audio/sasrif_g36e-0.pcm": {
+    "id": 1136,
+    "bytes": 5938
+  },
+  "reload_audio/sasrif_g36e-1.pcm": {
+    "id": 1137,
+    "bytes": 10948
+  },
+  "reload_audio/sasrif_g36e-2.pcm": {
+    "id": 1138,
+    "bytes": 6174
+  },
+  "reload_audio/sasrif_g36e-3.pcm": {
+    "id": 1139,
+    "bytes": 8328
+  },
+  "reload_audio/sasrif_fn2000-0.pcm": {
+    "id": 1140,
+    "bytes": 2312
+  },
+  "reload_audio/sasrif_fn2000-1.pcm": {
+    "id": 1141,
+    "bytes": 4902
+  },
+  "reload_audio/sasrif_fn2000-2.pcm": {
+    "id": 1142,
+    "bytes": 2068
+  },
+  "reload_audio/sasrif_fn2000-3.pcm": {
+    "id": 1143,
+    "bytes": 3532
+  },
+  "reload_audio/eurif_famas-0.pcm": {
+    "id": 1144,
+    "bytes": 2386
+  },
+  "reload_audio/eurif_famas-1.pcm": {
+    "id": 1145,
+    "bytes": 6324
+  },
+  "reload_audio/eurif_famas-2.pcm": {
+    "id": 1146,
+    "bytes": 6214
+  },
+  "reload_audio/eurif_famas-3.pcm": {
+    "id": 1147,
+    "bytes": 7918
+  },
+  "reload_audio/usrif_mp5_a3-0.pcm": {
+    "id": 1148,
+    "bytes": 4444
+  },
+  "reload_audio/usrif_mp5_a3-1.pcm": {
+    "id": 1149,
+    "bytes": 9926
+  },
+  "reload_audio/usrif_mp5_a3-2.pcm": {
+    "id": 1150,
+    "bytes": 8362
+  },
+  "reload_audio/usrif_mp5_a3-3.pcm": {
+    "id": 1151,
+    "bytes": 8054
+  },
+  "reload_audio/rurif_bizon-0.pcm": {
+    "id": 1152,
+    "bytes": 11908
+  },
+  "reload_audio/rurif_bizon-1.pcm": {
+    "id": 1153,
+    "bytes": 13006
+  },
+  "reload_audio/rurif_bizon-2.pcm": {
+    "id": 1154,
+    "bytes": 6918
+  },
+  "reload_audio/rurif_bizon-3.pcm": {
+    "id": 1155,
+    "bytes": 6616
+  },
+  "reload_audio/chrif_type85-0.pcm": {
+    "id": 1156,
+    "bytes": 5138
+  },
+  "reload_audio/chrif_type85-1.pcm": {
+    "id": 1157,
+    "bytes": 5212
+  },
+  "reload_audio/chrif_type85-2.pcm": {
+    "id": 1158,
+    "bytes": 7360
+  },
+  "reload_audio/chrif_type85-3.pcm": {
+    "id": 1159,
+    "bytes": 5444
+  },
+  "reload_audio/eurif_fnp90-0.pcm": {
+    "id": 1160,
+    "bytes": 1542
+  },
+  "reload_audio/eurif_fnp90-1.pcm": {
+    "id": 1161,
+    "bytes": 12340
+  },
+  "reload_audio/eurif_fnp90-2.pcm": {
+    "id": 1162,
+    "bytes": 3862
+  },
+  "reload_audio/eurif_fnp90-3.pcm": {
+    "id": 1163,
+    "bytes": 4244
+  },
+  "reload_audio/sasrif_mp7-0.pcm": {
+    "id": 1164,
+    "bytes": 5630
+  },
+  "reload_audio/sasrif_mp7-1.pcm": {
+    "id": 1165,
+    "bytes": 9386
+  },
+  "reload_audio/sasrif_mp7-2.pcm": {
+    "id": 1166,
+    "bytes": 2
+  },
+  "reload_audio/sasrif_mp7-3.pcm": {
+    "id": 1167,
+    "bytes": 2
+  },
+  "reload_audio/rusht_saiga12-0.pcm": {
+    "id": 1168,
+    "bytes": 5300
+  },
+  "reload_audio/rusht_saiga12-1.pcm": {
+    "id": 1169,
+    "bytes": 20334
+  },
+  "reload_audio/rusht_saiga12-2.pcm": {
+    "id": 1170,
+    "bytes": 10526
+  },
+  "reload_audio/rusht_saiga12-3.pcm": {
+    "id": 1171,
+    "bytes": 8820
+  },
+  "reload_audio/ussht_jackhammer-0.pcm": {
+    "id": 1172,
+    "bytes": 13286
+  },
+  "reload_audio/ussht_jackhammer-1.pcm": {
+    "id": 1173,
+    "bytes": 31972
+  },
+  "reload_audio/ussht_jackhammer-2.pcm": {
+    "id": 1174,
+    "bytes": 2
+  },
+  "reload_audio/ussht_jackhammer-3.pcm": {
+    "id": 1175,
+    "bytes": 2
+  },
+  "reload_audio/rurif_dragunov-0.pcm": {
+    "id": 1176,
+    "bytes": 5510
+  },
+  "reload_audio/rurif_dragunov-1.pcm": {
+    "id": 1177,
+    "bytes": 24536
+  },
+  "reload_audio/rurif_dragunov-2.pcm": {
+    "id": 1178,
+    "bytes": 10064
+  },
+  "reload_audio/rurif_dragunov-3.pcm": {
+    "id": 1179,
+    "bytes": 5292
+  },
+  "reload_audio/chsni_type88-0.pcm": {
+    "id": 1180,
+    "bytes": 6036
+  },
+  "reload_audio/chsni_type88-1.pcm": {
+    "id": 1181,
+    "bytes": 3720
+  },
+  "reload_audio/chsni_type88-2.pcm": {
+    "id": 1182,
+    "bytes": 7398
+  },
+  "reload_audio/chsni_type88-3.pcm": {
+    "id": 1183,
+    "bytes": 3528
+  },
+  "reload_audio/chsht_norinco982-0.pcm": {
+    "id": 1184,
+    "bytes": 2
+  },
+  "reload_audio/chsht_norinco982-1.pcm": {
+    "id": 1185,
+    "bytes": 8780
+  },
+  "reload_audio/chsht_norinco982-2.pcm": {
+    "id": 1186,
+    "bytes": 4410
+  },
+  "reload_audio/chsht_norinco982-3.pcm": {
+    "id": 1187,
+    "bytes": 9362
+  },
+  "reload_audio/chsht_protecta-0.pcm": {
+    "id": 1188,
+    "bytes": 2
+  },
+  "reload_audio/chsht_protecta-1.pcm": {
+    "id": 1189,
+    "bytes": 26460
+  },
+  "reload_audio/chsht_protecta-2.pcm": {
+    "id": 1190,
+    "bytes": 2
+  },
+  "reload_audio/chsht_protecta-3.pcm": {
+    "id": 1191,
+    "bytes": 2
+  },
+  "reload_audio/gbrif_benelli_m4-0.pcm": {
+    "id": 1192,
+    "bytes": 2
+  },
+  "reload_audio/gbrif_benelli_m4-1.pcm": {
+    "id": 1193,
+    "bytes": 7516
+  },
+  "reload_audio/gbrif_benelli_m4-2.pcm": {
+    "id": 1194,
+    "bytes": 2
+  },
+  "reload_audio/gbrif_benelli_m4-3.pcm": {
+    "id": 1195,
+    "bytes": 2
+  },
+  "reload_audio/usrif_remington11-87-0.pcm": {
+    "id": 1196,
+    "bytes": 2
+  },
+  "reload_audio/usrif_remington11-87-1.pcm": {
+    "id": 1197,
+    "bytes": 7516
+  },
+  "reload_audio/usrif_remington11-87-2.pcm": {
+    "id": 1198,
+    "bytes": 6394
+  },
+  "reload_audio/usrif_remington11-87-3.pcm": {
+    "id": 1199,
+    "bytes": 5776
+  },
+  "reload_audio/usrif_m24-0.pcm": {
+    "id": 1200,
+    "bytes": 14552
+  },
+  "reload_audio/usrif_m24-1.pcm": {
+    "id": 1201,
+    "bytes": 16758
+  },
+  "reload_audio/usrif_m24-2.pcm": {
+    "id": 1202,
+    "bytes": 21168
+  },
+  "reload_audio/usrif_m24-3.pcm": {
+    "id": 1203,
+    "bytes": 21166
+  },
+  "reload_audio/ussni_m95_barret-0.pcm": {
+    "id": 1204,
+    "bytes": 14554
+  },
+  "reload_audio/ussni_m95_barret-1.pcm": {
+    "id": 1205,
+    "bytes": 16758
+  },
+  "reload_audio/ussni_m95_barret-2.pcm": {
+    "id": 1206,
+    "bytes": 21168
+  },
+  "reload_audio/ussni_m95_barret-3.pcm": {
+    "id": 1207,
+    "bytes": 21166
+  },
+  "reload_audio/gbrif_l96a1-0.pcm": {
+    "id": 1208,
+    "bytes": 14552
+  },
+  "reload_audio/gbrif_l96a1-1.pcm": {
+    "id": 1209,
+    "bytes": 16758
+  },
+  "reload_audio/gbrif_l96a1-2.pcm": {
+    "id": 1210,
+    "bytes": 21168
+  },
+  "reload_audio/gbrif_l96a1-3.pcm": {
+    "id": 1211,
+    "bytes": 21166
+  },
+  "reload_audio/usrif_m4-0.pcm": {
+    "id": 1212,
+    "bytes": 11026
+  },
+  "reload_audio/usrif_m4-1.pcm": {
+    "id": 1213,
+    "bytes": 17200
+  },
+  "reload_audio/usrif_m4-2.pcm": {
+    "id": 1214,
+    "bytes": 9262
+  },
+  "reload_audio/usrif_m4-3.pcm": {
+    "id": 1215,
+    "bytes": 9042
+  },
+  "reload_audio/uslmg_m249saw-0.pcm": {
+    "id": 1216,
+    "bytes": 10844
+  },
+  "reload_audio/uslmg_m249saw-1.pcm": {
+    "id": 1217,
+    "bytes": 9796
+  },
+  "reload_audio/uslmg_m249saw-2.pcm": {
+    "id": 1218,
+    "bytes": 11024
+  },
+  "reload_audio/uslmg_m249saw-3.pcm": {
+    "id": 1219,
+    "bytes": 15876
+  },
+  "reload_audio/uslmg_m249saw-4.pcm": {
+    "id": 1400,
+    "bytes": 11086
+  },
+  "reload_audio/uslmg_m249saw-5.pcm": {
+    "id": 1401,
+    "bytes": 18142
+  },
+  "reload_audio/uslmg_m249saw-6.pcm": {
+    "id": 1402,
+    "bytes": 18964
+  },
+  "reload_audio/rulmg_rpk74-0.pcm": {
+    "id": 1220,
+    "bytes": 10006
+  },
+  "reload_audio/rulmg_rpk74-1.pcm": {
+    "id": 1221,
+    "bytes": 11794
+  },
+  "reload_audio/rulmg_rpk74-2.pcm": {
+    "id": 1222,
+    "bytes": 9260
+  },
+  "reload_audio/rulmg_rpk74-3.pcm": {
+    "id": 1223,
+    "bytes": 8986
+  },
+  "reload_audio/rulmg_rpk74-4.pcm": {
+    "id": 1403,
+    "bytes": 2
+  },
+  "reload_audio/rulmg_rpk74-5.pcm": {
+    "id": 1404,
+    "bytes": 2
+  },
+  "reload_audio/rulmg_rpk74-6.pcm": {
+    "id": 1405,
+    "bytes": 2
+  },
+  "reload_audio/chlmg_type95-0.pcm": {
+    "id": 1224,
+    "bytes": 8012
+  },
+  "reload_audio/chlmg_type95-1.pcm": {
+    "id": 1225,
+    "bytes": 19870
+  },
+  "reload_audio/chlmg_type95-2.pcm": {
+    "id": 1226,
+    "bytes": 12348
+  },
+  "reload_audio/chlmg_type95-3.pcm": {
+    "id": 1227,
+    "bytes": 10584
+  },
+  "reload_audio/chlmg_type95-4.pcm": {
+    "id": 1406,
+    "bytes": 2
+  },
+  "reload_audio/chlmg_type95-5.pcm": {
+    "id": 1407,
+    "bytes": 2
+  },
+  "reload_audio/chlmg_type95-6.pcm": {
+    "id": 1408,
+    "bytes": 2
+  },
+  "reload_audio/rulmg_pkm-0.pcm": {
+    "id": 1228,
+    "bytes": 13128
+  },
+  "reload_audio/rulmg_pkm-1.pcm": {
+    "id": 1229,
+    "bytes": 8190
+  },
+  "reload_audio/rulmg_pkm-2.pcm": {
+    "id": 1230,
+    "bytes": 10810
+  },
+  "reload_audio/rulmg_pkm-3.pcm": {
+    "id": 1231,
+    "bytes": 10126
+  },
+  "reload_audio/rulmg_pkm-4.pcm": {
+    "id": 1409,
+    "bytes": 16806
+  },
+  "reload_audio/rulmg_pkm-5.pcm": {
+    "id": 1410,
+    "bytes": 5876
+  },
+  "reload_audio/rulmg_pkm-6.pcm": {
+    "id": 1411,
+    "bytes": 18720
+  },
+  "reload_audio/sasrif_mg36-0.pcm": {
+    "id": 1232,
+    "bytes": 5694
+  },
+  "reload_audio/sasrif_mg36-1.pcm": {
+    "id": 1233,
+    "bytes": 20342
+  },
+  "reload_audio/sasrif_mg36-2.pcm": {
+    "id": 1234,
+    "bytes": 14112
+  },
+  "reload_audio/sasrif_mg36-3.pcm": {
+    "id": 1235,
+    "bytes": 5370
+  },
+  "reload_audio/sasrif_mg36-4.pcm": {
+    "id": 1412,
+    "bytes": 2
+  },
+  "reload_audio/sasrif_mg36-5.pcm": {
+    "id": 1413,
+    "bytes": 2
+  },
+  "reload_audio/sasrif_mg36-6.pcm": {
+    "id": 1414,
+    "bytes": 2
+  },
+  "reload_audio/eurif_hk21-0.pcm": {
+    "id": 1236,
+    "bytes": 16756
+  },
+  "reload_audio/eurif_hk21-1.pcm": {
+    "id": 1237,
+    "bytes": 17198
+  },
+  "reload_audio/eurif_hk21-2.pcm": {
+    "id": 1238,
+    "bytes": 15876
+  },
+  "reload_audio/eurif_hk21-3.pcm": {
+    "id": 1239,
+    "bytes": 19844
+  },
+  "reload_audio/eurif_hk21-4.pcm": {
+    "id": 1415,
+    "bytes": 2
+  },
+  "reload_audio/eurif_hk21-5.pcm": {
+    "id": 1416,
+    "bytes": 22050
+  },
+  "reload_audio/eurif_hk21-6.pcm": {
+    "id": 1417,
+    "bytes": 2
+  },
+  "reload_audio/uspis_92fs-0.pcm": {
+    "id": 1240,
+    "bytes": 9058
+  },
+  "reload_audio/uspis_92fs-1.pcm": {
+    "id": 1241,
+    "bytes": 1772
+  },
+  "reload_audio/uspis_92fs-2.pcm": {
+    "id": 1242,
+    "bytes": 9700
+  },
+  "reload_audio/uspis_92fs-3.pcm": {
+    "id": 1243,
+    "bytes": 4254
+  },
+  "reload_audio/uspis_92fs_silencer-0.pcm": {
+    "id": 1244,
+    "bytes": 9058
+  },
+  "reload_audio/uspis_92fs_silencer-1.pcm": {
+    "id": 1245,
+    "bytes": 1772
+  },
+  "reload_audio/uspis_92fs_silencer-2.pcm": {
+    "id": 1246,
+    "bytes": 9700
+  },
+  "reload_audio/uspis_92fs_silencer-3.pcm": {
+    "id": 1247,
+    "bytes": 4254
+  },
+  "reload_audio/rupis_baghira-0.pcm": {
+    "id": 1248,
+    "bytes": 9058
+  },
+  "reload_audio/rupis_baghira-1.pcm": {
+    "id": 1249,
+    "bytes": 1772
+  },
+  "reload_audio/rupis_baghira-2.pcm": {
+    "id": 1250,
+    "bytes": 9700
+  },
+  "reload_audio/rupis_baghira-3.pcm": {
+    "id": 1251,
+    "bytes": 4254
+  },
+  "reload_audio/rupis_baghira_silencer-0.pcm": {
+    "id": 1252,
+    "bytes": 9058
+  },
+  "reload_audio/rupis_baghira_silencer-1.pcm": {
+    "id": 1253,
+    "bytes": 1772
+  },
+  "reload_audio/rupis_baghira_silencer-2.pcm": {
+    "id": 1254,
+    "bytes": 9700
+  },
+  "reload_audio/rupis_baghira_silencer-3.pcm": {
+    "id": 1255,
+    "bytes": 4254
+  },
+  "reload_audio/chpis_qsz92-0.pcm": {
+    "id": 1256,
+    "bytes": 9058
+  },
+  "reload_audio/chpis_qsz92-1.pcm": {
+    "id": 1257,
+    "bytes": 1772
+  },
+  "reload_audio/chpis_qsz92-2.pcm": {
+    "id": 1258,
+    "bytes": 9700
+  },
+  "reload_audio/chpis_qsz92-3.pcm": {
+    "id": 1259,
+    "bytes": 4254
+  },
+  "reload_audio/chpis_qsz92_silencer-0.pcm": {
+    "id": 1260,
+    "bytes": 9058
+  },
+  "reload_audio/chpis_qsz92_silencer-1.pcm": {
+    "id": 1261,
+    "bytes": 1772
+  },
+  "reload_audio/chpis_qsz92_silencer-2.pcm": {
+    "id": 1262,
+    "bytes": 9700
+  },
+  "reload_audio/chpis_qsz92_silencer-3.pcm": {
+    "id": 1263,
+    "bytes": 4254
+  },
+  "reload_audio/rurrif_ak74u-0.pcm": {
+    "id": 1264,
+    "bytes": 12788
+  },
+  "reload_audio/rurrif_ak74u-1.pcm": {
+    "id": 1265,
+    "bytes": 14552
+  },
+  "reload_audio/rurrif_ak74u-2.pcm": {
+    "id": 1266,
+    "bytes": 13670
+  },
+  "reload_audio/rurrif_ak74u-3.pcm": {
+    "id": 1267,
+    "bytes": 15436
+  },
+  "reload_audio/m67-pin-release.pcm": {
+    "id": 1500,
+    "bytes": 18522
+  },
+  "reload_audio/wf_ump45-0.pcm": {
+    "id": 1268,
+    "bytes": 9702
+  },
+  "reload_audio/wf_ump45-1.pcm": {
+    "id": 1269,
+    "bytes": 8820
+  },
+  "reload_audio/wf_ump45-2.pcm": {
+    "id": 1270,
+    "bytes": 7498
+  },
+  "reload_audio/wf_ump45-3.pcm": {
+    "id": 1271,
+    "bytes": 9702
+  },
+  "reload_audio/aix_mac11-0.pcm": {
+    "id": 1272,
+    "bytes": 9702
+  },
+  "reload_audio/aix_mac11-1.pcm": {
+    "id": 1273,
+    "bytes": 9702
+  },
+  "reload_audio/aix_mac11-2.pcm": {
+    "id": 1274,
+    "bytes": 9702
+  },
+  "reload_audio/aix_mac11-3.pcm": {
+    "id": 1275,
+    "bytes": 9702
+  },
+  "reload_audio/aix_p90-0.pcm": {
+    "id": 1276,
+    "bytes": 9702
+  },
+  "reload_audio/aix_p90-1.pcm": {
+    "id": 1277,
+    "bytes": 9702
+  },
+  "reload_audio/aix_p90-2.pcm": {
+    "id": 1278,
+    "bytes": 9702
+  },
+  "reload_audio/aix_p90-3.pcm": {
+    "id": 1279,
+    "bytes": 9702
+  },
+  "reload_audio/hk_mp5sd-0.pcm": {
+    "id": 1280,
+    "bytes": 9702
+  },
+  "reload_audio/hk_mp5sd-1.pcm": {
+    "id": 1281,
+    "bytes": 9702
+  },
+  "reload_audio/hk_mp5sd-2.pcm": {
+    "id": 1282,
+    "bytes": 9702
+  },
+  "reload_audio/hk_mp5sd-3.pcm": {
+    "id": 1283,
+    "bytes": 9702
+  },
+  "reload_audio/qcw05-0.pcm": {
+    "id": 1284,
+    "bytes": 9702
+  },
+  "reload_audio/qcw05-1.pcm": {
+    "id": 1285,
+    "bytes": 9702
+  },
+  "reload_audio/qcw05-2.pcm": {
+    "id": 1286,
+    "bytes": 9702
+  },
+  "reload_audio/qcw05-3.pcm": {
+    "id": 1287,
+    "bytes": 9702
+  },
+  "reload_audio/wf_ksvc-0.pcm": {
+    "id": 1288,
+    "bytes": 9702
+  },
+  "reload_audio/wf_ksvc-1.pcm": {
+    "id": 1289,
+    "bytes": 9702
+  },
+  "reload_audio/wf_ksvc-2.pcm": {
+    "id": 1290,
+    "bytes": 9702
+  },
+  "reload_audio/wf_ksvc-3.pcm": {
+    "id": 1291,
+    "bytes": 9702
+  },
+  "reload_audio/wf_mp7-0.pcm": {
+    "id": 1292,
+    "bytes": 9702
+  },
+  "reload_audio/wf_mp7-1.pcm": {
+    "id": 1293,
+    "bytes": 9702
+  },
+  "reload_audio/wf_mp7-2.pcm": {
+    "id": 1294,
+    "bytes": 7498
+  },
+  "reload_audio/wf_mp7-3.pcm": {
+    "id": 1295,
+    "bytes": 9702
+  },
+  "reload_audio/wf_mp9-0.pcm": {
+    "id": 1296,
+    "bytes": 9702
+  },
+  "reload_audio/wf_mp9-1.pcm": {
+    "id": 1297,
+    "bytes": 9702
+  },
+  "reload_audio/wf_mp9-2.pcm": {
+    "id": 1298,
+    "bytes": 7498
+  },
+  "reload_audio/wf_mp9-3.pcm": {
+    "id": 1299,
+    "bytes": 9702
+  },
+  "reload_audio/wf_mpx-0.pcm": {
+    "id": 1300,
+    "bytes": 9702
+  },
+  "reload_audio/wf_mpx-1.pcm": {
+    "id": 1301,
+    "bytes": 9702
+  },
+  "reload_audio/wf_mpx-2.pcm": {
+    "id": 1302,
+    "bytes": 2
+  },
+  "reload_audio/wf_mpx-3.pcm": {
+    "id": 1303,
+    "bytes": 2
+  },
+  "reload_audio/wf_p90c-0.pcm": {
+    "id": 1304,
+    "bytes": 9702
+  },
+  "reload_audio/wf_p90c-1.pcm": {
+    "id": 1305,
+    "bytes": 9702
+  },
+  "reload_audio/wf_p90c-2.pcm": {
+    "id": 1306,
+    "bytes": 9702
+  },
+  "reload_audio/wf_p90c-3.pcm": {
+    "id": 1307,
+    "bytes": 9702
+  },
+  "reload_audio/wf_pp19-0.pcm": {
+    "id": 1308,
+    "bytes": 9702
+  },
+  "reload_audio/wf_pp19-1.pcm": {
+    "id": 1309,
+    "bytes": 9702
+  },
+  "reload_audio/wf_pp19-2.pcm": {
+    "id": 1310,
+    "bytes": 9702
+  },
+  "reload_audio/wf_pp19-3.pcm": {
+    "id": 1311,
+    "bytes": 9702
+  },
+  "reload_audio/wf_pdrc-0.pcm": {
+    "id": 1312,
+    "bytes": 9702
+  },
+  "reload_audio/wf_pdrc-1.pcm": {
+    "id": 1313,
+    "bytes": 9702
+  },
+  "reload_audio/wf_pdrc-2.pcm": {
+    "id": 1314,
+    "bytes": 9702
+  },
+  "reload_audio/wf_pdrc-3.pcm": {
+    "id": 1315,
+    "bytes": 9702
+  },
+  "reload_audio/wf_scarlpdw-0.pcm": {
+    "id": 1316,
+    "bytes": 9702
+  },
+  "reload_audio/wf_scarlpdw-1.pcm": {
+    "id": 1317,
+    "bytes": 9702
+  },
+  "reload_audio/wf_scarlpdw-2.pcm": {
+    "id": 1318,
+    "bytes": 8582
+  },
+  "reload_audio/wf_scarlpdw-3.pcm": {
+    "id": 1319,
+    "bytes": 9702
+  },
+  "reload_audio/wf_cksp-0.pcm": {
+    "id": 1320,
+    "bytes": 9702
+  },
+  "reload_audio/wf_cksp-1.pcm": {
+    "id": 1321,
+    "bytes": 9702
+  },
+  "reload_audio/wf_cksp-2.pcm": {
+    "id": 1322,
+    "bytes": 7498
+  },
+  "reload_audio/wf_cksp-3.pcm": {
+    "id": 1323,
+    "bytes": 9702
+  },
+  "reload_audio/wf_aachb-0.pcm": {
+    "id": 1324,
+    "bytes": 9702
+  },
+  "reload_audio/wf_aachb-1.pcm": {
+    "id": 1325,
+    "bytes": 9702
+  },
+  "reload_audio/wf_aachb-2.pcm": {
+    "id": 1326,
+    "bytes": 7498
+  },
+  "reload_audio/wf_aachb-3.pcm": {
+    "id": 1327,
+    "bytes": 9702
+  },
+  "reload_audio/aix_ak5_tactical-0.pcm": {
+    "id": 2000,
+    "bytes": 9702
+  },
+  "reload_audio/aix_ak5_tactical-1.pcm": {
+    "id": 2001,
+    "bytes": 9702
+  },
+  "reload_audio/aix_ak5_tactical-2.pcm": {
+    "id": 2002,
+    "bytes": 9702
+  },
+  "reload_audio/aix_ak5_tactical-3.pcm": {
+    "id": 2003,
+    "bytes": 9702
+  },
+  "reload_audio/aix_famas-0.pcm": {
+    "id": 2004,
+    "bytes": 9702
+  },
+  "reload_audio/aix_famas-1.pcm": {
+    "id": 2005,
+    "bytes": 9702
+  },
+  "reload_audio/aix_famas-2.pcm": {
+    "id": 2006,
+    "bytes": 9702
+  },
+  "reload_audio/aix_famas-3.pcm": {
+    "id": 2007,
+    "bytes": 9702
+  },
+  "reload_audio/aix_fs2000-0.pcm": {
+    "id": 2008,
+    "bytes": 9702
+  },
+  "reload_audio/aix_fs2000-1.pcm": {
+    "id": 2009,
+    "bytes": 9702
+  },
+  "reload_audio/aix_fs2000-2.pcm": {
+    "id": 2010,
+    "bytes": 9702
+  },
+  "reload_audio/aix_fs2000-3.pcm": {
+    "id": 2011,
+    "bytes": 9702
+  },
+  "reload_audio/aix_g36k_rif-0.pcm": {
+    "id": 2012,
+    "bytes": 9702
+  },
+  "reload_audio/aix_g36k_rif-1.pcm": {
+    "id": 2013,
+    "bytes": 9702
+  },
+  "reload_audio/aix_g36k_rif-2.pcm": {
+    "id": 2014,
+    "bytes": 9702
+  },
+  "reload_audio/aix_g36k_rif-3.pcm": {
+    "id": 2015,
+    "bytes": 9702
+  },
+  "reload_audio/aix_g36v-0.pcm": {
+    "id": 2016,
+    "bytes": 9702
+  },
+  "reload_audio/aix_g36v-1.pcm": {
+    "id": 2017,
+    "bytes": 9702
+  },
+  "reload_audio/aix_g36v-2.pcm": {
+    "id": 2018,
+    "bytes": 9702
+  },
+  "reload_audio/aix_g36v-3.pcm": {
+    "id": 2019,
+    "bytes": 9702
+  },
+  "reload_audio/aix_hk416-0.pcm": {
+    "id": 2020,
+    "bytes": 9702
+  },
+  "reload_audio/aix_hk416-1.pcm": {
+    "id": 2021,
+    "bytes": 9702
+  },
+  "reload_audio/aix_hk416-2.pcm": {
+    "id": 2022,
+    "bytes": 9702
+  },
+  "reload_audio/aix_hk416-3.pcm": {
+    "id": 2023,
+    "bytes": 8696
+  },
+  "reload_audio/aix_m41a-0.pcm": {
+    "id": 2024,
+    "bytes": 9702
+  },
+  "reload_audio/aix_m41a-1.pcm": {
+    "id": 2025,
+    "bytes": 9702
+  },
+  "reload_audio/aix_m41a-2.pcm": {
+    "id": 2026,
+    "bytes": 7498
+  },
+  "reload_audio/aix_m41a-3.pcm": {
+    "id": 2027,
+    "bytes": 9702
+  },
+  "reload_audio/aix_magpul-0.pcm": {
+    "id": 2028,
+    "bytes": 9702
+  },
+  "reload_audio/aix_magpul-1.pcm": {
+    "id": 2029,
+    "bytes": 9702
+  },
+  "reload_audio/aix_magpul-2.pcm": {
+    "id": 2030,
+    "bytes": 9702
+  },
+  "reload_audio/aix_magpul-3.pcm": {
+    "id": 2031,
+    "bytes": 9702
+  },
+  "reload_audio/aix_scarl_rif-0.pcm": {
+    "id": 2032,
+    "bytes": 9702
+  },
+  "reload_audio/aix_scarl_rif-1.pcm": {
+    "id": 2033,
+    "bytes": 9702
+  },
+  "reload_audio/aix_scarl_rif-2.pcm": {
+    "id": 2034,
+    "bytes": 9702
+  },
+  "reload_audio/aix_scarl_rif-3.pcm": {
+    "id": 2035,
+    "bytes": 9702
+  },
+  "reload_audio/aix_sig552-0.pcm": {
+    "id": 2036,
+    "bytes": 9702
+  },
+  "reload_audio/aix_sig552-1.pcm": {
+    "id": 2037,
+    "bytes": 9702
+  },
+  "reload_audio/aix_sig552-2.pcm": {
+    "id": 2038,
+    "bytes": 9702
+  },
+  "reload_audio/aix_sig552-3.pcm": {
+    "id": 2039,
+    "bytes": 9702
+  },
+  "reload_audio/aix_sig552specops-0.pcm": {
+    "id": 2040,
+    "bytes": 9702
+  },
+  "reload_audio/aix_sig552specops-1.pcm": {
+    "id": 2041,
+    "bytes": 9702
+  },
+  "reload_audio/aix_sig552specops-2.pcm": {
+    "id": 2042,
+    "bytes": 9702
+  },
+  "reload_audio/aix_sig552specops-3.pcm": {
+    "id": 2043,
+    "bytes": 9702
+  },
+  "reload_audio/aix_steyr_aug-0.pcm": {
+    "id": 2044,
+    "bytes": 9702
+  },
+  "reload_audio/aix_steyr_aug-1.pcm": {
+    "id": 2045,
+    "bytes": 9702
+  },
+  "reload_audio/aix_steyr_aug-2.pcm": {
+    "id": 2046,
+    "bytes": 9702
+  },
+  "reload_audio/aix_steyr_aug-3.pcm": {
+    "id": 2047,
+    "bytes": 9702
+  },
+  "reload_audio/aix_stg58-0.pcm": {
+    "id": 2048,
+    "bytes": 9702
+  },
+  "reload_audio/aix_stg58-1.pcm": {
+    "id": 2049,
+    "bytes": 9702
+  },
+  "reload_audio/aix_stg58-2.pcm": {
+    "id": 2050,
+    "bytes": 9702
+  },
+  "reload_audio/aix_stg58-3.pcm": {
+    "id": 2051,
+    "bytes": 9702
+  },
+  "reload_audio/aix_tavor-0.pcm": {
+    "id": 2052,
+    "bytes": 9702
+  },
+  "reload_audio/aix_tavor-1.pcm": {
+    "id": 2053,
+    "bytes": 9700
+  },
+  "reload_audio/aix_tavor-2.pcm": {
+    "id": 2054,
+    "bytes": 9702
+  },
+  "reload_audio/aix_tavor-3.pcm": {
+    "id": 2055,
+    "bytes": 9702
+  },
+  "reload_audio/aix_type97-0.pcm": {
+    "id": 2056,
+    "bytes": 9702
+  },
+  "reload_audio/aix_type97-1.pcm": {
+    "id": 2057,
+    "bytes": 9702
+  },
+  "reload_audio/aix_type97-2.pcm": {
+    "id": 2058,
+    "bytes": 9702
+  },
+  "reload_audio/aix_type97-3.pcm": {
+    "id": 2059,
+    "bytes": 9702
+  },
+  "reload_audio/aix_xm8-0.pcm": {
+    "id": 2060,
+    "bytes": 9702
+  },
+  "reload_audio/aix_xm8-1.pcm": {
+    "id": 2061,
+    "bytes": 9702
+  },
+  "reload_audio/aix_xm8-2.pcm": {
+    "id": 2062,
+    "bytes": 9702
+  },
+  "reload_audio/aix_xm8-3.pcm": {
+    "id": 2063,
+    "bytes": 9702
+  },
+  "reload_audio/bf4_aku12_kobra-0.pcm": {
+    "id": 2064,
+    "bytes": 9702
+  },
+  "reload_audio/bf4_aku12_kobra-1.pcm": {
+    "id": 2065,
+    "bytes": 9702
+  },
+  "reload_audio/bf4_aku12_kobra-2.pcm": {
+    "id": 2066,
+    "bytes": 9702
+  },
+  "reload_audio/bf4_aku12_kobra-3.pcm": {
+    "id": 2067,
+    "bytes": 9702
+  },
+  "reload_audio/wf_a545-0.pcm": {
+    "id": 2068,
+    "bytes": 9702
+  },
+  "reload_audio/wf_a545-1.pcm": {
+    "id": 2069,
+    "bytes": 9702
+  },
+  "reload_audio/wf_a545-2.pcm": {
+    "id": 2070,
+    "bytes": 9702
+  },
+  "reload_audio/wf_a545-3.pcm": {
+    "id": 2071,
+    "bytes": 9702
+  },
+  "reload_audio/wf_a545s-0.pcm": {
+    "id": 2072,
+    "bytes": 9702
+  },
+  "reload_audio/wf_a545s-1.pcm": {
+    "id": 2073,
+    "bytes": 9702
+  },
+  "reload_audio/wf_a545s-2.pcm": {
+    "id": 2074,
+    "bytes": 9702
+  },
+  "reload_audio/wf_a545s-3.pcm": {
+    "id": 2075,
+    "bytes": 9702
+  },
+  "reload_audio/wf_acrcqb-0.pcm": {
+    "id": 2076,
+    "bytes": 9702
+  },
+  "reload_audio/wf_acrcqb-1.pcm": {
+    "id": 2077,
+    "bytes": 9702
+  },
+  "reload_audio/wf_acrcqb-2.pcm": {
+    "id": 2078,
+    "bytes": 9702
+  },
+  "reload_audio/wf_acrcqb-3.pcm": {
+    "id": 2079,
+    "bytes": 9700
+  },
+  "reload_audio/wf_ak12-0.pcm": {
+    "id": 2080,
+    "bytes": 9702
+  },
+  "reload_audio/wf_ak12-1.pcm": {
+    "id": 2081,
+    "bytes": 9702
+  },
+  "reload_audio/wf_ak12-2.pcm": {
+    "id": 2082,
+    "bytes": 9702
+  },
+  "reload_audio/wf_ak12-3.pcm": {
+    "id": 2083,
+    "bytes": 9702
+  },
+  "reload_audio/wf_ak12s-0.pcm": {
+    "id": 2084,
+    "bytes": 9702
+  },
+  "reload_audio/wf_ak12s-1.pcm": {
+    "id": 2085,
+    "bytes": 9702
+  },
+  "reload_audio/wf_ak12s-2.pcm": {
+    "id": 2086,
+    "bytes": 9702
+  },
+  "reload_audio/wf_ak12s-3.pcm": {
+    "id": 2087,
+    "bytes": 9702
+  },
+  "reload_audio/wf_akalpha-0.pcm": {
+    "id": 2088,
+    "bytes": 9702
+  },
+  "reload_audio/wf_akalpha-1.pcm": {
+    "id": 2089,
+    "bytes": 9702
+  },
+  "reload_audio/wf_akalpha-2.pcm": {
+    "id": 2090,
+    "bytes": 9702
+  },
+  "reload_audio/wf_akalpha-3.pcm": {
+    "id": 2091,
+    "bytes": 9702
+  },
+  "reload_audio/wf_akalphas-0.pcm": {
+    "id": 2092,
+    "bytes": 9702
+  },
+  "reload_audio/wf_akalphas-1.pcm": {
+    "id": 2093,
+    "bytes": 9702
+  },
+  "reload_audio/wf_akalphas-2.pcm": {
+    "id": 2094,
+    "bytes": 9702
+  },
+  "reload_audio/wf_akalphas-3.pcm": {
+    "id": 2095,
+    "bytes": 9702
+  },
+  "reload_audio/wf_an94-0.pcm": {
+    "id": 2096,
+    "bytes": 9702
+  },
+  "reload_audio/wf_an94-1.pcm": {
+    "id": 2097,
+    "bytes": 9702
+  },
+  "reload_audio/wf_an94-2.pcm": {
+    "id": 2098,
+    "bytes": 9702
+  },
+  "reload_audio/wf_an94-3.pcm": {
+    "id": 2099,
+    "bytes": 9702
+  },
+  "reload_audio/wf_an94s-0.pcm": {
+    "id": 2100,
+    "bytes": 9702
+  },
+  "reload_audio/wf_an94s-1.pcm": {
+    "id": 2101,
+    "bytes": 9702
+  },
+  "reload_audio/wf_an94s-2.pcm": {
+    "id": 2102,
+    "bytes": 9702
+  },
+  "reload_audio/wf_an94s-3.pcm": {
+    "id": 2103,
+    "bytes": 9702
+  },
+  "reload_audio/wf_ar15-0.pcm": {
+    "id": 2104,
+    "bytes": 9702
+  },
+  "reload_audio/wf_ar15-1.pcm": {
+    "id": 2105,
+    "bytes": 9702
+  },
+  "reload_audio/wf_ar15-2.pcm": {
+    "id": 2106,
+    "bytes": 2
+  },
+  "reload_audio/wf_ar15-3.pcm": {
+    "id": 2107,
+    "bytes": 2
+  },
+  "reload_audio/wf_ar15s-0.pcm": {
+    "id": 2108,
+    "bytes": 9702
+  },
+  "reload_audio/wf_ar15s-1.pcm": {
+    "id": 2109,
+    "bytes": 9702
+  },
+  "reload_audio/wf_ar15s-2.pcm": {
+    "id": 2110,
+    "bytes": 2
+  },
+  "reload_audio/wf_ar15s-3.pcm": {
+    "id": 2111,
+    "bytes": 2
+  },
+  "reload_audio/wf_arx160-0.pcm": {
+    "id": 2112,
+    "bytes": 9702
+  },
+  "reload_audio/wf_arx160-1.pcm": {
+    "id": 2113,
+    "bytes": 9702
+  },
+  "reload_audio/wf_arx160-2.pcm": {
+    "id": 2114,
+    "bytes": 9702
+  },
+  "reload_audio/wf_arx160-3.pcm": {
+    "id": 2115,
+    "bytes": 9702
+  },
+  "reload_audio/wf_arx160s-0.pcm": {
+    "id": 2116,
+    "bytes": 9702
+  },
+  "reload_audio/wf_arx160s-1.pcm": {
+    "id": 2117,
+    "bytes": 9702
+  },
+  "reload_audio/wf_arx160s-2.pcm": {
+    "id": 2118,
+    "bytes": 9702
+  },
+  "reload_audio/wf_arx160s-3.pcm": {
+    "id": 2119,
+    "bytes": 9702
+  },
+  "reload_audio/wf_asval-0.pcm": {
+    "id": 2120,
+    "bytes": 9702
+  },
+  "reload_audio/wf_asval-1.pcm": {
+    "id": 2121,
+    "bytes": 9702
+  },
+  "reload_audio/wf_asval-2.pcm": {
+    "id": 2122,
+    "bytes": 9702
+  },
+  "reload_audio/wf_asval-3.pcm": {
+    "id": 2123,
+    "bytes": 9702
+  },
+  "reload_audio/wf_auga3-0.pcm": {
+    "id": 2124,
+    "bytes": 9702
+  },
+  "reload_audio/wf_auga3-1.pcm": {
+    "id": 2125,
+    "bytes": 9702
+  },
+  "reload_audio/wf_auga3-2.pcm": {
+    "id": 2126,
+    "bytes": 9702
+  },
+  "reload_audio/wf_auga3-3.pcm": {
+    "id": 2127,
+    "bytes": 9702
+  },
+  "reload_audio/wf_f2000-0.pcm": {
+    "id": 2128,
+    "bytes": 9702
+  },
+  "reload_audio/wf_f2000-1.pcm": {
+    "id": 2129,
+    "bytes": 9702
+  },
+  "reload_audio/wf_f2000-2.pcm": {
+    "id": 2130,
+    "bytes": 9702
+  },
+  "reload_audio/wf_f2000-3.pcm": {
+    "id": 2131,
+    "bytes": 9702
+  },
+  "reload_audio/wf_g36k-0.pcm": {
+    "id": 2132,
+    "bytes": 9702
+  },
+  "reload_audio/wf_g36k-1.pcm": {
+    "id": 2133,
+    "bytes": 9702
+  },
+  "reload_audio/wf_g36k-2.pcm": {
+    "id": 2134,
+    "bytes": 9702
+  },
+  "reload_audio/wf_g36k-3.pcm": {
+    "id": 2135,
+    "bytes": 9702
+  },
+  "reload_audio/wf_hk433-0.pcm": {
+    "id": 2136,
+    "bytes": 9702
+  },
+  "reload_audio/wf_hk433-1.pcm": {
+    "id": 2137,
+    "bytes": 9702
+  },
+  "reload_audio/wf_hk433-2.pcm": {
+    "id": 2138,
+    "bytes": 9702
+  },
+  "reload_audio/wf_hk433-3.pcm": {
+    "id": 2139,
+    "bytes": 9702
+  },
+  "reload_audio/wf_mdrx-0.pcm": {
+    "id": 2140,
+    "bytes": 9702
+  },
+  "reload_audio/wf_mdrx-1.pcm": {
+    "id": 2141,
+    "bytes": 9702
+  },
+  "reload_audio/wf_mdrx-2.pcm": {
+    "id": 2142,
+    "bytes": 7498
+  },
+  "reload_audio/wf_mdrx-3.pcm": {
+    "id": 2143,
+    "bytes": 9702
+  },
+  "reload_audio/wf_mdrxs-0.pcm": {
+    "id": 2144,
+    "bytes": 9702
+  },
+  "reload_audio/wf_mdrxs-1.pcm": {
+    "id": 2145,
+    "bytes": 9702
+  },
+  "reload_audio/wf_mdrxs-2.pcm": {
+    "id": 2146,
+    "bytes": 7498
+  },
+  "reload_audio/wf_mdrxs-3.pcm": {
+    "id": 2147,
+    "bytes": 9702
+  },
+  "reload_audio/wf_ots14-0.pcm": {
+    "id": 2148,
+    "bytes": 9702
+  },
+  "reload_audio/wf_ots14-1.pcm": {
+    "id": 2149,
+    "bytes": 9702
+  },
+  "reload_audio/wf_ots14-2.pcm": {
+    "id": 2150,
+    "bytes": 9702
+  },
+  "reload_audio/wf_ots14-3.pcm": {
+    "id": 2151,
+    "bytes": 9702
+  },
+  "reload_audio/wf_qbz191-0.pcm": {
+    "id": 2152,
+    "bytes": 9702
+  },
+  "reload_audio/wf_qbz191-1.pcm": {
+    "id": 2153,
+    "bytes": 9702
+  },
+  "reload_audio/wf_qbz191-2.pcm": {
+    "id": 2154,
+    "bytes": 9702
+  },
+  "reload_audio/wf_qbz191-3.pcm": {
+    "id": 2155,
+    "bytes": 9702
+  },
+  "reload_audio/wf_qbz191s-0.pcm": {
+    "id": 2156,
+    "bytes": 9702
+  },
+  "reload_audio/wf_qbz191s-1.pcm": {
+    "id": 2157,
+    "bytes": 9702
+  },
+  "reload_audio/wf_qbz191s-2.pcm": {
+    "id": 2158,
+    "bytes": 9702
+  },
+  "reload_audio/wf_qbz191s-3.pcm": {
+    "id": 2159,
+    "bytes": 9702
+  },
+  "reload_audio/wf_scarh-0.pcm": {
+    "id": 2160,
+    "bytes": 9702
+  },
+  "reload_audio/wf_scarh-1.pcm": {
+    "id": 2161,
+    "bytes": 9702
+  },
+  "reload_audio/wf_scarh-2.pcm": {
+    "id": 2162,
+    "bytes": 9702
+  },
+  "reload_audio/wf_scarh-3.pcm": {
+    "id": 2163,
+    "bytes": 9702
+  },
+  "reload_audio/wf_scarhs-0.pcm": {
+    "id": 2164,
+    "bytes": 9702
+  },
+  "reload_audio/wf_scarhs-1.pcm": {
+    "id": 2165,
+    "bytes": 9702
+  },
+  "reload_audio/wf_scarhs-2.pcm": {
+    "id": 2166,
+    "bytes": 9702
+  },
+  "reload_audio/wf_scarhs-3.pcm": {
+    "id": 2167,
+    "bytes": 9702
+  },
+  "reload_audio/wf_sig552c-0.pcm": {
+    "id": 2168,
+    "bytes": 9702
+  },
+  "reload_audio/wf_sig552c-1.pcm": {
+    "id": 2169,
+    "bytes": 9702
+  },
+  "reload_audio/wf_sig552c-2.pcm": {
+    "id": 2170,
+    "bytes": 9702
+  },
+  "reload_audio/wf_sig552c-3.pcm": {
+    "id": 2171,
+    "bytes": 9702
+  },
+  "reload_audio/wf_type97-0.pcm": {
+    "id": 2172,
+    "bytes": 9702
+  },
+  "reload_audio/wf_type97-1.pcm": {
+    "id": 2173,
+    "bytes": 9702
+  },
+  "reload_audio/wf_type97-2.pcm": {
+    "id": 2174,
+    "bytes": 9702
+  },
+  "reload_audio/wf_type97-3.pcm": {
+    "id": 2175,
+    "bytes": 9702
+  },
+  "reload_audio/wf_type97b-0.pcm": {
+    "id": 2176,
+    "bytes": 9702
+  },
+  "reload_audio/wf_type97b-1.pcm": {
+    "id": 2177,
+    "bytes": 9702
+  },
+  "reload_audio/wf_type97b-2.pcm": {
+    "id": 2178,
+    "bytes": 9702
+  },
+  "reload_audio/wf_type97b-3.pcm": {
+    "id": 2179,
+    "bytes": 9700
+  },
+  "reload_audio/wf_vhs2-0.pcm": {
+    "id": 2180,
+    "bytes": 9702
+  },
+  "reload_audio/wf_vhs2-1.pcm": {
+    "id": 2181,
+    "bytes": 9702
+  },
+  "reload_audio/wf_vhs2-2.pcm": {
+    "id": 2182,
+    "bytes": 2
+  },
+  "reload_audio/wf_vhs2-3.pcm": {
+    "id": 2183,
+    "bytes": 2
+  },
+  "reload_audio/wf_vhs2s-0.pcm": {
+    "id": 2184,
+    "bytes": 9702
+  },
+  "reload_audio/wf_vhs2s-1.pcm": {
+    "id": 2185,
+    "bytes": 9702
+  },
+  "reload_audio/wf_vhs2s-2.pcm": {
+    "id": 2186,
+    "bytes": 2
+  },
+  "reload_audio/wf_vhs2s-3.pcm": {
+    "id": 2187,
+    "bytes": 2
+  },
+  "reload_audio/wf_xm8-0.pcm": {
+    "id": 2188,
+    "bytes": 9702
+  },
+  "reload_audio/wf_xm8-1.pcm": {
+    "id": 2189,
+    "bytes": 9702
+  },
+  "reload_audio/wf_xm8-2.pcm": {
+    "id": 2190,
+    "bytes": 9702
+  },
+  "reload_audio/wf_xm8-3.pcm": {
+    "id": 2191,
+    "bytes": 9702
+  },
+  "reload_audio/wf_xm8s-0.pcm": {
+    "id": 2192,
+    "bytes": 9702
+  },
+  "reload_audio/wf_xm8s-1.pcm": {
+    "id": 2193,
+    "bytes": 9702
+  },
+  "reload_audio/wf_xm8s-2.pcm": {
+    "id": 2194,
+    "bytes": 9702
+  },
+  "reload_audio/wf_xm8s-3.pcm": {
+    "id": 2195,
+    "bytes": 9702
+  },
+  "reload_audio/chrif_type95-0.pcm": {
+    "id": 2196,
+    "bytes": 9702
+  },
+  "reload_audio/chrif_type95-1.pcm": {
+    "id": 2197,
+    "bytes": 9702
+  },
+  "reload_audio/chrif_type95-2.pcm": {
+    "id": 2198,
+    "bytes": 9702
+  },
+  "reload_audio/chrif_type95-3.pcm": {
+    "id": 2199,
+    "bytes": 9702
+  },
+  "reload_audio/chrif_type95_b-0.pcm": {
+    "id": 2200,
+    "bytes": 9702
+  },
+  "reload_audio/chrif_type95_b-1.pcm": {
+    "id": 2201,
+    "bytes": 9702
+  },
+  "reload_audio/chrif_type95_b-2.pcm": {
+    "id": 2202,
+    "bytes": 9702
+  },
+  "reload_audio/chrif_type95_b-3.pcm": {
+    "id": 2203,
+    "bytes": 9702
+  },
+  "reload_audio/eurif_hk53a3-0.pcm": {
+    "id": 2204,
+    "bytes": 9702
+  },
+  "reload_audio/eurif_hk53a3-1.pcm": {
+    "id": 2205,
+    "bytes": 9702
+  },
+  "reload_audio/eurif_hk53a3-2.pcm": {
+    "id": 2206,
+    "bytes": 9702
+  },
+  "reload_audio/eurif_hk53a3-3.pcm": {
+    "id": 2207,
+    "bytes": 9702
+  },
+  "reload_audio/sasrif_g36k-0.pcm": {
+    "id": 2208,
+    "bytes": 9702
+  },
+  "reload_audio/sasrif_g36k-1.pcm": {
+    "id": 2209,
+    "bytes": 9702
+  },
+  "reload_audio/sasrif_g36k-2.pcm": {
+    "id": 2210,
+    "bytes": 9702
+  },
+  "reload_audio/sasrif_g36k-3.pcm": {
+    "id": 2211,
+    "bytes": 9702
+  },
+  "reload_audio/usrif_fnscarh-0.pcm": {
+    "id": 2212,
+    "bytes": 9702
+  },
+  "reload_audio/usrif_fnscarh-1.pcm": {
+    "id": 2213,
+    "bytes": 9702
+  },
+  "reload_audio/usrif_fnscarh-2.pcm": {
+    "id": 2214,
+    "bytes": 9702
+  },
+  "reload_audio/usrif_fnscarh-3.pcm": {
+    "id": 2215,
+    "bytes": 9702
+  },
+  "reload_audio/usrif_fnscarl-0.pcm": {
+    "id": 2216,
+    "bytes": 9702
+  },
+  "reload_audio/usrif_fnscarl-1.pcm": {
+    "id": 2217,
+    "bytes": 9702
+  },
+  "reload_audio/usrif_fnscarl-2.pcm": {
+    "id": 2218,
+    "bytes": 9702
+  },
+  "reload_audio/usrif_fnscarl-3.pcm": {
+    "id": 2219,
+    "bytes": 9702
+  },
+  "reload_audio/usrif_g36c-0.pcm": {
+    "id": 2220,
+    "bytes": 9702
+  },
+  "reload_audio/usrif_g36c-1.pcm": {
+    "id": 2221,
+    "bytes": 9702
+  },
+  "reload_audio/usrif_g36c-2.pcm": {
+    "id": 2222,
+    "bytes": 9702
+  },
+  "reload_audio/usrif_g36c-3.pcm": {
+    "id": 2223,
+    "bytes": 9702
+  },
+  "reload_audio/aix_type97_mg-0.pcm": {
+    "id": 2224,
+    "bytes": 11466
+  },
+  "reload_audio/aix_type97_mg-1.pcm": {
+    "id": 2225,
+    "bytes": 11466
+  },
+  "reload_audio/aix_type97_mg-2.pcm": {
+    "id": 2226,
+    "bytes": 11466
+  },
+  "reload_audio/aix_type97_mg-3.pcm": {
+    "id": 2227,
+    "bytes": 11466
+  },
+  "reload_audio/aix_type97_mg-4.pcm": {
+    "id": 3000,
+    "bytes": 2
+  },
+  "reload_audio/aix_type97_mg-5.pcm": {
+    "id": 3001,
+    "bytes": 2
+  },
+  "reload_audio/aix_type97_mg-6.pcm": {
+    "id": 3002,
+    "bytes": 2
+  },
+  "reload_audio/bf4_l86a1_eotech-0.pcm": {
+    "id": 2228,
+    "bytes": 11466
+  },
+  "reload_audio/bf4_l86a1_eotech-1.pcm": {
+    "id": 2229,
+    "bytes": 11466
+  },
+  "reload_audio/bf4_l86a1_eotech-2.pcm": {
+    "id": 2230,
+    "bytes": 7056
+  },
+  "reload_audio/bf4_l86a1_eotech-3.pcm": {
+    "id": 2231,
+    "bytes": 10144
+  },
+  "reload_audio/bf4_l86a1_eotech-4.pcm": {
+    "id": 3003,
+    "bytes": 2
+  },
+  "reload_audio/bf4_l86a1_eotech-5.pcm": {
+    "id": 3004,
+    "bytes": 2
+  },
+  "reload_audio/bf4_l86a1_eotech-6.pcm": {
+    "id": 3005,
+    "bytes": 2
+  },
+  "reload_audio/bf4_m240b_m145-0.pcm": {
+    "id": 2232,
+    "bytes": 11466
+  },
+  "reload_audio/bf4_m240b_m145-1.pcm": {
+    "id": 2233,
+    "bytes": 11466
+  },
+  "reload_audio/bf4_m240b_m145-2.pcm": {
+    "id": 2234,
+    "bytes": 11466
+  },
+  "reload_audio/bf4_m240b_m145-3.pcm": {
+    "id": 2235,
+    "bytes": 11466
+  },
+  "reload_audio/bf4_m240b_m145-4.pcm": {
+    "id": 3006,
+    "bytes": 11466
+  },
+  "reload_audio/bf4_m240b_m145-5.pcm": {
+    "id": 3007,
+    "bytes": 11466
+  },
+  "reload_audio/bf4_m240b_m145-6.pcm": {
+    "id": 3008,
+    "bytes": 11466
+  },
+  "reload_audio/bf4_m249_reflex-0.pcm": {
+    "id": 2236,
+    "bytes": 11466
+  },
+  "reload_audio/bf4_m249_reflex-1.pcm": {
+    "id": 2237,
+    "bytes": 11466
+  },
+  "reload_audio/bf4_m249_reflex-2.pcm": {
+    "id": 2238,
+    "bytes": 11466
+  },
+  "reload_audio/bf4_m249_reflex-3.pcm": {
+    "id": 2239,
+    "bytes": 11466
+  },
+  "reload_audio/bf4_m249_reflex-4.pcm": {
+    "id": 3009,
+    "bytes": 11466
+  },
+  "reload_audio/bf4_m249_reflex-5.pcm": {
+    "id": 3010,
+    "bytes": 11026
+  },
+  "reload_audio/bf4_m249_reflex-6.pcm": {
+    "id": 3011,
+    "bytes": 11466
+  },
+  "reload_audio/bf4_m60e4_acog-0.pcm": {
+    "id": 2240,
+    "bytes": 11466
+  },
+  "reload_audio/bf4_m60e4_acog-1.pcm": {
+    "id": 2241,
+    "bytes": 11466
+  },
+  "reload_audio/bf4_m60e4_acog-2.pcm": {
+    "id": 2242,
+    "bytes": 11466
+  },
+  "reload_audio/bf4_m60e4_acog-3.pcm": {
+    "id": 2243,
+    "bytes": 11466
+  },
+  "reload_audio/bf4_m60e4_acog-4.pcm": {
+    "id": 3012,
+    "bytes": 11466
+  },
+  "reload_audio/bf4_m60e4_acog-5.pcm": {
+    "id": 3013,
+    "bytes": 11466
+  },
+  "reload_audio/bf4_m60e4_acog-6.pcm": {
+    "id": 3014,
+    "bytes": 11466
+  },
+  "reload_audio/bf4_mg4_eotech-0.pcm": {
+    "id": 2244,
+    "bytes": 11466
+  },
+  "reload_audio/bf4_mg4_eotech-1.pcm": {
+    "id": 2245,
+    "bytes": 11466
+  },
+  "reload_audio/bf4_mg4_eotech-2.pcm": {
+    "id": 2246,
+    "bytes": 11466
+  },
+  "reload_audio/bf4_mg4_eotech-3.pcm": {
+    "id": 2247,
+    "bytes": 11466
+  },
+  "reload_audio/bf4_mg4_eotech-4.pcm": {
+    "id": 3015,
+    "bytes": 11466
+  },
+  "reload_audio/bf4_mg4_eotech-5.pcm": {
+    "id": 3016,
+    "bytes": 11466
+  },
+  "reload_audio/bf4_mg4_eotech-6.pcm": {
+    "id": 3017,
+    "bytes": 11466
+  },
+  "reload_audio/bf4_rpk_pkas-0.pcm": {
+    "id": 2248,
+    "bytes": 11466
+  },
+  "reload_audio/bf4_rpk_pkas-1.pcm": {
+    "id": 2249,
+    "bytes": 11466
+  },
+  "reload_audio/bf4_rpk_pkas-2.pcm": {
+    "id": 2250,
+    "bytes": 11466
+  },
+  "reload_audio/bf4_rpk_pkas-3.pcm": {
+    "id": 2251,
+    "bytes": 11466
+  },
+  "reload_audio/bf4_rpk_pkas-4.pcm": {
+    "id": 3018,
+    "bytes": 2
+  },
+  "reload_audio/bf4_rpk_pkas-5.pcm": {
+    "id": 3019,
+    "bytes": 2
+  },
+  "reload_audio/bf4_rpk_pkas-6.pcm": {
+    "id": 3020,
+    "bytes": 2
+  },
+  "reload_audio/bf4_type88lmg_prisma-0.pcm": {
+    "id": 2252,
+    "bytes": 11466
+  },
+  "reload_audio/bf4_type88lmg_prisma-1.pcm": {
+    "id": 2253,
+    "bytes": 11466
+  },
+  "reload_audio/bf4_type88lmg_prisma-2.pcm": {
+    "id": 2254,
+    "bytes": 11466
+  },
+  "reload_audio/bf4_type88lmg_prisma-3.pcm": {
+    "id": 2255,
+    "bytes": 11466
+  },
+  "reload_audio/bf4_type88lmg_prisma-4.pcm": {
+    "id": 3021,
+    "bytes": 11466
+  },
+  "reload_audio/bf4_type88lmg_prisma-5.pcm": {
+    "id": 3022,
+    "bytes": 11466
+  },
+  "reload_audio/bf4_type88lmg_prisma-6.pcm": {
+    "id": 3023,
+    "bytes": 11466
+  },
+  "reload_audio/ch_qjs201-0.pcm": {
+    "id": 2256,
+    "bytes": 11466
+  },
+  "reload_audio/ch_qjs201-1.pcm": {
+    "id": 2257,
+    "bytes": 11466
+  },
+  "reload_audio/ch_qjs201-2.pcm": {
+    "id": 2258,
+    "bytes": 11466
+  },
+  "reload_audio/ch_qjs201-3.pcm": {
+    "id": 2259,
+    "bytes": 11466
+  },
+  "reload_audio/ch_qjs201-4.pcm": {
+    "id": 3024,
+    "bytes": 11466
+  },
+  "reload_audio/ch_qjs201-5.pcm": {
+    "id": 3025,
+    "bytes": 11466
+  },
+  "reload_audio/ch_qjs201-6.pcm": {
+    "id": 3026,
+    "bytes": 11466
+  },
+  "reload_audio/ch_qjs201qmk-0.pcm": {
+    "id": 2260,
+    "bytes": 11466
+  },
+  "reload_audio/ch_qjs201qmk-1.pcm": {
+    "id": 2261,
+    "bytes": 11466
+  },
+  "reload_audio/ch_qjs201qmk-2.pcm": {
+    "id": 2262,
+    "bytes": 11466
+  },
+  "reload_audio/ch_qjs201qmk-3.pcm": {
+    "id": 2263,
+    "bytes": 11466
+  },
+  "reload_audio/ch_qjs201qmk-4.pcm": {
+    "id": 3027,
+    "bytes": 11466
+  },
+  "reload_audio/ch_qjs201qmk-5.pcm": {
+    "id": 3028,
+    "bytes": 11466
+  },
+  "reload_audio/ch_qjs201qmk-6.pcm": {
+    "id": 3029,
+    "bytes": 11466
+  },
+  "reload_audio/germmg_mg3-0.pcm": {
+    "id": 2264,
+    "bytes": 11466
+  },
+  "reload_audio/germmg_mg3-1.pcm": {
+    "id": 2265,
+    "bytes": 11466
+  },
+  "reload_audio/germmg_mg3-2.pcm": {
+    "id": 2266,
+    "bytes": 11466
+  },
+  "reload_audio/germmg_mg3-3.pcm": {
+    "id": 2267,
+    "bytes": 11466
+  },
+  "reload_audio/germmg_mg3-4.pcm": {
+    "id": 3030,
+    "bytes": 11466
+  },
+  "reload_audio/germmg_mg3-5.pcm": {
+    "id": 3031,
+    "bytes": 11466
+  },
+  "reload_audio/germmg_mg3-6.pcm": {
+    "id": 3032,
+    "bytes": 11466
+  },
+  "reload_audio/mg_qbb95-0.pcm": {
+    "id": 2268,
+    "bytes": 11466
+  },
+  "reload_audio/mg_qbb95-1.pcm": {
+    "id": 2269,
+    "bytes": 11466
+  },
+  "reload_audio/mg_qbb95-2.pcm": {
+    "id": 2270,
+    "bytes": 11466
+  },
+  "reload_audio/mg_qbb95-3.pcm": {
+    "id": 2271,
+    "bytes": 11466
+  },
+  "reload_audio/mg_qbb95-4.pcm": {
+    "id": 3033,
+    "bytes": 2
+  },
+  "reload_audio/mg_qbb95-5.pcm": {
+    "id": 3034,
+    "bytes": 2
+  },
+  "reload_audio/mg_qbb95-6.pcm": {
+    "id": 3035,
+    "bytes": 2
+  },
+  "reload_audio/rpd-0.pcm": {
+    "id": 2272,
+    "bytes": 11466
+  },
+  "reload_audio/rpd-1.pcm": {
+    "id": 2273,
+    "bytes": 11466
+  },
+  "reload_audio/rpd-2.pcm": {
+    "id": 2274,
+    "bytes": 11466
+  },
+  "reload_audio/rpd-3.pcm": {
+    "id": 2275,
+    "bytes": 11466
+  },
+  "reload_audio/rpd-4.pcm": {
+    "id": 3036,
+    "bytes": 11466
+  },
+  "reload_audio/rpd-5.pcm": {
+    "id": 3037,
+    "bytes": 11466
+  },
+  "reload_audio/rpd-6.pcm": {
+    "id": 3038,
+    "bytes": 11466
+  },
+  "reload_audio/wf_mg36-0.pcm": {
+    "id": 2276,
+    "bytes": 11466
+  },
+  "reload_audio/wf_mg36-1.pcm": {
+    "id": 2277,
+    "bytes": 11466
+  },
+  "reload_audio/wf_mg36-2.pcm": {
+    "id": 2278,
+    "bytes": 11466
+  },
+  "reload_audio/wf_mg36-3.pcm": {
+    "id": 2279,
+    "bytes": 11466
+  },
+  "reload_audio/wf_mg36-4.pcm": {
+    "id": 3039,
+    "bytes": 2
+  },
+  "reload_audio/wf_mg36-5.pcm": {
+    "id": 3040,
+    "bytes": 2
+  },
+  "reload_audio/wf_mg36-6.pcm": {
+    "id": 3041,
+    "bytes": 2
+  },
+  "reload_audio/wf_pkp-0.pcm": {
+    "id": 2280,
+    "bytes": 11466
+  },
+  "reload_audio/wf_pkp-1.pcm": {
+    "id": 2281,
+    "bytes": 11466
+  },
+  "reload_audio/wf_pkp-2.pcm": {
+    "id": 2282,
+    "bytes": 2
+  },
+  "reload_audio/wf_pkp-3.pcm": {
+    "id": 2283,
+    "bytes": 2
+  },
+  "reload_audio/wf_pkp-4.pcm": {
+    "id": 3042,
+    "bytes": 11466
+  },
+  "reload_audio/wf_pkp-5.pcm": {
+    "id": 3043,
+    "bytes": 11466
+  },
+  "reload_audio/wf_pkp-6.pcm": {
+    "id": 3044,
+    "bytes": 11466
+  },
+  "reload_audio/aix_as50-0.pcm": {
+    "id": 2284,
+    "bytes": 11024
+  },
+  "reload_audio/aix_as50-1.pcm": {
+    "id": 2285,
+    "bytes": 12348
+  },
+  "reload_audio/aix_as50-2.pcm": {
+    "id": 2286,
+    "bytes": 2
+  },
+  "reload_audio/aix_as50-3.pcm": {
+    "id": 2287,
+    "bytes": 2
+  },
+  "reload_audio/aix_barrett_m109-0.pcm": {
+    "id": 2288,
+    "bytes": 11906
+  },
+  "reload_audio/aix_barrett_m109-1.pcm": {
+    "id": 2289,
+    "bytes": 11906
+  },
+  "reload_audio/aix_barrett_m109-2.pcm": {
+    "id": 2290,
+    "bytes": 12348
+  },
+  "reload_audio/aix_barrett_m109-3.pcm": {
+    "id": 2291,
+    "bytes": 14552
+  },
+  "reload_audio/aix_dsr-0.pcm": {
+    "id": 2292,
+    "bytes": 11908
+  },
+  "reload_audio/aix_dsr-1.pcm": {
+    "id": 2293,
+    "bytes": 11908
+  },
+  "reload_audio/aix_dsr-2.pcm": {
+    "id": 2294,
+    "bytes": 10142
+  },
+  "reload_audio/aix_dsr-3.pcm": {
+    "id": 2295,
+    "bytes": 9260
+  },
+  "reload_audio/aix_tpg1-0.pcm": {
+    "id": 2296,
+    "bytes": 14112
+  },
+  "reload_audio/aix_tpg1-1.pcm": {
+    "id": 2297,
+    "bytes": 9260
+  },
+  "reload_audio/aix_tpg1-2.pcm": {
+    "id": 2298,
+    "bytes": 11906
+  },
+  "reload_audio/aix_tpg1-3.pcm": {
+    "id": 2299,
+    "bytes": 10144
+  },
+  "reload_audio/aix_mk14ebr-0.pcm": {
+    "id": 2300,
+    "bytes": 11908
+  },
+  "reload_audio/aix_mk14ebr-1.pcm": {
+    "id": 2301,
+    "bytes": 11906
+  },
+  "reload_audio/aix_mk14ebr-2.pcm": {
+    "id": 2302,
+    "bytes": 11906
+  },
+  "reload_audio/aix_mk14ebr-3.pcm": {
+    "id": 2303,
+    "bytes": 11908
+  },
+  "reload_audio/aix_vintorez-0.pcm": {
+    "id": 2304,
+    "bytes": 11908
+  },
+  "reload_audio/aix_vintorez-1.pcm": {
+    "id": 2305,
+    "bytes": 12348
+  },
+  "reload_audio/aix_vintorez-2.pcm": {
+    "id": 2306,
+    "bytes": 10584
+  },
+  "reload_audio/aix_vintorez-3.pcm": {
+    "id": 2307,
+    "bytes": 9702
+  },
+  "reload_audio/bf4_sks_pso1-0.pcm": {
+    "id": 2308,
+    "bytes": 11906
+  },
+  "reload_audio/bf4_sks_pso1-1.pcm": {
+    "id": 2309,
+    "bytes": 12788
+  },
+  "reload_audio/bf4_sks_pso1-2.pcm": {
+    "id": 2310,
+    "bytes": 11908
+  },
+  "reload_audio/bf4_sks_pso1-3.pcm": {
+    "id": 2311,
+    "bytes": 11906
+  },
+  "reload_audio/bo3_svg100-0.pcm": {
+    "id": 2312,
+    "bytes": 11906
+  },
+  "reload_audio/bo3_svg100-1.pcm": {
+    "id": 2313,
+    "bytes": 11908
+  },
+  "reload_audio/bo3_svg100-2.pcm": {
+    "id": 2314,
+    "bytes": 11908
+  },
+  "reload_audio/bo3_svg100-3.pcm": {
+    "id": 2315,
+    "bytes": 11906
+  },
+  "reload_audio/codol_type85_evolution-0.pcm": {
+    "id": 2316,
+    "bytes": 11906
+  },
+  "reload_audio/codol_type85_evolution-1.pcm": {
+    "id": 2317,
+    "bytes": 14994
+  },
+  "reload_audio/codol_type85_evolution-2.pcm": {
+    "id": 2318,
+    "bytes": 11906
+  },
+  "reload_audio/codol_type85_evolution-3.pcm": {
+    "id": 2319,
+    "bytes": 11906
+  },
+  "reload_audio/ussni_m82a1-0.pcm": {
+    "id": 2320,
+    "bytes": 13230
+  },
+  "reload_audio/ussni_m82a1-1.pcm": {
+    "id": 2321,
+    "bytes": 13230
+  },
+  "reload_audio/ussni_m82a1-2.pcm": {
+    "id": 2322,
+    "bytes": 12348
+  },
+  "reload_audio/ussni_m82a1-3.pcm": {
+    "id": 2323,
+    "bytes": 13670
+  },
+  "reload_audio/wf_as50-0.pcm": {
+    "id": 2324,
+    "bytes": 11908
+  },
+  "reload_audio/wf_as50-1.pcm": {
+    "id": 2325,
+    "bytes": 14994
+  },
+  "reload_audio/wf_as50-2.pcm": {
+    "id": 2326,
+    "bytes": 12348
+  },
+  "reload_audio/wf_as50-3.pcm": {
+    "id": 2327,
+    "bytes": 13230
+  },
+  "reload_audio/wf_axmc-0.pcm": {
+    "id": 2328,
+    "bytes": 11908
+  },
+  "reload_audio/wf_axmc-1.pcm": {
+    "id": 2329,
+    "bytes": 10144
+  },
+  "reload_audio/wf_axmc-2.pcm": {
+    "id": 2330,
+    "bytes": 12790
+  },
+  "reload_audio/wf_axmc-3.pcm": {
+    "id": 2331,
+    "bytes": 11024
+  },
+  "reload_audio/wf_cdxmc-0.pcm": {
+    "id": 2332,
+    "bytes": 11908
+  },
+  "reload_audio/wf_cdxmc-1.pcm": {
+    "id": 2333,
+    "bytes": 12348
+  },
+  "reload_audio/wf_cdxmc-2.pcm": {
+    "id": 2334,
+    "bytes": 12790
+  },
+  "reload_audio/wf_cdxmc-3.pcm": {
+    "id": 2335,
+    "bytes": 11024
+  },
+  "reload_audio/wf_ck27-0.pcm": {
+    "id": 2336,
+    "bytes": 11906
+  },
+  "reload_audio/wf_ck27-1.pcm": {
+    "id": 2337,
+    "bytes": 11906
+  },
+  "reload_audio/wf_ck27-2.pcm": {
+    "id": 2338,
+    "bytes": 2
+  },
+  "reload_audio/wf_ck27-3.pcm": {
+    "id": 2339,
+    "bytes": 2
+  },
+  "reload_audio/wf_gm6-0.pcm": {
+    "id": 2340,
+    "bytes": 11908
+  },
+  "reload_audio/wf_gm6-1.pcm": {
+    "id": 2341,
+    "bytes": 12346
+  },
+  "reload_audio/wf_gm6-2.pcm": {
+    "id": 2342,
+    "bytes": 4852
+  },
+  "reload_audio/wf_gm6-3.pcm": {
+    "id": 2343,
+    "bytes": 8378
+  },
+  "reload_audio/wf_m107-0.pcm": {
+    "id": 2344,
+    "bytes": 11906
+  },
+  "reload_audio/wf_m107-1.pcm": {
+    "id": 2345,
+    "bytes": 11906
+  },
+  "reload_audio/wf_m107-2.pcm": {
+    "id": 2346,
+    "bytes": 13230
+  },
+  "reload_audio/wf_m107-3.pcm": {
+    "id": 2347,
+    "bytes": 11908
+  },
+  "reload_audio/wf_m200-0.pcm": {
+    "id": 2348,
+    "bytes": 11908
+  },
+  "reload_audio/wf_m200-1.pcm": {
+    "id": 2349,
+    "bytes": 11908
+  },
+  "reload_audio/wf_m200-2.pcm": {
+    "id": 2350,
+    "bytes": 11908
+  },
+  "reload_audio/wf_m200-3.pcm": {
+    "id": 2351,
+    "bytes": 11906
+  },
+  "reload_audio/wf_m98b-0.pcm": {
+    "id": 2352,
+    "bytes": 9702
+  },
+  "reload_audio/wf_m98b-1.pcm": {
+    "id": 2353,
+    "bytes": 11906
+  },
+  "reload_audio/wf_m98b-2.pcm": {
+    "id": 2354,
+    "bytes": 11906
+  },
+  "reload_audio/wf_m98b-3.pcm": {
+    "id": 2355,
+    "bytes": 11908
+  },
+  "reload_audio/wf_mk14ebr-0.pcm": {
+    "id": 2356,
+    "bytes": 11906
+  },
+  "reload_audio/wf_mk14ebr-1.pcm": {
+    "id": 2357,
+    "bytes": 14994
+  },
+  "reload_audio/wf_mk14ebr-2.pcm": {
+    "id": 2358,
+    "bytes": 11906
+  },
+  "reload_audio/wf_mk14ebr-3.pcm": {
+    "id": 2359,
+    "bytes": 11906
+  },
+  "reload_audio/wf_qbu88-0.pcm": {
+    "id": 2360,
+    "bytes": 10584
+  },
+  "reload_audio/wf_qbu88-1.pcm": {
+    "id": 2361,
+    "bytes": 14552
+  },
+  "reload_audio/wf_qbu88-2.pcm": {
+    "id": 2362,
+    "bytes": 2
+  },
+  "reload_audio/wf_qbu88-3.pcm": {
+    "id": 2363,
+    "bytes": 2
+  },
+  "reload_audio/wf_rsass-0.pcm": {
+    "id": 2364,
+    "bytes": 11906
+  },
+  "reload_audio/wf_rsass-1.pcm": {
+    "id": 2365,
+    "bytes": 11906
+  },
+  "reload_audio/wf_rsass-2.pcm": {
+    "id": 2366,
+    "bytes": 2
+  },
+  "reload_audio/wf_rsass-3.pcm": {
+    "id": 2367,
+    "bytes": 2
+  },
+  "reload_audio/wf_scarhsv-0.pcm": {
+    "id": 2368,
+    "bytes": 11906
+  },
+  "reload_audio/wf_scarhsv-1.pcm": {
+    "id": 2369,
+    "bytes": 11906
+  },
+  "reload_audio/wf_scarhsv-2.pcm": {
+    "id": 2370,
+    "bytes": 5732
+  },
+  "reload_audio/wf_scarhsv-3.pcm": {
+    "id": 2371,
+    "bytes": 8378
+  },
+  "reload_audio/wf_str-0.pcm": {
+    "id": 2372,
+    "bytes": 11906
+  },
+  "reload_audio/wf_str-1.pcm": {
+    "id": 2373,
+    "bytes": 12790
+  },
+  "reload_audio/wf_str-2.pcm": {
+    "id": 2374,
+    "bytes": 11906
+  },
+  "reload_audio/wf_str-3.pcm": {
+    "id": 2375,
+    "bytes": 11908
+  },
+  "reload_audio/wf_sv98-0.pcm": {
+    "id": 2376,
+    "bytes": 11908
+  },
+  "reload_audio/wf_sv98-1.pcm": {
+    "id": 2377,
+    "bytes": 14112
+  },
+  "reload_audio/wf_sv98-2.pcm": {
+    "id": 2378,
+    "bytes": 11906
+  },
+  "reload_audio/wf_sv98-3.pcm": {
+    "id": 2379,
+    "bytes": 11908
+  },
+  "reload_audio/wf_svd-0.pcm": {
+    "id": 2380,
+    "bytes": 10142
+  },
+  "reload_audio/wf_svd-1.pcm": {
+    "id": 2381,
+    "bytes": 12348
+  },
+  "reload_audio/wf_svd-2.pcm": {
+    "id": 2382,
+    "bytes": 12788
+  },
+  "reload_audio/wf_svd-3.pcm": {
+    "id": 2383,
+    "bytes": 11026
+  },
+  "reload_audio/wf_tpg1-0.pcm": {
+    "id": 2384,
+    "bytes": 11908
+  },
+  "reload_audio/wf_tpg1-1.pcm": {
+    "id": 2385,
+    "bytes": 12788
+  },
+  "reload_audio/wf_tpg1-2.pcm": {
+    "id": 2386,
+    "bytes": 11908
+  },
+  "reload_audio/wf_tpg1-3.pcm": {
+    "id": 2387,
+    "bytes": 11906
+  },
+  "reload_audio/wf_vss-0.pcm": {
+    "id": 2388,
+    "bytes": 11908
+  },
+  "reload_audio/wf_vss-1.pcm": {
+    "id": 2389,
+    "bytes": 11466
+  },
+  "reload_audio/wf_vss-2.pcm": {
+    "id": 2390,
+    "bytes": 7056
+  },
+  "reload_audio/wf_vss-3.pcm": {
+    "id": 2391,
+    "bytes": 8378
+  },
+  "reload_audio/bf4_hawk12g_hd33-0.pcm": {
+    "id": 2392,
+    "bytes": 11906
+  },
+  "reload_audio/bf4_hawk12g_hd33-1.pcm": {
+    "id": 2393,
+    "bytes": 11908
+  },
+  "reload_audio/bf4_hawk12g_hd33-2.pcm": {
+    "id": 2394,
+    "bytes": 11906
+  },
+  "reload_audio/bf4_hawk12g_hd33-3.pcm": {
+    "id": 2395,
+    "bytes": 11906
+  },
+  "reload_audio/bf4_usas12_reflex-0.pcm": {
+    "id": 2396,
+    "bytes": 11906
+  },
+  "reload_audio/bf4_usas12_reflex-1.pcm": {
+    "id": 2397,
+    "bytes": 11906
+  },
+  "reload_audio/bf4_usas12_reflex-2.pcm": {
+    "id": 2398,
+    "bytes": 11906
+  },
+  "reload_audio/bf4_usas12_reflex-3.pcm": {
+    "id": 2399,
+    "bytes": 11908
+  },
+  "reload_audio/emzpj_shorty-0.pcm": {
+    "id": 2400,
+    "bytes": 2
+  },
+  "reload_audio/emzpj_shorty-1.pcm": {
+    "id": 2401,
+    "bytes": 7514
+  },
+  "reload_audio/emzpj_shorty-2.pcm": {
+    "id": 2402,
+    "bytes": 6174
+  },
+  "reload_audio/emzpj_shorty-3.pcm": {
+    "id": 2403,
+    "bytes": 5996
+  },
+  "reload_audio/mohw_aa12-0.pcm": {
+    "id": 2404,
+    "bytes": 11906
+  },
+  "reload_audio/mohw_aa12-1.pcm": {
+    "id": 2405,
+    "bytes": 11908
+  },
+  "reload_audio/mohw_aa12-2.pcm": {
+    "id": 2406,
+    "bytes": 14112
+  },
+  "reload_audio/mohw_aa12-3.pcm": {
+    "id": 2407,
+    "bytes": 11908
+  },
+  "reload_audio/wf_dp12-0.pcm": {
+    "id": 2408,
+    "bytes": 2
+  },
+  "reload_audio/wf_dp12-1.pcm": {
+    "id": 2409,
+    "bytes": 13052
+  },
+  "reload_audio/wf_dp12-2.pcm": {
+    "id": 2410,
+    "bytes": 8378
+  },
+  "reload_audio/wf_dp12-3.pcm": {
+    "id": 2411,
+    "bytes": 10144
+  },
+  "reload_audio/wf_m870-0.pcm": {
+    "id": 2412,
+    "bytes": 2
+  },
+  "reload_audio/wf_m870-1.pcm": {
+    "id": 2413,
+    "bytes": 7610
+  },
+  "reload_audio/wf_m870-2.pcm": {
+    "id": 2414,
+    "bytes": 7938
+  },
+  "reload_audio/wf_m870-3.pcm": {
+    "id": 2415,
+    "bytes": 9828
+  },
+  "reload_audio/wf_mk3a1-0.pcm": {
+    "id": 2416,
+    "bytes": 8378
+  },
+  "reload_audio/wf_mk3a1-1.pcm": {
+    "id": 2417,
+    "bytes": 11026
+  },
+  "reload_audio/wf_mk3a1-2.pcm": {
+    "id": 2418,
+    "bytes": 2
+  },
+  "reload_audio/wf_mk3a1-3.pcm": {
+    "id": 2419,
+    "bytes": 2
+  },
+  "reload_audio/wf_triplethreat-0.pcm": {
+    "id": 2420,
+    "bytes": 8820
+  },
+  "reload_audio/wf_triplethreat-1.pcm": {
+    "id": 2421,
+    "bytes": 17640
+  },
+  "reload_audio/wf_triplethreat-2.pcm": {
+    "id": 2422,
+    "bytes": 2
+  },
+  "reload_audio/wf_triplethreat-3.pcm": {
+    "id": 2423,
+    "bytes": 2
+  },
+  "reload_audio/yun_cwsaiga12-0.pcm": {
+    "id": 2424,
+    "bytes": 10142
+  },
+  "reload_audio/yun_cwsaiga12-1.pcm": {
+    "id": 2425,
+    "bytes": 11026
+  },
+  "reload_audio/yun_cwsaiga12-2.pcm": {
+    "id": 2426,
+    "bytes": 7938
+  },
+  "reload_audio/yun_cwsaiga12-3.pcm": {
+    "id": 2427,
+    "bytes": 7496
+  },
+  "reload_audio/aix_beretta-0.pcm": {
+    "id": 2428,
+    "bytes": 9262
+  },
+  "reload_audio/aix_beretta-1.pcm": {
+    "id": 2429,
+    "bytes": 9262
+  },
+  "reload_audio/aix_beretta-2.pcm": {
+    "id": 2430,
+    "bytes": 9260
+  },
+  "reload_audio/aix_beretta-3.pcm": {
+    "id": 2431,
+    "bytes": 9262
+  },
+  "reload_audio/aix_beretta_silencer-0.pcm": {
+    "id": 2432,
+    "bytes": 9262
+  },
+  "reload_audio/aix_beretta_silencer-1.pcm": {
+    "id": 2433,
+    "bytes": 9262
+  },
+  "reload_audio/aix_beretta_silencer-2.pcm": {
+    "id": 2434,
+    "bytes": 9260
+  },
+  "reload_audio/aix_beretta_silencer-3.pcm": {
+    "id": 2435,
+    "bytes": 9260
+  },
+  "reload_audio/aix_glock19-0.pcm": {
+    "id": 2436,
+    "bytes": 9262
+  },
+  "reload_audio/aix_glock19-1.pcm": {
+    "id": 2437,
+    "bytes": 9262
+  },
+  "reload_audio/aix_glock19-2.pcm": {
+    "id": 2438,
+    "bytes": 9262
+  },
+  "reload_audio/aix_glock19-3.pcm": {
+    "id": 2439,
+    "bytes": 9260
+  },
+  "reload_audio/aix_glock19_silencer-0.pcm": {
+    "id": 2440,
+    "bytes": 9262
+  },
+  "reload_audio/aix_glock19_silencer-1.pcm": {
+    "id": 2441,
+    "bytes": 9262
+  },
+  "reload_audio/aix_glock19_silencer-2.pcm": {
+    "id": 2442,
+    "bytes": 9262
+  },
+  "reload_audio/aix_glock19_silencer-3.pcm": {
+    "id": 2443,
+    "bytes": 9260
+  },
+  "reload_audio/aix_gsh-0.pcm": {
+    "id": 2444,
+    "bytes": 9262
+  },
+  "reload_audio/aix_gsh-1.pcm": {
+    "id": 2445,
+    "bytes": 9262
+  },
+  "reload_audio/aix_gsh-2.pcm": {
+    "id": 2446,
+    "bytes": 9260
+  },
+  "reload_audio/aix_gsh-3.pcm": {
+    "id": 2447,
+    "bytes": 9260
+  },
+  "reload_audio/aix_gsh_silencer-0.pcm": {
+    "id": 2448,
+    "bytes": 9262
+  },
+  "reload_audio/aix_gsh_silencer-1.pcm": {
+    "id": 2449,
+    "bytes": 9262
+  },
+  "reload_audio/aix_gsh_silencer-2.pcm": {
+    "id": 2450,
+    "bytes": 9260
+  },
+  "reload_audio/aix_gsh_silencer-3.pcm": {
+    "id": 2451,
+    "bytes": 9260
+  },
+  "reload_audio/aix_kimber-0.pcm": {
+    "id": 2452,
+    "bytes": 9262
+  },
+  "reload_audio/aix_kimber-1.pcm": {
+    "id": 2453,
+    "bytes": 9262
+  },
+  "reload_audio/aix_kimber-2.pcm": {
+    "id": 2454,
+    "bytes": 9262
+  },
+  "reload_audio/aix_kimber-3.pcm": {
+    "id": 2455,
+    "bytes": 9260
+  },
+  "reload_audio/aix_uspmatch-0.pcm": {
+    "id": 2456,
+    "bytes": 9262
+  },
+  "reload_audio/aix_uspmatch-1.pcm": {
+    "id": 2457,
+    "bytes": 9262
+  },
+  "reload_audio/aix_uspmatch-2.pcm": {
+    "id": 2458,
+    "bytes": 9260
+  },
+  "reload_audio/aix_uspmatch-3.pcm": {
+    "id": 2459,
+    "bytes": 9260
+  },
+  "reload_audio/aix_uspmatch_silencer-0.pcm": {
+    "id": 2460,
+    "bytes": 9262
+  },
+  "reload_audio/aix_uspmatch_silencer-1.pcm": {
+    "id": 2461,
+    "bytes": 9262
+  },
+  "reload_audio/aix_uspmatch_silencer-2.pcm": {
+    "id": 2462,
+    "bytes": 9260
+  },
+  "reload_audio/aix_uspmatch_silencer-3.pcm": {
+    "id": 2463,
+    "bytes": 9260
+  },
+  "reload_audio/bf4_sw40-0.pcm": {
+    "id": 2464,
+    "bytes": 9260
+  },
+  "reload_audio/bf4_sw40-1.pcm": {
+    "id": 2465,
+    "bytes": 9260
+  },
+  "reload_audio/bf4_sw40-2.pcm": {
+    "id": 2466,
+    "bytes": 9260
+  },
+  "reload_audio/bf4_sw40-3.pcm": {
+    "id": 2467,
+    "bytes": 9262
+  },
+  "reload_audio/bf4_taurus44-0.pcm": {
+    "id": 2468,
+    "bytes": 9260
+  },
+  "reload_audio/bf4_taurus44-1.pcm": {
+    "id": 2469,
+    "bytes": 9260
+  },
+  "reload_audio/bf4_taurus44-2.pcm": {
+    "id": 2470,
+    "bytes": 9260
+  },
+  "reload_audio/bf4_taurus44-3.pcm": {
+    "id": 2471,
+    "bytes": 9260
+  },
+  "reload_audio/bf4_taurus44_scoped-0.pcm": {
+    "id": 2472,
+    "bytes": 9260
+  },
+  "reload_audio/bf4_taurus44_scoped-1.pcm": {
+    "id": 2473,
+    "bytes": 9260
+  },
+  "reload_audio/bf4_taurus44_scoped-2.pcm": {
+    "id": 2474,
+    "bytes": 9260
+  },
+  "reload_audio/bf4_taurus44_scoped-3.pcm": {
+    "id": 2475,
+    "bytes": 9260
+  },
+  "reload_audio/wf_93r-0.pcm": {
+    "id": 2476,
+    "bytes": 9262
+  },
+  "reload_audio/wf_93r-1.pcm": {
+    "id": 2477,
+    "bytes": 9260
+  },
+  "reload_audio/wf_93r-2.pcm": {
+    "id": 2478,
+    "bytes": 5954
+  },
+  "reload_audio/wf_93r-3.pcm": {
+    "id": 2479,
+    "bytes": 8158
+  },
+  "reload_audio/wf_aps-0.pcm": {
+    "id": 2480,
+    "bytes": 9260
+  },
+  "reload_audio/wf_aps-1.pcm": {
+    "id": 2481,
+    "bytes": 9262
+  },
+  "reload_audio/wf_aps-2.pcm": {
+    "id": 2482,
+    "bytes": 5954
+  },
+  "reload_audio/wf_aps-3.pcm": {
+    "id": 2483,
+    "bytes": 8158
+  },
+  "reload_audio/wf_deagle-0.pcm": {
+    "id": 2484,
+    "bytes": 9260
+  },
+  "reload_audio/wf_deagle-1.pcm": {
+    "id": 2485,
+    "bytes": 9260
+  },
+  "reload_audio/wf_deagle-2.pcm": {
+    "id": 2486,
+    "bytes": 5954
+  },
+  "reload_audio/wf_deagle-3.pcm": {
+    "id": 2487,
+    "bytes": 8158
+  },
+  "reload_audio/wf_fn57-0.pcm": {
+    "id": 2488,
+    "bytes": 9262
+  },
+  "reload_audio/wf_fn57-1.pcm": {
+    "id": 2489,
+    "bytes": 9260
+  },
+  "reload_audio/wf_fn57-2.pcm": {
+    "id": 2490,
+    "bytes": 5952
+  },
+  "reload_audio/wf_fn57-3.pcm": {
+    "id": 2491,
+    "bytes": 8160
+  },
+  "reload_audio/wf_g18c-0.pcm": {
+    "id": 2492,
+    "bytes": 9260
+  },
+  "reload_audio/wf_g18c-1.pcm": {
+    "id": 2493,
+    "bytes": 9260
+  },
+  "reload_audio/wf_g18c-2.pcm": {
+    "id": 2494,
+    "bytes": 6394
+  },
+  "reload_audio/wf_g18c-3.pcm": {
+    "id": 2495,
+    "bytes": 8160
+  },
+  "reload_audio/wf_judge-0.pcm": {
+    "id": 2496,
+    "bytes": 9260
+  },
+  "reload_audio/wf_judge-1.pcm": {
+    "id": 2497,
+    "bytes": 9260
+  },
+  "reload_audio/wf_judge-2.pcm": {
+    "id": 2498,
+    "bytes": 9260
+  },
+  "reload_audio/wf_judge-3.pcm": {
+    "id": 2499,
+    "bytes": 9260
+  },
+  "reload_audio/wf_m1911-0.pcm": {
+    "id": 2500,
+    "bytes": 9262
+  },
+  "reload_audio/wf_m1911-1.pcm": {
+    "id": 2501,
+    "bytes": 9260
+  },
+  "reload_audio/wf_m1911-2.pcm": {
+    "id": 2502,
+    "bytes": 5954
+  },
+  "reload_audio/wf_m1911-3.pcm": {
+    "id": 2503,
+    "bytes": 8158
+  },
+  "reload_audio/wf_m9-0.pcm": {
+    "id": 2504,
+    "bytes": 9262
+  },
+  "reload_audio/wf_m9-1.pcm": {
+    "id": 2505,
+    "bytes": 9262
+  },
+  "reload_audio/wf_m9-2.pcm": {
+    "id": 2506,
+    "bytes": 5952
+  },
+  "reload_audio/wf_m9-3.pcm": {
+    "id": 2507,
+    "bytes": 8160
+  },
+  "reload_audio/wf_maxim9-0.pcm": {
+    "id": 2508,
+    "bytes": 9262
+  },
+  "reload_audio/wf_maxim9-1.pcm": {
+    "id": 2509,
+    "bytes": 9262
+  },
+  "reload_audio/wf_maxim9-2.pcm": {
+    "id": 2510,
+    "bytes": 5952
+  },
+  "reload_audio/wf_maxim9-3.pcm": {
+    "id": 2511,
+    "bytes": 8160
+  },
+  "reload_audio/wf_mp443-0.pcm": {
+    "id": 2512,
+    "bytes": 9262
+  },
+  "reload_audio/wf_mp443-1.pcm": {
+    "id": 2513,
+    "bytes": 9262
+  },
+  "reload_audio/wf_mp443-2.pcm": {
+    "id": 2514,
+    "bytes": 5952
+  },
+  "reload_audio/wf_mp443-3.pcm": {
+    "id": 2515,
+    "bytes": 8160
+  },
+  "reload_audio/wf_p226-0.pcm": {
+    "id": 2516,
+    "bytes": 9262
+  },
+  "reload_audio/wf_p226-1.pcm": {
+    "id": 2517,
+    "bytes": 9262
+  },
+  "reload_audio/wf_p226-2.pcm": {
+    "id": 2518,
+    "bytes": 5952
+  },
+  "reload_audio/wf_p226-3.pcm": {
+    "id": 2519,
+    "bytes": 8160
+  },
+  "reload_audio/wf_qsz92-0.pcm": {
+    "id": 2520,
+    "bytes": 9262
+  },
+  "reload_audio/wf_qsz92-1.pcm": {
+    "id": 2521,
+    "bytes": 9260
+  },
+  "reload_audio/wf_qsz92-2.pcm": {
+    "id": 2522,
+    "bytes": 5952
+  },
+  "reload_audio/wf_qsz92-3.pcm": {
+    "id": 2523,
+    "bytes": 8160
+  },
+  "reload_audio/bf4_xm25-0.pcm": {
+    "id": 2524,
+    "bytes": 9702
+  },
+  "reload_audio/bf4_xm25-1.pcm": {
+    "id": 2525,
+    "bytes": 9702
+  },
+  "reload_audio/bf4_xm25-2.pcm": {
+    "id": 2526,
+    "bytes": 9702
+  },
+  "reload_audio/bf4_xm25-3.pcm": {
+    "id": 2527,
+    "bytes": 9702
+  }
+}

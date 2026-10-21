@@ -1,4 +1,5 @@
 #include "Refractor.h"
+#include "RenderWindow.h"
 #include "BF2Stl.h"
 #include <Windows.h>
 #include "bs\vtable_hook.h"
@@ -43,8 +44,14 @@ namespace DICE
 						preMouseArea = bs::TUInt2(pSwiffHost->mouseAreaWidth, pSwiffHost->mouseAreaHeight);
 						if (pWindow)
 						{
-							pSwiffHost->mouseAreaWidth = pWindow->getClientSize().x();
-							pSwiffHost->mouseAreaHeight = pWindow->getClientSize().y();
+							unsigned width=0;unsigned height=0;
+							// Automatic mode already maps client messages into render pixels.
+							// Swiff must normalize against that same canvas, exactly once.
+							if(!CleanVR::RenderWindow::CanvasSize(pWindow->getHWnd(),width,height)){
+								const auto client=pWindow->getClientSize();width=client.x();height=client.y();
+							}
+							pSwiffHost->mouseAreaWidth = width;
+							pSwiffHost->mouseAreaHeight = height;
 						}
 					}
 

@@ -1,0 +1,67 @@
+// Exact aliases for unchanged Survival inventory variants.
+// Call after ReloadName has validated and lowercased the name.
+inline void SurvivalWeaponName(char (&name)[80]) {
+    // Same DZB2 handheld mesh/animations; only Survival's inventory slot differs.
+    if (!strcmp(name, "uav_pc_sv5")) { strcpy_s(name, "uav_pc"); return; }
+    if (!strcmp(name, "ammokit_sv7")) { strcpy_s(name, "ammokit"); return; }
+    if (!strcmp(name, "chat_eryx_sv2")) { strcpy_s(name, "chat_eryx"); return; }
+    if (!strcmp(name, "chlmg_type95_sv2")) { strcpy_s(name, "chlmg_type95"); return; }
+    if (!strcmp(name, "chpis_qsz92_silencer_sv3")) { strcpy_s(name, "chpis_qsz92_silencer"); return; }
+    if (!strcmp(name, "chpis_qsz92_sv3")) { strcpy_s(name, "chpis_qsz92"); return; }
+    if (!strcmp(name, "chrif_type85_sv2")) { strcpy_s(name, "chrif_type85"); return; }
+    if (!strcmp(name, "chrif_type95_sv2")) { strcpy_s(name, "chrif_type95"); return; }
+    if (!strcmp(name, "chsht_norinco982_sv2")) { strcpy_s(name, "chsht_norinco982"); return; }
+    if (!strcmp(name, "chsni_type88_sv2")) { strcpy_s(name, "chsni_type88"); return; }
+    if (!strcmp(name, "eurif_famas_sv2")) { strcpy_s(name, "eurif_famas"); return; }
+    if (!strcmp(name, "eurif_fnp90_sv2")) { strcpy_s(name, "eurif_fnp90"); return; }
+    if (!strcmp(name, "eurif_hk21_sv2")) { strcpy_s(name, "eurif_hk21"); return; }
+    if (!strcmp(name, "eurif_hk53a3_sv2")) { strcpy_s(name, "eurif_hk53a3"); return; }
+    if (!strcmp(name, "gbgr_sa80a2_l85_sv5")) { strcpy_s(name, "gbgr_sa80a2_l85"); return; }
+    if (!strcmp(name, "gbgr_sa80a2_l85_sv6")) { strcpy_s(name, "gbgr_sa80a2_l85"); return; }
+    if (!strcmp(name, "gbrif_benelli_m4_sv2")) { strcpy_s(name, "gbrif_benelli_m4"); return; }
+    if (!strcmp(name, "gbrif_l96a1_sv2")) { strcpy_s(name, "gbrif_l96a1"); return; }
+    if (!strcmp(name, "gbrif_sa80a2_l85_sv2")) { strcpy_s(name, "gbrif_sa80a2_l85"); return; }
+    if (!strcmp(name, "insgr_rpg_sv2")) { strcpy_s(name, "insgr_rpg"); return; }
+    if (!strcmp(name, "medikit_sv8")) { strcpy_s(name, "medikit"); return; }
+    if (!strcmp(name, "rulmg_pkm_sv2")) { strcpy_s(name, "rulmg_pkm"); return; }
+    if (!strcmp(name, "rulmg_rpk74_sv2")) { strcpy_s(name, "rulmg_rpk74"); return; }
+    if (!strcmp(name, "rupis_baghira_silencer_sv3")) { strcpy_s(name, "rupis_baghira_silencer"); return; }
+    if (!strcmp(name, "rupis_baghira_sv3")) { strcpy_s(name, "rupis_baghira"); return; }
+    if (!strcmp(name, "rurgl_gp25_sv5")) { strcpy_s(name, "rurgl_gp25"); return; }
+    if (!strcmp(name, "rurgl_gp25_sv6")) { strcpy_s(name, "rurgl_gp25"); return; }
+    if (!strcmp(name, "rurgl_gp30_sv5")) { strcpy_s(name, "rurgl_gp30"); return; }
+    if (!strcmp(name, "rurgl_gp30_sv6")) { strcpy_s(name, "rurgl_gp30"); return; }
+    if (!strcmp(name, "rurif_ak101_sv2")) { strcpy_s(name, "rurif_ak101"); return; }
+    if (!strcmp(name, "rurif_ak47_sv2")) { strcpy_s(name, "rurif_ak47"); return; }
+    if (!strcmp(name, "rurif_bizon_sv2")) { strcpy_s(name, "rurif_bizon"); return; }
+    if (!strcmp(name, "rurif_dragunov_sv2")) { strcpy_s(name, "rurif_dragunov"); return; }
+    if (!strcmp(name, "rurif_gp25_sv2")) { strcpy_s(name, "rurif_gp25"); return; }
+    if (!strcmp(name, "rurif_gp30_sv2")) { strcpy_s(name, "rurif_gp30"); return; }
+    if (!strcmp(name, "rurrif_ak74u_sv2")) { strcpy_s(name, "rurrif_ak74u"); return; }
+    if (!strcmp(name, "rusht_saiga12_sv2")) { strcpy_s(name, "rusht_saiga12"); return; }
+    if (!strcmp(name, "sasgr_fn2000_sv5")) { strcpy_s(name, "sasgr_fn2000"); return; }
+    if (!strcmp(name, "sasgr_fn2000_sv6")) { strcpy_s(name, "sasgr_fn2000"); return; }
+    if (!strcmp(name, "sasrif_fn2000_sv2")) { strcpy_s(name, "sasrif_fn2000"); return; }
+    if (!strcmp(name, "sasrif_g36e_sv2")) { strcpy_s(name, "sasrif_g36e"); return; }
+    if (!strcmp(name, "sasrif_mg36_sv2")) { strcpy_s(name, "sasrif_mg36"); return; }
+    if (!strcmp(name, "sasrif_mp7_sv2")) { strcpy_s(name, "sasrif_mp7"); return; }
+    if (!strcmp(name, "survival_raider_mp5_sv2")) { strcpy_s(name, "survival_raider_mp5"); return; }
+    if (!strcmp(name, "survival_recruit_pistol_sv2")) { strcpy_s(name, "survival_recruit_pistol"); return; }
+    if (!strcmp(name, "uslmg_m249saw_sv2")) { strcpy_s(name, "uslmg_m249saw"); return; }
+    if (!strcmp(name, "uspis_92fs_silencer_sv3")) { strcpy_s(name, "uspis_92fs_silencer"); return; }
+    if (!strcmp(name, "uspis_92fs_sv3")) { strcpy_s(name, "uspis_92fs"); return; }
+    if (!strcmp(name, "usrgl_m203_sv5")) { strcpy_s(name, "usrgl_m203"); return; }
+    if (!strcmp(name, "usrgl_m203_sv6")) { strcpy_s(name, "usrgl_m203"); return; }
+    if (!strcmp(name, "usrif_fnscarl_sv2")) { strcpy_s(name, "usrif_fnscarl"); return; }
+    if (!strcmp(name, "usrif_g36c_sv2")) { strcpy_s(name, "usrif_g36c"); return; }
+    if (!strcmp(name, "usrif_g3a3_sv2")) { strcpy_s(name, "usrif_g3a3"); return; }
+    if (!strcmp(name, "usrif_m16a2_sv2")) { strcpy_s(name, "usrif_m16a2"); return; }
+    if (!strcmp(name, "usrif_m203_sv2")) { strcpy_s(name, "usrif_m203"); return; }
+    if (!strcmp(name, "usrif_m24_sv2")) { strcpy_s(name, "usrif_m24"); return; }
+    if (!strcmp(name, "usrif_m4_sv2")) { strcpy_s(name, "usrif_m4"); return; }
+    if (!strcmp(name, "usrif_mp5_a3_sv2")) { strcpy_s(name, "usrif_mp5_a3"); return; }
+    if (!strcmp(name, "usrif_remington11-87_sv2")) { strcpy_s(name, "usrif_remington11-87"); return; }
+    if (!strcmp(name, "usrif_sa80_sv2")) { strcpy_s(name, "usrif_sa80"); return; }
+    if (!strcmp(name, "ussht_jackhammer_sv2")) { strcpy_s(name, "ussht_jackhammer"); return; }
+    if (!strcmp(name, "ussni_m95_barret_sv2")) { strcpy_s(name, "ussni_m95_barret"); return; }
+}

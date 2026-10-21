@@ -7,6 +7,21 @@ using System.Security.Cryptography;
 
 namespace BF2VR {
  public sealed class PeImage {
+  public const string SupportedExeTextHash="b87ccb0fd5adf3a4bcff2c6562bba412babc964795e5d5b74f62f5c353fb3c3e";
+  public const string SupportedRendererTextHash="13f8dd6a473f7a566b06434c685be7b2b79427918cf7c55315cd91a0a8e418d9";
+  public const string PreHotfixRendererTextHash="58af9bf46efcfae5615670e4f06ba0bd212e6835870f654da79cab0a5edd6f2f";
+  public const string Legacy2005RendererTextHash="34308f70ec320fbfc81ed1c2b6057c8060e67c3454d3115dc0500d992bd8903f";
+  public const string RendererHotfixUrl="https://community.pcgamingwiki.com/files/file/1031-battlefield-2-patch-150-alttab-hotfix/";
+  public static string RendererDescription(string code){
+   if(code==SupportedRendererTextHash)return "Supported BF2 1.5 renderer (September 2009 Alt-Tab hotfix)";
+   if(code==PreHotfixRendererTextHash)return "Recognized earlier BF2 1.5 renderer (August 2009); Alt-Tab hotfix required";
+   if(code==Legacy2005RendererTextHash)return "Recognized legacy 2005 renderer; not supported by BF2-VR";
+   return "Unrecognized renderer; save a compatibility report";
+  }
+  static string RendererHotfixInstructions(){return
+   "Install the BF2 1.50 Alt-Tab hotfix after patch 1.5. Close BF2, back up RendDX9.dll, then extract the hotfix's RendDX9.dll beside BF2.exe. Follow the hotfix's shader-cache instructions, confirm the game works flat-screen, and rerun BF2-VR Setup.\r\n\r\n"+
+   "Hotfix download page:\r\n"+RendererHotfixUrl+"\r\n\r\n"+
+   "Do not rename RendDX9x2.dll to RendDX9.dll; that older file is not the hotfix. BF2-VR Setup has not changed any game files.";}
   readonly byte[] b; readonly int pe,opt,sections,count;
   public PeImage(byte[] data) {
    b=data;
@@ -51,12 +66,56 @@ namespace BF2VR {
    Put(result,opt+96+11*8,0);Put(result,opt+100+11*8,0);Put(result,opt+96+4*8,0);Put(result,opt+100+4*8,0);
    var check=new PeImage(result);if(!check.HasRfx() || check.TextHash()!=TextHash())throw new InvalidDataException("Import update verification failed.");return result;
   }
+  static string GameCodeId(string folder,string name){
+   string file=Path.Combine(folder,name);
+   if(!File.Exists(file))throw new FileNotFoundException("Missing "+name+". Select the installed Battlefield 2 folder containing both BF2.exe and RendDX9.dll, rather than the DVD or a shortcut folder.");
+   try{return new PeImage(File.ReadAllBytes(file)).TextHash();}
+   catch(Exception e){throw new InvalidDataException("Could not identify "+name+": "+e.Message+"\r\nSave a compatibility report from Setup and send it with your game edition.",e);}
+  }
   public static void ValidateGame(string folder){
-   var exe=new PeImage(File.ReadAllBytes(Path.Combine(folder,"BF2.exe")));
-   var renderer=new PeImage(File.ReadAllBytes(Path.Combine(folder,"RendDX9.dll")));
-   if(exe.TextHash()!="b87ccb0fd5adf3a4bcff2c6562bba412babc964795e5d5b74f62f5c353fb3c3e" || renderer.TextHash()!="13f8dd6a473f7a566b06434c685be7b2b79427918cf7c55315cd91a0a8e418d9")
-    throw new InvalidDataException("This BF2.exe / RendDX9.dll combination is not the supported BF2 1.5 build. First patch to 1.5 and run the game flat-screen. This installer does not download or replace game executables. Please report an unsupported legitimate 1.5 build on GitHub.");
+   string exe=GameCodeId(folder,"BF2.exe"),renderer=GameCodeId(folder,"RendDX9.dll");
+   // This is a recognized 1.5 build, but its renderer function addresses differ.
+   // Keep it out of the runtime allowlist; the official renderer hotfix matches
+   // the supported DLL byte for byte and requires no gameplay-code changes.
+   if(exe==SupportedExeTextHash && renderer==PreHotfixRendererTextHash)
+    throw new InvalidDataException("Your BF2.exe is supported. Your RendDX9.dll is the earlier BF2 1.5 renderer and needs the 1.50 Alt-Tab hotfix.\r\n\r\n"+RendererHotfixInstructions());
+   if(exe!=SupportedExeTextHash || renderer!=SupportedRendererTextHash){
+    var mismatch=new StringBuilder("This installation has game code that this BF2-VR build does not recognize:\r\n");
+    mismatch.Append("BF2.exe: ").Append(exe==SupportedExeTextHash?"supported":"unrecognized").Append("\r\nCode ID: ").Append(exe).Append("\r\n");
+    mismatch.Append("RendDX9.dll: ").Append(RendererDescription(renderer)).Append("\r\nCode ID: ").Append(renderer).Append("\r\n\r\n");
+    mismatch.Append("Select your installed game, patch it to 1.5 and run it flat-screen first. If it already runs as 1.5, save a compatibility report from Setup and send it with your edition (DVD, Steam, EA, etc.). The edition alone does not identify the code version. No game files were changed; do not replace files with arbitrary downloads.");
+    throw new InvalidDataException(mismatch.ToString());
+   }
    if(!File.Exists(Path.Combine(folder,"mods","bf2","Objects_client.zip")))throw new FileNotFoundException("Select the Battlefield 2 folder containing BF2.exe and mods/bf2/Objects_client.zip.");
+  }
+  // Read-only metadata collection, also shared by the separate report tool.
+  // No CD key, account/profile contents, game assets or process command lines.
+  public static string CompatibilityReport(string folder){
+   var s=new StringBuilder("BF2-VR compatibility report v2\r\n");
+   s.Append("Created UTC: ").Append(DateTime.UtcNow.ToString("u")).Append("\r\n");
+   s.Append("Game folder: ").Append(Path.GetFullPath(folder)).Append("\r\n");
+   s.Append("Code ID definition: SHA-256 of .text VirtualSize bytes, excluding file padding.\r\n");
+   s.Append("Edition and successful flat-screen 1.5 launch must be supplied by the player.\r\n");
+   foreach(string name in new[]{"BF2.exe","RendDX9.dll","RendDX9x2.dll","BF2-VR.exe","RFX.dll"}){
+    string file=Path.Combine(folder,name);s.Append("\r\n[").Append(name).Append("]\r\n");
+    if(!File.Exists(file)){s.Append("Not present\r\n");continue;}
+    try{
+     byte[] data=File.ReadAllBytes(file);s.Append("Bytes: ").Append(data.Length).Append("\r\nSHA-256: ").Append(Hash(data)).Append("\r\n");
+     var info=System.Diagnostics.FileVersionInfo.GetVersionInfo(file);
+     s.Append("File version: ").Append(info.FileVersion??"not specified").Append("\r\nProduct version: ").Append(info.ProductVersion??"not specified").Append("\r\n");
+     var image=new PeImage(data);string code=image.TextHash();
+     s.Append("Code ID: ").Append(code).Append("\r\nLarge address aware: ").Append((image.U16(image.pe+22)&0x20)!=0).Append("\r\n");
+     if(name=="BF2.exe"||name=="BF2-VR.exe")s.Append("Supported BF2 code: ").Append(code==SupportedExeTextHash).Append("\r\nRFX import: ").Append(image.HasRfx()).Append("\r\n");
+     if(name=="RendDX9.dll"||name=="RendDX9x2.dll"){
+      s.Append("Supported renderer code: ").Append(code==SupportedRendererTextHash).Append("\r\nRenderer identification: ").Append(RendererDescription(code)).Append("\r\n");
+      if(name=="RendDX9.dll"&&code==PreHotfixRendererTextHash)s.Append("Required action: ").Append(RendererHotfixInstructions()).Append("\r\n");
+      if(name=="RendDX9x2.dll")s.Append("The VR runtime targets RendDX9.dll, not this filename. Do not rename this file as a compatibility workaround.\r\n");
+     }
+    }catch(Exception e){s.Append("Inspection error: ").Append(e.Message).Append("\r\n");}
+   }
+   s.Append("\r\nStock Objects_client.zip exists: ").Append(File.Exists(Path.Combine(folder,"mods","bf2","Objects_client.zip"))).Append("\r\n");
+   s.Append("Stock Objects_server.zip exists: ").Append(File.Exists(Path.Combine(folder,"mods","bf2","Objects_server.zip"))).Append("\r\n");
+   s.Append("\r\nThis report did not change or launch the game.\r\n");return s.ToString();
   }
  }
 }

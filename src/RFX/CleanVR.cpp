@@ -1,8 +1,11 @@
 #include "CleanVR.h"
+#include "AutoResolution.h"
+#include "RenderWindow.h"
 #include "VrSettings.h"
 #include "ControllerInput.h"
 #include "VrSettingsMenu.h"
 #include "HudCapture.h"
+#include "MenuPointer.h"
 #include "FrameTiming.h"
 #include "D3DWorkProfile.h"
 #include <d3dx9math.h>
@@ -15,7 +18,7 @@ namespace CleanVR { namespace {
 IDirect3DDevice9* device=nullptr;
 HWND window=nullptr;
 bool initialized=false,inPair=false,pairReady=false,flatFallback=false,referenceSet=false,resetting=false;
-bool hudReady=false,hudFailed=false;XrPosef hudPose{};float hudWidth=0,hudHeight=0;
+bool hudReady=false,hudFailed=false,hudUnpremultiplied=false;XrPosef hudPose{};float hudWidth=0,hudHeight=0;
 unsigned pairCount=0,suppressedPresents=0;
 unsigned nativeWidth=0,nativeHeight=0;double hudDrawMs=0;
 std::uint64_t sceneSerial=0,submittedScene=~0ull;
@@ -63,10 +66,10 @@ struct Performance {
 } performance;
 #include "GpuTiming.inl"
 struct Capture {
-    IDirect3DSurface9* target=nullptr;IDirect3DSurface9* cpu=nullptr;
+    IDirect3DSurface9* target=nullptr;IDirect3DSurface9* cpu=nullptr;IDirect3DSurface9* msaaResolve=nullptr;
     unsigned width=0,height=0;D3DFORMAT format=D3DFMT_UNKNOWN;
     std::vector<unsigned char> pixels;
-    void Clear(){Release(target);Release(cpu);width=height=0;pixels.clear();}
+    void Clear(){Release(target);Release(cpu);Release(msaaResolve);width=height=0;pixels.clear();}
     bool EnsureCpu(){return cpu||SUCCEEDED(device->CreateOffscreenPlainSurface(width,height,format,D3DPOOL_SYSTEMMEM,&cpu,nullptr));}
     bool Stage(unsigned w,unsigned h){
         IDirect3DSurface9* back=nullptr;if(!device||FAILED(device->GetBackBuffer(0,0,D3DBACKBUFFER_TYPE_MONO,&back)))return false;
@@ -78,8 +81,15 @@ struct Capture {
             width=w;height=h;
         }
         const auto filter=desc.Width==w&&desc.Height==h?D3DTEXF_NONE:D3DTEXF_LINEAR;
-        HRESULT hr=device->StretchRect(back,nullptr,target,nullptr,filter);Release(back);
-        return SUCCEEDED(hr);
+        HRESULT hr=S_OK;
+        if(desc.MultiSampleType!=D3DMULTISAMPLE_NONE&&(desc.Width!=w||desc.Height!=h)){
+            D3DSURFACE_DESC old{};if(msaaResolve)msaaResolve->GetDesc(&old);
+            if(msaaResolve&&(old.Width!=desc.Width||old.Height!=desc.Height||old.Format!=desc.Format))Release(msaaResolve);
+            if(!msaaResolve)hr=device->CreateRenderTarget(desc.Width,desc.Height,desc.Format,D3DMULTISAMPLE_NONE,0,FALSE,&msaaResolve,nullptr);
+            if(SUCCEEDED(hr))hr=device->StretchRect(back,nullptr,msaaResolve,nullptr,D3DTEXF_NONE);
+            if(SUCCEEDED(hr))hr=device->StretchRect(msaaResolve,nullptr,target,nullptr,filter);
+        }else hr=device->StretchRect(back,nullptr,target,nullptr,filter);
+        Release(back);return SUCCEEDED(hr);
     }
     bool FromAtlas(IDirect3DSurface9* atlas,const Runtime::TransferRegion& region){
         // Recover a current eye before abandoning the direct atlas. A stale
@@ -114,9 +124,21 @@ struct Capture {
         cpu->UnlockRect();return true;
     }
 } captures[3];
+#include "GpuReplayGuard.inl"
 #include "DirectAtlasCapture.inl"
-void ReleaseInput(){Controls::ReleaseAll();Engine::PublishPointer(false,0,0,false,0);}
-bool Cinema(){return Engine::MenuActive()||!Engine::CameraReady()||flatFallback;}
+void ReleaseInput(){RenderWindow::ReleaseMenuPointer();Controls::ReleaseAll();Engine::PublishPointer(false,0,0,false,0);}
+bool Cinema(){
+    // Refresh the last living helmet pose even while the kit menu is open.
+    // Short-circuiting on FlatMenuActive stranded suicide deaths in cinema.
+    const bool camera=Engine::CameraReady();
+    return Engine::FlatMenuActive()||!camera||flatFallback;
+}
+float CinemaAspect(unsigned w,unsigned h){
+    const float desktop=RenderWindow::DesktopAspect();
+    // BF2's normalized menu layout is authored for a flat widescreen canvas.
+    // Changing the quad shape does not resample its texture or the stereo eyes.
+    return desktop>0&&Engine::MenuActive()?1.f/desktop:(w?(float)h/w:0);
+}
 Mat panel=Identity();XrPosef panelPose{};bool panelValid=false,panelWasVisible=false;std::uint64_t panelOrigin=0;
 void PlacePanel(const Runtime::Frame& f){
     panel=Level(f.head);const Vec center=Point({0,0,Config().distance},panel);
@@ -158,19 +180,26 @@ void InputFrame(const Runtime::Frame& f){
         Log("SETTINGS44 headset menu could not open");
     }
     UpdatePanel(f);
+    if(Controls::VehicleSeatWheel(f)){RenderWindow::ReleaseMenuPointer();return;}
+    if(Controls::PhysicalRadio(f)){RenderWindow::ReleaseMenuPointer();return;}
     static int previous=-1;const int mode=Engine::FrontendActive()?1:Engine::DeploymentActive()?2:Cinema()?3:4;
     if(mode!=previous){previous=mode;Log("INPUT mode=%s localAlive=%d",mode==1?"frontend":mode==2?"deployment":mode==3?"cinema":"gameplay",Engine::LocalAlive()?1:0);}
     RECT client{};GetClientRect(window,&client);const int w=client.right,h=client.bottom;
     if(Cinema()){
         Controls::Menu(f);
-        Hit hit=Pointer(f,w>0?(float)h/w:0);
-        if(hit.valid){POINT p{(LONG)(hit.u*(w-1)),(LONG)(hit.v*(h-1))};ClientToScreen(window,&p);SetCursorPos(p.x,p.y);}
+        // Pointer intersection and visible menu quad must use the same shape.
+        Hit hit=Pointer(f,nativeWidth?CinemaAspect(nativeWidth,nativeHeight):CinemaAspect(w,h));
+        Controls::PointerButton(false);
         if(Engine::DeploymentActive()){
-            Controls::PointerButton(false);Engine::PublishPointer(hit.valid,hit.u,hit.v,f.hands[1].trigger>.55f,f.id);
-        }else{Engine::PublishPointer(false,0,0,false,f.id);Controls::PointerButton(hit.valid&&f.hands[1].trigger>.55f);}return;
+            RenderWindow::ReleaseMenuPointer();Engine::PublishPointer(hit.valid,hit.u,hit.v,f.hands[1].trigger>.55f,f.id);
+        }else{
+            Engine::PublishPointer(false,0,0,false,f.id);
+            RenderWindow::MenuPointer(window,hit.valid,hit.u,hit.v,f.hands[1].trigger>.55f);
+        }return;
     }
+    RenderWindow::ReleaseMenuPointer();
     Engine::PublishPointer(false,0,0,false,f.id);
-    if(!Engine::LocalAlive()){ReleaseInput();return;}
+    if(!Engine::LocalAlive()){Controls::Menu(f);Controls::PointerButton(false);return;}
     Controls::Gameplay(f,Engine::Reference());
 }
 void Prepare(){
@@ -179,13 +208,14 @@ void Prepare(){
     if(Runtime::Snapshot(f))InputFrame(f);else ReleaseInput();
 }
 void DrawPointer(Capture& c,const Hit& hit){
-    if(!hit.valid)return;const int px=(int)(hit.u*(c.width-1)),py=(int)(hit.v*(c.height-1)),radius=Config().pointerPixels;
-    for(int y=-radius-1;y<=radius+1;++y)for(int x=-radius-1;x<=radius+1;++x){
-        const int xx=px+x,yy=py+y;if(xx<0||yy<0||xx>=(int)c.width||yy>=(int)c.height)continue;
-        const bool cross=(std::abs(x)<=1&&std::abs(y)<=radius)||(std::abs(y)<=1&&std::abs(x)<=radius);
-        const bool border=(std::abs(x)<=2&&std::abs(y)<=radius+1)||(std::abs(y)<=2&&std::abs(x)<=radius+1);
-        if(!border)continue;auto* p=c.pixels.data()+((size_t)yy*c.width+xx)*4;p[0]=cross?60:0;p[1]=cross?255:0;p[2]=cross?80:0;p[3]=255;
-    }
+    if(!hit.valid)return;const auto glyph=MenuPointer::Make(hit.u,hit.v,c.width,c.height,Config().pointerPixels);
+    const auto draw=[&](const MenuPointer::Rect* rectangles,unsigned count,std::uint32_t color){
+        for(unsigned i=0;i<count;++i){const auto& r=rectangles[i];
+            for(int y=r.top;y<r.bottom;++y)for(int x=r.left;x<r.right;++x)
+                std::memcpy(c.pixels.data()+((size_t)y*c.width+x)*4,&color,4);
+        }
+    };
+    draw(glyph.border,glyph.borderCount,MenuPointer::Border);draw(glyph.fill,glyph.fillCount,MenuPointer::Fill);
 }
 bool HasPicture(const Capture& c){
     // Some loading Presents contain just a cleared backbuffer. Keep the last
@@ -196,10 +226,11 @@ bool HasPicture(const Capture& c){
 }
 void Finish(){
     SettingsMenu::Present();
+    if(!SettingsMenu::Active())Controls::PresentSeatWheel();
     // A completed eye pair retains its own located poses even if rendering
     // took >250 ms. Never re-label those pixels with a newer pose.
     if(pairReady&&!Cinema()){
-        Runtime::SubmitEyes(hudReady?&hudPose:nullptr,hudWidth,hudHeight);pairReady=false;Prepare();return;
+        Runtime::SubmitEyes(hudReady?&hudPose:nullptr,hudWidth,hudHeight,hudUnpremultiplied);pairReady=false;Prepare();return;
     }
     const bool cinema=Cinema();if(cinema)Runtime::RefreshCinemaFrame();
     Runtime::Frame f{};if(!Runtime::Snapshot(f)){if(cinema)Runtime::SubmitRetained();else Runtime::SubmitEmpty();pairReady=false;Prepare();return;}
@@ -209,12 +240,14 @@ void Finish(){
         if(SUCCEEDED(device->GetBackBuffer(0,0,D3DBACKBUFFER_TYPE_MONO,&back))){back->GetDesc(&desc);Release(back);}
         auto& c=captures[2];
         if(desc.Width&&desc.Height&&Runtime::QuadSize(desc.Width,desc.Height)&&c.Read(desc.Width,desc.Height)){
-            const float aspect=(float)c.height/c.width,width=1.15f+1.55f*Config().scale;
+            const float aspect=CinemaAspect(c.width,c.height),width=1.15f+1.55f*Config().scale;
             if(!HasPicture(c)&&Runtime::HasCinemaImage()){
                 static unsigned blanks=0;if(++blanks<=4||blanks%300==0)Log("LOADING ignored cleared native backbuffer; retaining cinema image #%u",blanks);
                 Runtime::SubmitRetained();
             }else{
-                DrawPointer(c,Pointer(f,aspect));
+                Hit pointer=Pointer(f,aspect);
+                if(Controls::PhysicalRadioPointer(pointer.u,pointer.v))pointer.valid=true;
+                DrawPointer(c,pointer);
                 if(Runtime::Upload(2,c.pixels.data(),c.width*4))Runtime::SubmitQuad(panelPose,width,width*aspect);else Runtime::SubmitRetained();
             }
         }else Runtime::SubmitRetained();
@@ -250,15 +283,25 @@ bool PresentationBoundary(IDirect3DDevice9* d,const char* source){
     Start();Pump(true);return false;
 }
 } // namespace
+void ReportRenderFailure(const char* operation,HRESULT result){
+    // Error-only diagnostic: successful native draws do not take a clock,
+    // query the driver, acquire a lock or write a log entry.
+    static unsigned count=0;static ULONGLONG last=0;
+    const auto now=GetTickCount64();++count;
+    if(count<=16||now-last>=5000){
+        last=now;Log("CAPTURE113 native %s failed hr=%08X count=%u scene=%llu inPair=%d",operation,(unsigned)result,count,sceneSerial,inPair?1:0);
+    }
+}
 void AttachDevice(IDirect3DDevice9* d){
     device=d;D3DDEVICE_CREATION_PARAMETERS creation{};if(d&&SUCCEEDED(d->GetCreationParameters(&creation)))window=creation.hFocusWindow;
     IDirect3DSwapChain9* chain=nullptr;
     if(d&&SUCCEEDED(d->GetSwapChain(0,&chain))){D3DPRESENT_PARAMETERS p{};if(SUCCEEDED(chain->GetPresentParameters(&p)))Log("PERF D3D9 backbuffer=%ux%u samples=%u quality=%u presentInterval=0x%08X windowed=%d",p.BackBufferWidth,p.BackBufferHeight,(unsigned)p.MultiSampleType,p.MultiSampleQuality,p.PresentationInterval,p.Windowed?1:0);Release(chain);}
     nativeWidth=nativeHeight=0;IDirect3DSurface9* back=nullptr;
     if(d&&SUCCEEDED(d->GetBackBuffer(0,0,D3DBACKBUFFER_TYPE_MONO,&back))){D3DSURFACE_DESC desc{};if(SUCCEEDED(back->GetDesc(&desc))){nativeWidth=desc.Width;nativeHeight=desc.Height;}Release(back);}
+    AutoResolution::Confirm(nativeWidth,nativeHeight);
 }
-void BeforeReset(){Runtime::Guard lock;if(SettingsMenu::Active()){SettingsMenu::Close();referenceSet=false;}resetting=true;performance=Performance{};gpuTiming.Reset();D3DWorkProfile::Reset();ResetGunCrosshair();ResetGunScope();ReleaseInput();Runtime::SubmitRetained();pairReady=false;hudReady=hudFailed=false;batchCapture.Reset();HudCapture::Reset();Engine::ResetBodyResources();flatFallback=false;submittedScene=~0ull;presentationSeen=false;for(auto& c:captures)c.Clear();}
-void AfterReset(IDirect3DDevice9* d,HRESULT result){AttachDevice(d);resetting=FAILED(result);}
+void BeforeReset(){Runtime::Guard lock;if(SettingsMenu::Active()){SettingsMenu::Close();referenceSet=false;}resetting=true;replayGuard.Reset();performance=Performance{};gpuTiming.Reset();D3DWorkProfile::Reset();ResetGunCrosshair();ResetGunScope();ReleaseInput();Runtime::SubmitRetained();pairReady=false;hudReady=hudFailed=hudUnpremultiplied=false;batchCapture.Reset();HudCapture::Reset();Engine::ResetBodyResources();flatFallback=false;submittedScene=~0ull;presentationSeen=false;for(auto& c:captures)c.Clear();}
+void AfterReset(IDirect3DDevice9* d,HRESULT result){resetting=FAILED(result);if(!resetting)AttachDevice(d);else Log("RESOLUTION60 D3D9 reset failed hr=0x%08X",(unsigned)result);}
 void AfterEndScene(IDirect3DDevice9* d){
     if(resetting||!Config().enabled)return;if(!device)AttachDevice(d);
     if(d!=device)return;++sceneSerial;
@@ -290,12 +333,21 @@ bool DrawScene(Engine::SceneFunction original,void* self,unsigned a,unsigned b,u
     if(!Runtime::Snapshot(f)||!Engine::BeginPair(f)){frameGuard.Unlock();return original(self,a,b,c);}
     Runtime::MatchEyeTransfer(nativeWidth,nativeHeight);
     flatFallback=false;
-    hudReady=false;hudDrawMs=0;HudCapture::NewPair();batchCapture.NewPair();
+    static bool radioStereoWas=false;const bool radioStereo=Engine::RadioOverlayActive();
+    if(radioStereo!=radioStereoWas){radioStereoWas=radioStereo;Log("RADIO100 display=%s: native wheel shares the stereo HUD canvas",radioStereo?"VR overlay":"closed");}
+    hudReady=hudUnpremultiplied=false;hudDrawMs=0;HudCapture::NewPair();batchCapture.NewPair();
     inPair=true;suppressedPresents=0;bool rendered=true,result=true;
     gpuTiming.Begin(device);D3DWorkProfile::BeginPair();timing.setup=FrameClockMs()-start;
-    CaptureGunScope(original,self,c);
+    replayGuard.Configure();
+    const double workStart=batchCapture.Measuring()?FrameClockMs():0;
+    // The prior frame's desktop composite can also still be in flight.
+    bool replayReady=replayGuard.Wait();
+    const bool scopeAttempt=replayReady&&Engine::ScopeReady();
+    if(replayReady)CaptureGunScope(original,self,c);
     for(int eye=0;eye<2;++eye){
         const double renderStart=FrameClockMs();
+        // Scope and eye zero can reuse native geometry before eye one.
+        if(!replayReady||((eye>0||scopeAttempt)&&!replayGuard.Wait())){rendered=false;break;}
         if(!Engine::BeginEye(eye)){rendered=false;break;}
         // Keep BF2's graphics cache and device in agreement. Native rendering
         // owns state/targets; readback does not bind anything. Only the first
@@ -313,7 +365,7 @@ bool DrawScene(Engine::SceneFunction original,void* self,unsigned a,unsigned b,u
     }
     gpuTiming.End();
     // Prepare the HUD before acquiring images so it can share the eyes'
-    // transfer. Keep the three XR layers' extents, poses and alpha unchanged.
+    // transfer. Vehicle HUD encoding is corrected before this shared transfer.
     const double hudStart=FrameClockMs();Mat hud{};
     const bool wantHud=rendered&&HudCapture::Ready()&&Engine::HudPlacement(hud,hudWidth,hudHeight)&&Runtime::HudSize(HudCapture::Width(),HudCapture::Height());
     if(wantHud){
@@ -324,7 +376,7 @@ bool DrawScene(Engine::SceneFunction original,void* self,unsigned a,unsigned b,u
     }
     timing.hud=FrameClockMs()-hudStart;
     if(rendered){
-        const auto batch=batchCapture.Upload(wantHud,timing);
+        const auto batch=batchCapture.Upload(wantHud,timing,f);
         if(batch==Runtime::BatchResult::Uploaded)hudReady=wantHud;
         else if(batch==Runtime::BatchResult::Failed)rendered=false;
         else{
@@ -334,11 +386,13 @@ bool DrawScene(Engine::SceneFunction original,void* self,unsigned a,unsigned b,u
             if(rendered&&wantHud)hudReady=HudCapture::Upload(timing.read,timing.upload);
         }
     }
+    hudUnpremultiplied=hudReady&&HudCapture::Unpremultiplied();
     static unsigned reports=0;if(hudReady&&reports++<3)Log("HUD shared canvas submitted once for both eyes: %.2fm x %.2fm depth=%.2fm scale=%.2f",hudWidth,hudHeight,Tuning().hudDepth,Tuning().hudScale);
     if(rendered&&HudCapture::Ready()&&!hudReady){hudFailed=true;Log("HUD readback/placement/upload failed; native HUD restored from next frame");}
     timing.hudDraw=hudDrawMs;const auto transfer=Runtime::UploadTiming();timing.uploadWait=transfer.wait;timing.uploadCopy=transfer.copy;
     timing.uploadMap=transfer.map;timing.uploadWrite=transfer.write;timing.uploadSubmit=transfer.submit;
     Engine::EndPair();inPair=false;pairReady=rendered;
+    batchCapture.Observe(workStart?FrameClockMs()-workStart:0,timing,rendered,!scopeAttempt,f.id);
     if(rendered){if(++pairCount==1||pairCount%1800==1)Log("SAMEFRAME pair=%u frame=%llu ipd=%.5f suppressedPresents=%u native views restored",pairCount,f.id,Length(Sub(Position(f.eyes[0]),Position(f.eyes[1]))),suppressedPresents);}
     else{static unsigned failures=0;if(++failures<=8)Log("STEREO pair capture failed #%u; submitting no world layer",failures);}
     // A completed pair can submit immediately; it must not depend on a later
@@ -347,7 +401,30 @@ bool DrawScene(Engine::SceneFunction original,void* self,unsigned a,unsigned b,u
     const double finishStart=FrameClockMs();if(!rendered)Runtime::SubmitEmpty();
     Pump();
     timing.finish=FrameClockMs()-finishStart;const double desktopStart=FrameClockMs();
-    HudCapture::CompositeDesktop();
+    // Reuse an already resolved eye after its headset upload. Crop only the
+    // desktop world; the complete isolated HUD is composited on top afterward.
+    IDirect3DSurface9* mirror=nullptr;RECT crop{};
+    const float desktopAspect=RenderWindow::DesktopAspect();
+    if(rendered&&desktopAspect>0){
+        if(batchCapture.mirrorReady){
+            const auto& r=batchCapture.mirrorRegion;mirror=batchCapture.target;
+            crop={(LONG)r.x,(LONG)r.y,(LONG)(r.x+r.width),(LONG)(r.y+r.height)};
+        }else if(captures[1].target){
+            mirror=captures[1].target;crop={0,0,(LONG)captures[1].width,(LONG)captures[1].height};
+        }
+        const auto& fov=f.views[1].fov;
+        const float eyeAspect=(std::tan(fov.angleRight)-std::tan(fov.angleLeft))/
+            (std::tan(fov.angleUp)-std::tan(fov.angleDown));
+        if(mirror&&std::isfinite(eyeAspect)&&eyeAspect>.1f&&eyeAspect<10.f){
+            // Use the angular projection aspect, not the eye texture's pixel
+            // aspect; headset render pixels need not have equal angular scale.
+            const LONG w=crop.right-crop.left,h=crop.bottom-crop.top;
+            const LONG cw=std::max(1L,std::min(w,(LONG)std::floor(w*desktopAspect/eyeAspect)));
+            const LONG ch=std::max(1L,std::min(h,(LONG)std::floor(h*eyeAspect/desktopAspect)));
+            crop.left+=(w-cw)/2;crop.top+=(h-ch)/2;crop.right=crop.left+cw;crop.bottom=crop.top+ch;
+        }else mirror=nullptr;
+    }
+    HudCapture::CompositeDesktop(mirror,mirror?&crop:nullptr);
     if(suppressedPresents&&!Engine::FlushDeferredPresent())device->Present(nullptr,nullptr,nullptr,nullptr);
     timing.desktop=FrameClockMs()-desktopStart;timing.total=FrameClockMs()-start;performance.Add(f,start,timing,rendered);
     D3DWorkProfile::EndPair(rendered);

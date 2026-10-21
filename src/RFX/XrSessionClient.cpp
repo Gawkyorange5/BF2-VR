@@ -1,6 +1,9 @@
 #include "XrSessionClient.h"
+#include "AutoResolution.h"
 #include "VrSettings.h"
 #include "FrameTiming.h"
+#include "ControllerInput.h"
+#include "MenuPointer.h"
 #include <d3d11.h>
 #include <dxgi.h>
 #define XR_USE_PLATFORM_WIN32
@@ -11,6 +14,13 @@
 #include <cstring>
 #include <cmath>
 #include <cstdio>
+#include <cstddef>
+// Shared ABI contract with the isolated C# x86 resolution probe.
+static_assert(sizeof(XrInstance)==8&&sizeof(XrInstanceCreateInfo)==304,"OpenXR x86 instance ABI");
+static_assert(offsetof(XrInstanceCreateInfo,applicationInfo)==16&&offsetof(XrApplicationInfo,apiVersion)==264,"OpenXR application offsets");
+static_assert(sizeof(XrSystemGetInfo)==12&&sizeof(XrViewConfigurationView)==32,"OpenXR x86 view ABI");
+static_assert(offsetof(XrViewConfigurationView,recommendedImageRectWidth)==8&&offsetof(XrViewConfigurationView,recommendedImageRectHeight)==16,"OpenXR view offsets");
+static_assert(sizeof(XrInstanceProperties)==144&&offsetof(XrInstanceProperties,runtimeName)==16,"OpenXR runtime property ABI");
 
 namespace CleanVR { namespace Runtime { namespace {
 #define XR_CALLS(X) \
@@ -47,7 +57,7 @@ struct Chain {
     bool uploaded=false,acquired=false,waited=false;uint32_t image=0;
 } chains[5];
 unsigned maxLayers=2;
-struct SettingsLayer {bool visible=false,valid=false;XrPosef pose{};float width=0,height=0;std::uint64_t origin=0;ULONGLONG updated=0;} settingsLayer;
+struct SettingsLayer {bool visible=false,valid=false,transparent=false;XrPosef pose{};float width=0,height=0;std::uint64_t origin=0;ULONGLONG updated=0;} settingsLayer;
 ID3D11Texture2D* transferAtlas=nullptr;unsigned atlasWidth=0,atlasHeight=0;
 bool atlasDynamic=false,dynamicUnavailable=false;
 XrViewConfigurationView eyeRecommendations[2]{};
@@ -83,6 +93,33 @@ bool ReleaseImage(Chain& c,bool copied){
     XrSwapchainImageReleaseInfo ri{XR_TYPE_SWAPCHAIN_IMAGE_RELEASE_INFO};
     if(!Check(xrReleaseSwapchainImage(c.handle,&ri),"release image"))return false;
     c.acquired=c.waited=false;c.uploaded=copied;return true;
+}
+void DrawRadioPointer(Chain& c){
+    // Only the acquired XR HUD image is modified. In particular, never query
+    // BF2's HUD manager or bind/clear its D3D9 target inside the native HUD hook.
+    // Both normal uploads and packed transfers call here after their HUD copy,
+    // before their existing Flush and xrReleaseSwapchainImage.
+    float u=0,v=0;
+    if(&c!=&chains[3]||!c.acquired||!c.waited||!Controls::PhysicalRadioPointer(u,v))return;
+    const auto glyph=MenuPointer::Make(u,v,c.width,c.height,Config().pointerPixels);
+    if(!glyph.borderCount&&!glyph.fillCount)return;
+    const bool swap=format==DXGI_FORMAT_R8G8B8A8_UNORM||format==DXGI_FORMAT_R8G8B8A8_UNORM_SRGB;
+    const auto paint=[&](const MenuPointer::Rect* rect,unsigned count,std::uint32_t color){
+        if(swap)color=(color&0xff00ff00u)|((color&0xffu)<<16)|((color>>16)&0xffu);
+        // The shared glyph clamps radius to 64: its widest black bar is
+        // 131 x 5. No per-frame allocation, readback, state change or draw pass.
+        std::uint32_t pixels[131*5];std::fill_n(pixels,131*5,color);
+        for(unsigned i=0;i<count;++i){
+            const auto& r=rect[i];const unsigned w=unsigned(r.right-r.left),h=unsigned(r.bottom-r.top);
+            if(!w||!h||w*h>131*5)continue;
+            const D3D11_BOX box{unsigned(r.left),unsigned(r.top),0,unsigned(r.right),unsigned(r.bottom),1};
+            context->UpdateSubresource(c.images[c.image].texture,0,&box,pixels,w*4,0);
+        }
+    };
+    paint(glyph.border,glyph.borderCount,MenuPointer::Border);
+    paint(glyph.fill,glyph.fillCount,MenuPointer::Fill);
+    static bool reported=false;
+    if(!reported){reported=true;Log("RADIO112 pointer composed on XR HUD upload; native D3D9 HUD capture uses r110 path");}
 }
 XrPath Path(const char* name){XrPath p=XR_NULL_PATH;return Check(xrStringToPath(instance,name,&p),"path")?p:XR_NULL_PATH;}
 Mat Matrix(const XrPosef& p){return FromOpenXR({p.position.x,p.position.y,p.position.z},{p.orientation.x,p.orientation.y,p.orientation.z,p.orientation.w});}
@@ -196,6 +233,7 @@ bool Finish(const XrCompositionLayerBaseHeader* layer,const XrCompositionLayerBa
     if(layer&&hud&&n+(menu?1u:0u)<maxLayers)layers[n++]=hud;
     if(menu&&n<maxLayers){
         overlay.space=localSpace;overlay.eyeVisibility=XR_EYE_VISIBILITY_BOTH;
+        if(settingsLayer.transparent)overlay.layerFlags=XR_COMPOSITION_LAYER_BLEND_TEXTURE_SOURCE_ALPHA_BIT|XR_COMPOSITION_LAYER_UNPREMULTIPLIED_ALPHA_BIT;
         overlay.pose=settingsLayer.pose;overlay.size={settingsLayer.width,settingsLayer.height};
         overlay.subImage.swapchain=chains[4].handle;overlay.subImage.imageRect.extent={(int)chains[4].width,(int)chains[4].height};
         layers[n++]=reinterpret_cast<const XrCompositionLayerBaseHeader*>(&overlay);
@@ -228,7 +266,7 @@ Guard::~Guard(){Unlock();}
 bool Initialize(){
     Guard lock;
     if(initialized)return available;initialized=true;if(!Config().enabled)return false;
-    Log("CLEAN-2142-VR 62: crosshair OFF also hides fixed infantry reticle; headset settings menu and live turn speed; both-stick hold VR settings, tap recenter; left-menu tap kit, hold pause; r43 aircraft, r41 scopes and AK rollback; accepted r38 crosshair/r37 controls/r36 smoothing/r34 aiming/r30 renderer, OpenXR");
+    Log("BF2-VR r64 PRIVATE: adaptive dGPU transfer; r63 gameplay/quality retained; OpenXR");
     char path[MAX_PATH];sprintf_s(path,"%sopenxr_loader.dll",GamePath());loader=LoadLibraryExA(path,nullptr,LOAD_WITH_ALTERED_SEARCH_PATH);
     if(!loader){Log("32-bit openxr_loader.dll load failed %lu",GetLastError());return false;}
     getProc=reinterpret_cast<PFN_xrGetInstanceProcAddr>(GetProcAddress(loader,"xrGetInstanceProcAddr"));if(!getProc)return false;
@@ -255,7 +293,19 @@ bool Initialize(){
     if(format==DXGI_FORMAT_UNKNOWN){Log("No supported four-byte OpenXR color format");return false;}
     XrViewConfigurationView sizes[2]={{XR_TYPE_VIEW_CONFIGURATION_VIEW},{XR_TYPE_VIEW_CONFIGURATION_VIEW}};
     if(!Check(xrEnumerateViewConfigurationViews(instance,systemId,XR_VIEW_CONFIGURATION_TYPE_PRIMARY_STEREO,2,&count,sizes),"view sizes")||count!=2)return false;
-    for(int e=0;e<2;++e){eyeRecommendations[e]=sizes[e];if(!MakeChain(chains[e],sizes[e].recommendedImageRectWidth,sizes[e].recommendedImageRectHeight))return false;}
+    unsigned requestedW=0,requestedH=0;AutoResolution::Size(requestedW,requestedH);
+    for(int e=0;e<2;++e){
+        eyeRecommendations[e]=sizes[e];const bool useRequested=requestedW&&requestedH&&requestedW<=sizes[e].maxImageRectWidth&&requestedH<=sizes[e].maxImageRectHeight;
+        if(!MakeChain(chains[e],useRequested?requestedW:sizes[e].recommendedImageRectWidth,useRequested?requestedH:sizes[e].recommendedImageRectHeight))return false;
+    }
+    char resolutionPath[MAX_PATH];sprintf_s(resolutionPath,"%sbf2_vr_resolution.ini",GamePath());
+    const unsigned recommendedW=std::max(sizes[0].recommendedImageRectWidth,sizes[1].recommendedImageRectWidth);
+    const unsigned recommendedH=std::max(sizes[0].recommendedImageRectHeight,sizes[1].recommendedImageRectHeight);
+    char resolutionNumber[32];sprintf_s(resolutionNumber,"%u",recommendedW);
+    WritePrivateProfileStringA("OpenXR","width",resolutionNumber,resolutionPath);
+    sprintf_s(resolutionNumber,"%u",recommendedH);WritePrivateProfileStringA("OpenXR","height",resolutionNumber,resolutionPath);
+    WritePrivateProfileStringA("OpenXR","runtime",properties.runtimeName,resolutionPath);
+    Log("RESOLUTION49 OpenXR recommended per-eye=%ux%u; game source logged when stereo starts",recommendedW,recommendedH);
     if(!SetupInput())return false;available=true;Poll();
     // RFX hooks have process lifetime. Pin their module before starting a
     // background callback, so an explicit FreeLibrary cannot unload its code.
@@ -314,6 +364,14 @@ void Haptic(int hand,float strength,unsigned milliseconds){
     static unsigned reports=0;if(XR_FAILED(result)&&reports++<3)Log("OpenXR reload haptic failed (%d)",(int)result);
 }
 void EyeSize(int eye,unsigned& w,unsigned& h){Guard lock;if(eye<0||eye>1){w=h=0;return;}w=chains[eye].width;h=chains[eye].height;}
+void RecordEyeSize(unsigned w,unsigned h){
+    char path[MAX_PATH],n[32];sprintf_s(path,"%sbf2_vr_resolution.ini",GamePath());
+    sprintf_s(n,"%u",w);WritePrivateProfileStringA("Actual","native_width",n,path);
+    sprintf_s(n,"%u",h);WritePrivateProfileStringA("Actual","native_height",n,path);
+    sprintf_s(n,"%u",chains[0].width);WritePrivateProfileStringA("Actual","transfer_width",n,path);
+    sprintf_s(n,"%u",chains[0].height);WritePrivateProfileStringA("Actual","transfer_height",n,path);
+    Log("RESOLUTION49 confirmed native eye=%ux%u submitted L=%ux%u R=%ux%u",w,h,chains[0].width,chains[0].height,chains[1].width,chains[1].height);
+}
 void MatchEyeTransfer(unsigned w,unsigned h){
     Guard lock;
     if(!available||!open||!w||!h||!Config().nativeEyeTransfer||(w==lastNativeWidth&&h==lastNativeHeight))return;
@@ -322,11 +380,12 @@ void MatchEyeTransfer(unsigned w,unsigned h){
     for(int e=0;e<2;++e){
         const auto& r=eyeRecommendations[e];
         const bool smaller=w<=r.maxImageRectWidth&&h<=r.maxImageRectHeight&&
-            (std::uint64_t)w*h<(std::uint64_t)r.recommendedImageRectWidth*r.recommendedImageRectHeight;
+            (AutoResolution::Requested()||(std::uint64_t)w*h<(std::uint64_t)r.recommendedImageRectWidth*r.recommendedImageRectHeight);
         widths[e]=smaller?w:r.recommendedImageRectWidth;heights[e]=smaller?h:r.recommendedImageRectHeight;
         changed=changed||widths[e]!=chains[e].width||heights[e]!=chains[e].height;
     }
-    if(!changed)return;
+    Log("RESOLUTION49 actual game render/eye=%ux%u; OpenXR recommended=%ux%u; transfer L=%ux%u R=%ux%u (transfer resize alone adds no detail)",w,h,eyeRecommendations[0].recommendedImageRectWidth,eyeRecommendations[0].recommendedImageRectHeight,widths[0],heights[0],widths[1],heights[1]);
+    if(!changed){RecordEyeSize(w,h);return;}
     // Allocate both replacements first. If either fails, keep the working
     // stereo pair instead of leaving only one resized eye or a blank image.
     Chain replacement[2];bool ready=true;
@@ -336,12 +395,13 @@ void MatchEyeTransfer(unsigned w,unsigned h){
         Log("PERF native eye transfer source=%ux%u eyes=L%ux%u R%ux%u; original XR FOV/poses retained",w,h,chains[0].width,chains[0].height,chains[1].width,chains[1].height);
     }else Log("PERF native eye transfer allocation failed; keeping previous stereo sizes");
     for(auto& old:replacement)if(old.handle)xrDestroySwapchain(old.handle);
+    RecordEyeSize(w,h);
 }
 TransferTiming UploadTiming(){Guard lock;return transferTiming;}
 bool QuadSize(unsigned w,unsigned h){Guard lock;return available&&w>0&&h>0&&MakeChain(chains[2],w,h);}
 bool HudSize(unsigned w,unsigned h){Guard lock;return available&&w>0&&h>0&&MakeChain(chains[3],w,h);}
 void HideSettingsOverlay(){Guard lock;settingsLayer.visible=false;}
-bool SettingsOverlay(const XrPosef& pose,float width,float height,const unsigned char* bgra,unsigned w,unsigned h){
+bool SettingsOverlay(const XrPosef& pose,float width,float height,const unsigned char* bgra,unsigned w,unsigned h,bool transparent){
     Guard lock;if(!open||!current.valid||!current.focused||!current.shouldRender||maxLayers<2)return false;
     if(bgra){
         if(!w||!h||width<=0||height<=0)return false;
@@ -350,7 +410,7 @@ bool SettingsOverlay(const XrPosef& pose,float width,float height,const unsigned
         settingsLayer.valid=true;
     }
     if(!settingsLayer.valid)return false;
-    settingsLayer.visible=true;settingsLayer.pose=pose;settingsLayer.width=width;settingsLayer.height=height;
+    settingsLayer.visible=true;settingsLayer.transparent=transparent;settingsLayer.pose=pose;settingsLayer.width=width;settingsLayer.height=height;
     settingsLayer.origin=current.origin;settingsLayer.updated=GetTickCount64();return true;
 }
 bool Upload(int index,const unsigned char* bgra,unsigned pitch){
@@ -364,7 +424,7 @@ bool Upload(int index,const unsigned char* bgra,unsigned pitch){
     if(swap){
         // Uncommon RGBA runtimes still need channel conversion. Reuse storage.
         c.rgba.resize((size_t)c.width*c.height*4);
-        for(unsigned y=0;y<c.height;++y)for(unsigned x=0;x<c.width;++x){const auto* in=bgra+(size_t)y*pitch+x*4;auto* out=c.rgba.data()+((size_t)y*c.width+x)*4;out[0]=in[2];out[1]=in[1];out[2]=in[0];out[3]=index==3?in[3]:255;}
+        for(unsigned y=0;y<c.height;++y)for(unsigned x=0;x<c.width;++x){const auto* in=bgra+(size_t)y*pitch+x*4;auto* out=c.rgba.data()+((size_t)y*c.width+x)*4;out[0]=in[2];out[1]=in[1];out[2]=in[0];out[3]=(index==3||index==4)?in[3]:255;}
         source=c.rgba.data();sourcePitch=c.width*4;
     }
     // D3D9 already supplies BGRA. Projection/cinema layers do not enable
@@ -372,17 +432,24 @@ bool Upload(int index,const unsigned char* bgra,unsigned pitch){
     // alpha HUD retains its original premultiplied channels. UpdateSubresource
     // snapshots source bytes before returning; the caller can then unlock.
     context->UpdateSubresource(c.images[c.image].texture,0,nullptr,source,sourcePitch,0);
+    DrawRadioPointer(c);
     const double flushStart=FrameClockMs();transferTiming.write+=flushStart-copyStart;context->Flush();
     const double finished=FrameClockMs();transferTiming.submit+=finished-flushStart;transferTiming.copy+=finished-copyStart;
     return ReleaseImage(c,true);
 }
 void ReleaseTransferAtlas(){if(transferAtlas){transferAtlas->Release();transferAtlas=nullptr;}atlasWidth=atlasHeight=0;atlasDynamic=false;}
 void ResetTransfer(){Guard lock;ReleaseTransferAtlas();dynamicUnavailable=false;}
+HRESULT GraphicsStatus(){Guard lock;return device?device->GetDeviceRemovedReason():E_FAIL;}
 bool UnifiedMemoryAdapter(unsigned vendor,unsigned adapter,unsigned subsystem,unsigned revision){
     // The caller already owns Guard for the current stereo pair. Query once
     // during graphics creation, never per draw or per transferred row.
     return device&&unifiedMemory&&vendor!=0&&graphicsAdapter.VendorId==vendor&&
         graphicsAdapter.DeviceId==adapter&&graphicsAdapter.SubSysId==subsystem&&graphicsAdapter.Revision==revision;
+}
+bool MatchingGraphicsAdapter(unsigned vendor,unsigned adapter,unsigned subsystem,unsigned revision){
+    // Cached D3D11 adapter identity, as used by the existing UMA path.
+    return device&&vendor!=0&&graphicsAdapter.VendorId==vendor&&graphicsAdapter.DeviceId==adapter&&
+        graphicsAdapter.SubSysId==subsystem&&graphicsAdapter.Revision==revision;
 }
 BatchResult UploadAtlas(const unsigned char* bgra,unsigned pitch,unsigned width,unsigned height,const TransferRegion* regions,unsigned count){
     Guard lock;
@@ -455,6 +522,7 @@ BatchResult UploadAtlas(const unsigned char* bgra,unsigned pitch,unsigned width,
         const auto& r=regions[i];auto& c=chains[r.surface];
         const D3D11_BOX box{r.x,r.y,0,r.x+r.width,r.y+r.height,1};
         context->CopySubresourceRegion(c.images[c.image].texture,0,0,0,0,transferAtlas,0,&box);
+        DrawRadioPointer(c);
     }
     // Submit ALL GPU writes before giving ANY of these images back to XR.
     context->Flush();const double finished=FrameClockMs();transferTiming.copy+=finished-copyStart;transferTiming.submit+=finished-copyStart;
@@ -462,7 +530,7 @@ BatchResult UploadAtlas(const unsigned char* bgra,unsigned pitch,unsigned width,
     for(unsigned i=0;i<count;++i)if(!ReleaseImage(chains[regions[i].surface],true))released=false;
     return released?BatchResult::Uploaded:BatchResult::Failed;
 }
-bool SubmitEyes(const XrPosef* hudPose,float hudWidth,float hudHeight){
+bool SubmitEyes(const XrPosef* hudPose,float hudWidth,float hudHeight,bool hudUnpremultiplied){
     Guard lock;lastWasCinema=false;lastGameSubmission=GetTickCount64();
     if(!open||!current.valid||!current.shouldRender||!chains[0].uploaded||!chains[1].uploaded){SubmitEmpty();return false;}
     XrCompositionLayerProjectionView pv[2]={{XR_TYPE_COMPOSITION_LAYER_PROJECTION_VIEW},{XR_TYPE_COMPOSITION_LAYER_PROJECTION_VIEW}};
@@ -470,6 +538,7 @@ bool SubmitEyes(const XrPosef* hudPose,float hudWidth,float hudHeight){
     XrCompositionLayerQuad hud{XR_TYPE_COMPOSITION_LAYER_QUAD};
     const bool haveHud=hudPose&&hudWidth>0&&hudHeight>0&&chains[3].uploaded;
     if(haveHud){hud.space=localSpace;hud.eyeVisibility=XR_EYE_VISIBILITY_BOTH;hud.layerFlags=XR_COMPOSITION_LAYER_BLEND_TEXTURE_SOURCE_ALPHA_BIT;
+        if(hudUnpremultiplied)hud.layerFlags|=XR_COMPOSITION_LAYER_UNPREMULTIPLIED_ALPHA_BIT;
         hud.pose=*hudPose;hud.size={hudWidth,hudHeight};hud.subImage.swapchain=chains[3].handle;hud.subImage.imageRect.extent={(int)chains[3].width,(int)chains[3].height};}
     XrCompositionLayerProjection layer{XR_TYPE_COMPOSITION_LAYER_PROJECTION};layer.space=localSpace;layer.viewCount=2;layer.views=pv;
     return Finish(reinterpret_cast<XrCompositionLayerBaseHeader*>(&layer),haveHud?reinterpret_cast<XrCompositionLayerBaseHeader*>(&hud):nullptr);

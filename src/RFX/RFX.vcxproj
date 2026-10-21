@@ -72,6 +72,8 @@
     <ClCompile Include="HudString.cpp" />
     <ClCompile Include="IAT.cpp" />
     <ClCompile Include="initDLL.cpp" />
+    <ClCompile Include="AutoResolution.cpp" />
+    <ClCompile Include="RenderWindow.cpp" />
     <ClCompile Include="Memory.cpp" />
     <ClCompile Include="ShaderManager.cpp" />
     <!-- Keep native BF2 ABI declarations and naked hooks outside LTCG.
@@ -87,6 +89,7 @@
     <ClCompile Include="CleanVR.cpp"><WholeProgramOptimization>true</WholeProgramOptimization></ClCompile>
     <ClCompile Include="ControllerInput.cpp"><WholeProgramOptimization>true</WholeProgramOptimization></ClCompile>
     <ClCompile Include="ReloadAudio.cpp"><WholeProgramOptimization>true</WholeProgramOptimization></ClCompile>
+    <ClCompile Include="StingerAudio.cpp"><WholeProgramOptimization>true</WholeProgramOptimization></ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Refractor.h" />
@@ -136,6 +139,8 @@
     <None Include="GpuTiming.inl" />
     <None Include="IdlePump.inl" />
     <None Include="ManualReload.inl" />
+    <None Include="LmgReload.inl" />
+    <None Include="LmgReloadProfiles.inl" />
     <None Include="ReloadProfiles.inl" />
     <None Include="ReloadContacts.inl" />
     <None Include="ReloadGripRefinements.inl" />

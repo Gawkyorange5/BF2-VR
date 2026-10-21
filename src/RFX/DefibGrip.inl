@@ -1,0 +1,2 @@
+// Local paddle-to-wrist transform from the stock defibrillator stand pose.
+const Mat defibLeftFromWrist={{{0.14962148f,0.48227641f,0.86314708f,0.00000000f},{0.97595863f,0.06789349f,-0.20711164f,0.00000000f},{-0.15848713f,0.87338419f,-0.46052350f,0.00000000f},{-0.00540794f,0.13662404f,-0.01078531f,1.00000000f}}};

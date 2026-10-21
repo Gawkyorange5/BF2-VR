@@ -100,9 +100,7 @@ ControlMap.addKeyToTriggerMapping c_PIToggleWeapon IDFKeyboard IDKey_F 10000 0
 ControlMap.addButtonToTriggerMapping c_PIToggleWeapon IDFFalcon IDButton_2 10000 1
 ControlMap.addKeyToTriggerMapping c_PIFlareFire IDFKeyboard IDKey_X 0 0
 ControlMap.invertMouse 1
-ControlMap.mouseSensitivity 10
-ControlMap.setYawFactor 10
-ControlMap.setPitchFactor 10
+ControlMap.mouseSensitivity 1.7
 
 ControlMap.create HelicopterPlayerInputControlMap
 ControlMap.addKeysToAxisMapping c_PIYaw IDFKeyboard IDKey_D IDKey_A 0

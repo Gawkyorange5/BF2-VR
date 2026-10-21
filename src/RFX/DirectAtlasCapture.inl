@@ -2,18 +2,45 @@
 // Here a supported color StretchRect resolves straight into that eye's atlas
 // rectangle. No render target is rebound; BF2's device-state cache is intact.
 // Driver rejection uses the original resolve followed by an ordinary pack.
+#include "AdaptiveReadback.inl"
+#include "CaptureFreshness.inl"
 struct BatchCapture {
-    IDirect3DSurface9 *target=nullptr,*cpu=nullptr;
+    CaptureFreshness freshness;
+    bool staleRecoveryPending=false,staleRecoveryAttempted=false;
+    IDirect3DSurface9 *target=nullptr,*cpu=nullptr,*alternate=nullptr;
+    bool alternateLockable=false,adaptiveEligible=false,adaptiveConsidered=false,adaptiveEnabled=true;
+    int previousCompatibility=-1;
+    AdaptiveReadback adaptive;
     unsigned width=0,height=0,directMask=0;
     Runtime::TransferRegion directRegions[2]{};
+    // A borrowed current-frame source for the desktop, after XR upload unlocks.
+    Runtime::TransferRegion mirrorRegion{};bool mirrorReady=false;
     bool disabled=false,reported=false,directBlocked=false,directReported=false;
     bool lockable=false,lockableBlocked=false,architectureChecked=false,preferLockable=false,readReported=false;
-    void Clear(){Release(target);Release(cpu);width=height=directMask=0;lockable=false;}
+    void Clear(){Release(target);Release(cpu);Release(alternate);width=height=directMask=0;lockable=false;mirrorReady=false;adaptive=AdaptiveReadback{};adaptiveConsidered=false;}
     void Reset(){
+        freshness={};staleRecoveryPending=staleRecoveryAttempted=false;
         Clear();disabled=reported=directBlocked=directReported=false;
-        lockableBlocked=architectureChecked=preferLockable=readReported=false;Runtime::ResetTransfer();
+        lockableBlocked=architectureChecked=preferLockable=readReported=adaptiveEligible=false;previousCompatibility=-1;Runtime::ResetTransfer();
     }
-    void NewPair(){directMask=0;}
+    void NewPair(){
+        directMask=0;mirrorReady=false;
+        if(staleRecoveryPending){
+            // The previous pair has been uploaded, unlocked and mirrored.
+            // Rebuild only transfer resources; BF2 retains ownership of the
+            // device/reset and all weapon/game state. Avoid both fast copies
+            // for the rest of this device lifetime, including on UMA systems.
+            Clear();Runtime::ResetTransfer();freshness={};
+            directBlocked=lockableBlocked=true;staleRecoveryPending=false;staleRecoveryAttempted=true;
+            adaptive.Stop("unchanging image during head movement");
+            Log("CAPTURE113 recovery: separate eye resolves plus ordinary GetRenderTargetData; same resolution and HUD");
+        }
+        const auto settings=Tuning();const int compatibility=(int)settings.gpuCompatibility;
+        if(adaptiveEnabled!=settings.adaptiveReadback||previousCompatibility!=compatibility){
+            adaptiveEnabled=settings.adaptiveReadback;previousCompatibility=compatibility;
+            adaptive=AdaptiveReadback{};adaptiveConsidered=false;
+        }
+    }
     void ReadbackPreference(const D3DCAPS9& caps){
         if(architectureChecked)return;
         architectureChecked=true;
@@ -25,8 +52,34 @@ struct BatchCapture {
         Release(api);
         preferLockable=SUCCEEDED(hr)&&caps.DeviceType==D3DDEVTYPE_HAL&&
             Runtime::UnifiedMemoryAdapter(adapter.VendorId,adapter.DeviceId,adapter.SubSysId,adapter.Revision);
+        adaptiveEligible=!preferLockable&&SUCCEEDED(hr)&&caps.DeviceType==D3DDEVTYPE_HAL&&
+            Runtime::MatchingGraphicsAdapter(adapter.VendorId,adapter.DeviceId,adapter.SubSysId,adapter.Revision);
         Log("PERF directReadback candidate=%d adapterQuery=%08X; driver UMA and matching game adapter required",preferLockable?1:0,(unsigned)hr);
+        Log("PERF64 adaptive readback enabled=%d eligible=%d; UMA retains established direct method, unmatched adapters retain ordinary method",adaptiveEnabled?1:0,adaptiveEligible?1:0);
     }
+    void ConsiderAdaptive(unsigned w,unsigned h){
+        if(adaptiveConsidered)return;adaptiveConsidered=true;
+        if(!adaptiveEnabled||!adaptiveEligible||lockableBlocked)return;
+        // BF2 is a 32-bit process. Limit the extra temporary atlas to 64 MiB
+        // and retain address-space headroom; larger layouts keep the old path.
+        const unsigned long long bytes=(unsigned long long)w*h*4;
+        MEMORYSTATUSEX memory{};memory.dwLength=sizeof(memory);
+        if(bytes>64ull*1024*1024||!GlobalMemoryStatusEx(&memory)||
+            memory.ullAvailVirtual<512ull*1024*1024+bytes*2){
+            Log("PERF64 adaptive readback skipped: memory headroom/atlas limit; atlas=%ux%u bytes=%llu",w,h,bytes);return;
+        }
+        adaptive.started=true;
+        Log("PERF64 adaptive readback warming up; atlas=%ux%u; bounded ordinary/direct comparison, unchanged pixels and replay protection",w,h);
+    }
+    void Observe(double workMs,const PairTiming& timing,bool rendered,bool comparable,std::uint64_t frame){
+        if(disabled||!adaptive.started||adaptive.settled)return;
+        if(lockableBlocked){adaptive.Stop("driver rejected direct readback");return;}
+        adaptive.Observe(workMs,timing.stage+timing.read+timing.upload,timing.directReads!=0,
+            rendered&&timing.batches==1&&comparable&&!SettingsMenu::Active(),frame);
+        // Resource selection/release waits until Ensure on the NEXT pair.
+        // The current atlas is still borrowed by the desktop mirror below.
+    }
+    bool Measuring()const{return adaptiveEligible&&adaptiveEnabled&&!adaptive.settled&&!disabled;}
     bool RecoverEyes(){
         for(unsigned eye=0;eye<2;++eye){
             const unsigned bit=1u<<eye;
@@ -44,23 +97,47 @@ struct BatchCapture {
         return recovered?Runtime::BatchResult::Unavailable:Runtime::BatchResult::Failed;
     }
     HRESULT Ensure(unsigned w,unsigned h){
-        if(target&&width==w&&height==h&&!(lockable&&lockableBlocked))return S_OK;
+        if(!architectureChecked){
+            D3DCAPS9 caps{};const HRESULT hr=device->GetDeviceCaps(&caps);
+            if(FAILED(hr))return hr;ReadbackPreference(caps);
+        }
+        if(target&&(width!=w||height!=h)){
+            if(directMask)return D3DERR_INVALIDCALL;
+            Clear();
+        }
+        ConsiderAdaptive(w,h);
+        bool nextLockable=(preferLockable||adaptive.WantsDirect())&&!lockableBlocked;
+        if(target&&lockable==nextLockable){
+            if(adaptive.settled||!adaptive.started||lockableBlocked)Release(alternate);
+            if(lockable&&adaptive.settled)Release(cpu);
+            return S_OK;
+        }
         // Never release an eye's only current copy during a layout change.
         if(directMask)return D3DERR_INVALIDCALL;
+        if(alternate&&alternateLockable==nextLockable){
+            std::swap(target,alternate);std::swap(lockable,alternateLockable);
+            if(adaptive.settled||!adaptive.started||lockableBlocked)Release(alternate);
+            if(lockable&&adaptive.settled)Release(cpu);
+            return S_OK;
+        }
         D3DCAPS9 caps{};HRESULT hr=device->GetDeviceCaps(&caps);
         if(SUCCEEDED(hr)&&(!w||!h||w>caps.MaxTextureWidth||h>caps.MaxTextureHeight))hr=D3DERR_NOTAVAILABLE;
         if(FAILED(hr))return hr;
         ReadbackPreference(caps);
         IDirect3DSurface9* nextTarget=nullptr;
-        bool nextLockable=preferLockable&&!lockableBlocked;
         hr=device->CreateRenderTarget(w,h,D3DFMT_A8R8G8B8,D3DMULTISAMPLE_NONE,0,nextLockable?TRUE:FALSE,&nextTarget,nullptr);
         if(FAILED(hr)&&nextLockable){
             Log("PERF directReadback allocation rejected hr=%08X; ordinary atlas until reset",(unsigned)hr);
             Release(nextTarget);lockableBlocked=true;nextLockable=false;
+            adaptive.Stop("lockable allocation rejected");
+            if(target&&!lockable)return S_OK;
             hr=device->CreateRenderTarget(w,h,D3DFMT_A8R8G8B8,D3DMULTISAMPLE_NONE,0,FALSE,&nextTarget,nullptr);
         }
         if(FAILED(hr)){Release(nextTarget);return hr;}
-        Clear();target=nextTarget;lockable=nextLockable;width=w;height=h;return S_OK;
+        Release(alternate);
+        if(adaptive.started&&!adaptive.settled&&!lockableBlocked){alternate=target;alternateLockable=lockable;}
+        else Release(target);
+        target=nextTarget;lockable=nextLockable;width=w;height=h;return S_OK;
     }
     HRESULT LockImage(D3DLOCKED_RECT& mapped,IDirect3DSurface9*& mappedSurface,bool& direct){
         direct=false;mappedSurface=nullptr;
@@ -101,7 +178,7 @@ struct BatchCapture {
         return E_FAIL;
     }
     bool StageEye(unsigned eye,unsigned eyeWidth,unsigned eyeHeight){
-        if(eye>1||disabled||directBlocked||!Config().batchTransfer||!Config().directEyeAtlas)return false;
+        if(replayGuard.active||eye>1||disabled||directBlocked||!Config().batchTransfer||!Config().directEyeAtlas)return false;
         // The native HUD exists after eye zero. Its dimensions let us reserve
         // the final layout without another whole-atlas resize/copy afterward.
         // A missing HUD keeps the original two-eye path with no unused rows.
@@ -146,7 +223,7 @@ struct BatchCapture {
         if(!directReported){directReported=true;Log("PERF directAtlas active source=%ux%u samples=%u atlas=%ux%u; native-resolution color resolve directly into eye region",eyeWidth,eyeHeight,(unsigned)desc.MultiSampleType,w,h);}
         return true;
     }
-    Runtime::BatchResult Upload(bool includeHud,PairTiming& timing){
+    Runtime::BatchResult Upload(bool includeHud,PairTiming& timing,const Runtime::Frame& frame){
         if(disabled||!Config().batchTransfer)return Runtime::BatchResult::Unavailable;
         const double stageStart=FrameClockMs();
         IDirect3DSurface9* sources[3]={captures[0].target,captures[1].target,includeHud?HudCapture::ResolvedForTransfer():nullptr};
@@ -179,6 +256,11 @@ struct BatchCapture {
         const HRESULT hr=LockImage(mapped,mappedSurface,directRead);
         if(FAILED(hr)){timing.read+=FrameClockMs()-readStart;return Disable("read packed image",hr);}
         const double uploadStart=FrameClockMs();timing.read+=uploadStart-readStart;
+        if(mapped.pBits&&mapped.Pitch>0&&(unsigned)mapped.Pitch>=w*4&&
+           freshness.Observe(static_cast<const BYTE*>(mapped.pBits),(unsigned)mapped.Pitch,regions,frame,directRead)){
+            if(!staleRecoveryAttempted)staleRecoveryPending=true;
+            else Log("CAPTURE113 image remains unchanged on ordinary capture; native rendering requires investigation, no repeated recovery");
+        }
         const auto result=mapped.pBits&&mapped.Pitch>0&&(unsigned)mapped.Pitch>=width*4u?
             Runtime::UploadAtlas(static_cast<const BYTE*>(mapped.pBits),(unsigned)mapped.Pitch,width,height,regions,count):Runtime::BatchResult::Unavailable;
         const HRESULT unlock=mappedSurface->UnlockRect();timing.upload+=FrameClockMs()-uploadStart;
@@ -190,6 +272,7 @@ struct BatchCapture {
             return Runtime::BatchResult::Failed;
         }
         if(result==Runtime::BatchResult::Uploaded){
+            mirrorRegion=regions[1];mirrorReady=true;
             ++timing.batches;timing.directEyes+=(directMask&1u)+((directMask>>1)&1u);
             if(directRead){
                 ++timing.directReads;

@@ -1,6 +1,7 @@
 #pragma once
 #include <d3d9.h>
 #include "CleanVR.h"
+#include "RenderWindow.h"
 #include "HudCapture.h"
 #include "D3DWorkProfile.h"
 // Expand to the original expression in normal builds. Even a force-inlined
@@ -124,6 +125,7 @@ public:
 	STDMETHOD(Reset)(THIS_ D3DPRESENT_PARAMETERS* pPresentationParameters)
 	{
 		CleanVR::BeforeReset();
+		CleanVR::RenderWindow::ConfigurePresentation(pPresentationParameters);
 		m_szx = pPresentationParameters->BackBufferWidth;
 		m_szy = pPresentationParameters->BackBufferHeight;
 		HRESULT result = m_device->Reset(pPresentationParameters);
@@ -254,19 +256,24 @@ public:
 
 	STDMETHOD(BeginScene)(THIS)
 	{
-		return BF2_D3D_FORWARD(BeginScene, m_device->BeginScene());
+		const HRESULT result = BF2_D3D_FORWARD(BeginScene, m_device->BeginScene());
+		if (FAILED(result)) CleanVR::ReportRenderFailure("BeginScene", result);
+		return result;
 	}
 
 	STDMETHOD(EndScene)(THIS)
 	{
 		HRESULT result = BF2_D3D_FORWARD(EndScene, m_device->EndScene());
 		if (SUCCEEDED(result)) CleanVR::AfterEndScene(m_device);
+		else CleanVR::ReportRenderFailure("EndScene", result);
 		return result;
 	}
 
 	STDMETHOD(Clear)(THIS_ DWORD Count, CONST D3DRECT* pRects, DWORD Flags, D3DCOLOR Color, float Z, DWORD Stencil)
 	{
-		return BF2_D3D_FORWARD(Clear, m_device->Clear(Count, pRects, Flags, Color, Z, Stencil));
+		const HRESULT result = BF2_D3D_FORWARD(Clear, m_device->Clear(Count, pRects, Flags, Color, Z, Stencil));
+		if (FAILED(result)) CleanVR::ReportRenderFailure("Clear", result);
+		return result;
 	}
 
 	STDMETHOD(SetTransform)(THIS_ D3DTRANSFORMSTATETYPE State, CONST D3DMATRIX* pMatrix)
@@ -456,22 +463,30 @@ public:
 
 	STDMETHOD(DrawPrimitive)(THIS_ D3DPRIMITIVETYPE PrimitiveType, UINT StartVertex, UINT PrimitiveCount)
 	{
-		return BF2_D3D_FORWARD(DrawPrimitive, m_device->DrawPrimitive(PrimitiveType, StartVertex, PrimitiveCount));
+		const HRESULT result = BF2_D3D_FORWARD(DrawPrimitive, m_device->DrawPrimitive(PrimitiveType, StartVertex, PrimitiveCount));
+		if (FAILED(result)) CleanVR::ReportRenderFailure("DrawPrimitive", result);
+		return result;
 	}
 
 	STDMETHOD(DrawIndexedPrimitive)(THIS_ D3DPRIMITIVETYPE PrimitiveType, INT BaseVertexIndex, UINT MinVertexIndex, UINT NumVertices, UINT startIndex, UINT primCount)
 	{
-		return BF2_D3D_FORWARD(DrawIndexedPrimitive, m_device->DrawIndexedPrimitive(PrimitiveType, BaseVertexIndex, MinVertexIndex, NumVertices, startIndex, primCount));
+		const HRESULT result = BF2_D3D_FORWARD(DrawIndexedPrimitive, m_device->DrawIndexedPrimitive(PrimitiveType, BaseVertexIndex, MinVertexIndex, NumVertices, startIndex, primCount));
+		if (FAILED(result)) CleanVR::ReportRenderFailure("DrawIndexedPrimitive", result);
+		return result;
 	}
 
 	STDMETHOD(DrawPrimitiveUP)(THIS_ D3DPRIMITIVETYPE PrimitiveType, UINT PrimitiveCount, CONST void* pVertexStreamZeroData, UINT VertexStreamZeroStride)
 	{
-		return BF2_D3D_FORWARD(DrawPrimitiveUP, m_device->DrawPrimitiveUP(PrimitiveType, PrimitiveCount, pVertexStreamZeroData, VertexStreamZeroStride));
+		const HRESULT result = BF2_D3D_FORWARD(DrawPrimitiveUP, m_device->DrawPrimitiveUP(PrimitiveType, PrimitiveCount, pVertexStreamZeroData, VertexStreamZeroStride));
+		if (FAILED(result)) CleanVR::ReportRenderFailure("DrawPrimitiveUP", result);
+		return result;
 	}
 
 	STDMETHOD(DrawIndexedPrimitiveUP)(THIS_ D3DPRIMITIVETYPE PrimitiveType, UINT MinVertexIndex, UINT NumVertices, UINT PrimitiveCount, CONST void* pIndexData, D3DFORMAT IndexDataFormat, CONST void* pVertexStreamZeroData, UINT VertexStreamZeroStride)
 	{
-		return BF2_D3D_FORWARD(DrawIndexedPrimitiveUP, m_device->DrawIndexedPrimitiveUP(PrimitiveType, MinVertexIndex, NumVertices, PrimitiveCount, pIndexData, IndexDataFormat, pVertexStreamZeroData, VertexStreamZeroStride));
+		const HRESULT result = BF2_D3D_FORWARD(DrawIndexedPrimitiveUP, m_device->DrawIndexedPrimitiveUP(PrimitiveType, MinVertexIndex, NumVertices, PrimitiveCount, pIndexData, IndexDataFormat, pVertexStreamZeroData, VertexStreamZeroStride));
+		if (FAILED(result)) CleanVR::ReportRenderFailure("DrawIndexedPrimitiveUP", result);
+		return result;
 	}
 
 	STDMETHOD(ProcessVertices)(THIS_ UINT SrcStartIndex, UINT DestIndex, UINT VertexCount, IDirect3DVertexBuffer9* pDestBuffer, IDirect3DVertexDeclaration9* pVertexDecl, DWORD Flags)

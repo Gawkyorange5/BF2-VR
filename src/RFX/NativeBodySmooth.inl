@@ -2,8 +2,8 @@
 // alignment and controller IK. No filtering of eyes, hands, gun or gameplay.
 struct VisualBodyFilter {
     void* owner=nullptr;void* rig=nullptr;void* definition=nullptr;void* weapon=nullptr;
-    std::uint64_t frame=0,origin=0;std::int64_t time=0;int stance=-1;
-    BodyArmSmoothing arms{};float akElbowWeight=0;
+    std::uint64_t frame=0,origin=0,recenter=0;std::int64_t time=0;int stance=-1;
+    BodyArmSmoothing arms{};float akElbowWeight=0,headYaw=0;
     Mat reference{},world{},local[80]{},output[80]{};
     Vec nativePosition{};bool valid=false;
 } visualBodyFilter;
@@ -16,12 +16,13 @@ bool SmoothVisualBody(void* owner,void* rig,void* definition){
     const bool reset=!state.valid||state.owner!=owner||state.rig!=rig||state.definition!=definition||
         state.stance!=stance||state.origin!=pairFrame.origin||pairFrame.id<state.frame||pairFrame.id>state.frame+2||
         now<=0||now<state.time||now-state.time>150000000||Length(Sub(nativePosition,state.nativePosition))>.75f||
-        !Near(state.reference,reference,.001f,.0001f);
+        state.recenter!=referenceGeneration;
     if(!reset&&state.frame==pairFrame.id){
         bodyWorld=state.world;memcpy(bodyBones,state.output,sizeof(bodyBones));return true;
     }
     const float dt=reset?0.f:std::min(.05f,static_cast<float>((now-state.time)*1.e-9));
-    if(reset){state.arms={};state.akElbowWeight=0;}
+    if(reset){state.arms={};state.akElbowWeight=0;state.headYaw=0;}
+    state.recenter=referenceGeneration;
     state.arms.seconds=dt;
     const float poseAlpha=reset?1.f:1.f-std::exp(-dt/.045f);
     const float legAlpha=reset?1.f:1.f-std::exp(-dt/.025f);

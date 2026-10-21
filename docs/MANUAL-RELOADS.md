@@ -1,38 +1,208 @@
-# Manual reloads and physical scopes
+# Manual reloads — v1.1.0
 
-## Magazine-fed weapons
+See [controller and physical reload instructions](CONTROLS.md) and
+[reload/gear settings](SETTINGS.md). Enable Manual Reload for physical gestures.
+Left trigger grabs magazines, shells and charging handles at profiled contacts.
+B ejects supported pistol/MP7 magazines; G18 also allows physical removal.
+B is not an automatic reload fallback in manual mode. With manual mode disabled,
+B performs the native reload. Vehicle reload remains native.
 
-1. Bring your left hand to the installed magazine and use the **left trigger** to grab it.
-2. Pull it out and release it.
-3. Reach to the replacement-ammunition area near your hip. Press the left trigger to take a fresh magazine; it appears in your tracked hand.
-4. Bring it to the magazine well and seat it. Release the trigger as needed to let go.
-5. On weapons with a profiled charging handle, grab the handle with the left trigger, move it through its travel and return it. Complete the required steps to fire.
+Seat a magazine and complete the required handle/bolt/cover/belt actions for
+that weapon. Shell-fed, pump, bolt-action, LMG and speed-loader profiles have
+their respective physical steps. Reinserting the same magazine is supported.
+The optional magazine guide aligns insertion near the well.
 
-Charging is available after partial reloads as well as empty ones. Interaction cues play at their steps. Emptying a manually supported weapon does not complete an automatic reload for you. **B** remains the native reload fallback. A completed manual reload allows firing immediately; BF2's normal fire rate and ammunition rules still apply.
+## 189 profiled template names
 
-## Shotguns and bolt-action rifles
+Names include stock, DZB2, variants and aliases. Unknown mods may need profiles;
+this list is not a claim of support for arbitrary weapons sharing a display name.
 
-- **Shell-fed shotguns:** take one shell from the hip area with the left trigger, place it at the loading port, then repeat. Magazine-fed Saiga/Jackhammer use their magazine interaction instead.
-- **Pump guns:** keep the **left grip** held at the support/pump location; squeeze the **left trigger** to engage the pump, move back and forward, then release the trigger. Completion has a small assistance threshold.
-- **Bolt-action rifles:** after firing, grab and cycle the bolt through the profiled path, including its return/closure. Reload the magazine separately when required.
-- Native button reload and physical cycling remain available. If a particular weapon gets stuck, switch weapons or use the native reload fallback and report the weapon, ammo state and exact sequence.
-
-## Profiled weapon list
-
-Availability depends on team, map, installed content and normal unlocks. Some share a profile family; no unlocks are supplied. A profile being included does not mean every map/team combination has been exhaustively tested.
-
-| Family | Included stock profiles |
-| --- | --- |
-| Assault rifles / carbine | M16A2, M16/M203, AK-47, AK-47/GP-25, AK-101, AK-101/GP-30, G3, L85A1/SA80, L85A2, G36E, F2000, FAMAS, M4 |
-| SMGs | MP5, PP-19 Bizon, Type 85, P90, MP7 |
-| Magazine shotguns | Saiga-12, Jackhammer |
-| Shell-fed shotguns | Norinco 982, Protecta, Benelli M4, Remington 11-87 |
-| Snipers | SVD/Dragunov, Type 88, M24, M95 Barrett, L96A1 |
-
-There are **29 internal profiles**. They cover the listed weapons and variants, not every BF2 weapon. LMGs, pistols, launchers and unlisted/custom weapons use native button reload. Some stock assets have no independently profiled charging part; those use their available steps rather than an invented handle.
-
-## Physical sniper scopes
-
-M24, M95 Barrett, L96A1, SVD and Type 88 have profiled physical optics. Raise the scope to either eye and align along the rifle. The view darkens outside the intended eye relief/alignment. Magnification (1–8) is adjustable in VR settings. The reticle is visually zeroed at 100 m; it does not predict bullet drop or remove native spread.
-
-The scope needs an extra world render while aligned, so performance may differ from normal aiming. Infantry launcher scopes and other custom optics are planned/unprofiled.
+- `usrif_m16a2`
+- `usrif_m203`
+- `rurif_ak47`
+- `rurif_gp25`
+- `rurif_ak101`
+- `rurif_gp30`
+- `usrif_g3a3`
+- `usrif_sa80`
+- `gbrif_sa80a2_l85`
+- `sasrif_g36e`
+- `sasrif_fn2000`
+- `eurif_famas`
+- `usrif_mp5_a3`
+- `rurif_bizon`
+- `chrif_type85`
+- `eurif_fnp90`
+- `sasrif_mp7`
+- `rusht_saiga12`
+- `ussht_jackhammer`
+- `rurif_dragunov`
+- `chsni_type88`
+- `chsht_norinco982`
+- `chsht_protecta`
+- `gbrif_benelli_m4`
+- `usrif_remington11-87`
+- `usrif_m24`
+- `ussni_m95_barret`
+- `gbrif_l96a1`
+- `usrif_m4`
+- `uslmg_m249saw`
+- `rulmg_rpk74`
+- `chlmg_type95`
+- `rulmg_pkm`
+- `sasrif_mg36`
+- `eurif_hk21`
+- `uspis_92fs`
+- `uspis_92fs_silencer`
+- `rupis_baghira`
+- `rupis_baghira_silencer`
+- `chpis_qsz92`
+- `chpis_qsz92_silencer`
+- `rurrif_ak74u`
+- `wf_ump45`
+- `aix_mac11`
+- `aix_p90`
+- `hk_mp5sd`
+- `qcw05`
+- `wf_ksvc`
+- `wf_mp7`
+- `wf_mp9`
+- `wf_mpx`
+- `wf_p90c`
+- `wf_pp19`
+- `wf_pdrc`
+- `wf_scarlpdw`
+- `wf_cksp`
+- `wf_aachb`
+- `aix_ak5_tactical`
+- `aix_famas`
+- `aix_fs2000`
+- `aix_g36k_rif`
+- `aix_g36v`
+- `aix_hk416`
+- `aix_m41a`
+- `aix_magpul`
+- `aix_scarl_rif`
+- `aix_sig552`
+- `aix_sig552specops`
+- `aix_steyr_aug`
+- `aix_stg58`
+- `aix_tavor`
+- `aix_type97`
+- `aix_xm8`
+- `bf4_aku12_kobra`
+- `wf_a545`
+- `wf_a545s`
+- `wf_acrcqb`
+- `wf_ak12`
+- `wf_ak12s`
+- `wf_akalpha`
+- `wf_akalphas`
+- `wf_an94`
+- `wf_an94s`
+- `wf_ar15`
+- `wf_ar15s`
+- `wf_arx160`
+- `wf_arx160s`
+- `wf_asval`
+- `wf_auga3`
+- `wf_f2000`
+- `wf_g36k`
+- `wf_hk433`
+- `wf_mdrx`
+- `wf_mdrxs`
+- `wf_ots14`
+- `wf_qbz191`
+- `wf_qbz191s`
+- `wf_scarh`
+- `wf_scarhs`
+- `wf_sig552c`
+- `wf_type97`
+- `wf_type97b`
+- `wf_vhs2`
+- `wf_vhs2s`
+- `wf_xm8`
+- `wf_xm8s`
+- `chrif_type95`
+- `chrif_type95_b`
+- `eurif_hk53a3`
+- `sasrif_g36k`
+- `usrif_fnscarh`
+- `usrif_fnscarl`
+- `usrif_g36c`
+- `aix_type97_mg`
+- `bf4_l86a1_eotech`
+- `bf4_m240b_m145`
+- `bf4_m249_reflex`
+- `bf4_m60e4_acog`
+- `bf4_mg4_eotech`
+- `bf4_rpk_pkas`
+- `bf4_type88lmg_prisma`
+- `ch_qjs201`
+- `ch_qjs201qmk`
+- `germmg_mg3`
+- `mg_qbb95`
+- `rpd`
+- `wf_mg36`
+- `wf_pkp`
+- `aix_as50`
+- `aix_barrett_m109`
+- `aix_dsr`
+- `aix_tpg1`
+- `aix_mk14ebr`
+- `aix_vintorez`
+- `bf4_sks_pso1`
+- `bo3_svg100`
+- `codol_type85_evolution`
+- `ussni_m82a1`
+- `wf_as50`
+- `wf_axmc`
+- `wf_cdxmc`
+- `wf_ck27`
+- `wf_gm6`
+- `wf_m107`
+- `wf_m200`
+- `wf_m98b`
+- `wf_mk14ebr`
+- `wf_qbu88`
+- `wf_rsass`
+- `wf_scarhsv`
+- `wf_str`
+- `wf_sv98`
+- `wf_svd`
+- `wf_tpg1`
+- `wf_vss`
+- `bf4_hawk12g_hd33`
+- `bf4_usas12_reflex`
+- `emzpj_shorty`
+- `mohw_aa12`
+- `wf_dp12`
+- `wf_m870`
+- `wf_mk3a1`
+- `wf_triplethreat`
+- `yun_cwsaiga12`
+- `aix_beretta`
+- `aix_beretta_silencer`
+- `aix_glock19`
+- `aix_glock19_silencer`
+- `aix_gsh`
+- `aix_gsh_silencer`
+- `aix_kimber`
+- `aix_uspmatch`
+- `aix_uspmatch_silencer`
+- `bf4_sw40`
+- `bf4_taurus44`
+- `bf4_taurus44_scoped`
+- `wf_93r`
+- `wf_aps`
+- `wf_deagle`
+- `wf_fn57`
+- `wf_g18c`
+- `wf_judge`
+- `wf_m1911`
+- `wf_m9`
+- `wf_maxim9`
+- `wf_mp443`
+- `wf_p226`
+- `wf_qsz92`
+- `bf4_xm25`

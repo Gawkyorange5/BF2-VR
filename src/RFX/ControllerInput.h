@@ -9,4 +9,8 @@ void Gameplay(const Runtime::Frame&,const Mat& reference);
 void Menu(const Runtime::Frame&);
 void PointerButton(bool down);
 void ReleaseAll();
+bool PhysicalRadio(const Runtime::Frame&);
+bool PhysicalRadioPointer(float& u,float& v);
+bool VehicleSeatWheel(const Runtime::Frame&); // hold left Y; release over a seat to select
+void PresentSeatWheel();
 }}

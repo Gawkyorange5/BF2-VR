@@ -112,3 +112,17 @@
 {"ustnk_m1a2_cupolabase",VehicleRole::Aimed},
 {"wasp_defence_back",VehicleRole::Aimed},
 {"wasp_defence_front",VehicleRole::Aimed},
+
+// r57: exact expansion driver seats observed in the supplied log.
+{"xpak2_tnkc2",VehicleRole::Aimed},
+{"xpak2_tnkl2a6",VehicleRole::Aimed},
+
+// Preserve the separate DZB2 compatibility candidate in this combined DLL.
+// Original Apache pilot entry. Other DZB2 seats use guarded VehicleModProfiles.
+{"apache_longbow",VehicleRole::Pilot},
+
+// Laptop terminals are native enterable seats, not inventory or aircraft.
+// Survival's pcoId 0 is valid; Enter Vehicle remains native so its script
+// can activate Chopper Gunner. Do not fabricate/spawn/consume the terminal.
+{"uav_pcbase",VehicleRole::Vehicle},
+{"sv_cg_laptop",VehicleRole::Vehicle},

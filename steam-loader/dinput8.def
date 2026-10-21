@@ -1,0 +1,8 @@
+LIBRARY dinput8
+EXPORTS
+ DirectInput8Create=_ProxyCreate@20 @1
+ DllCanUnloadNow=_ProxyCanUnload@0 @2 PRIVATE
+ DllGetClassObject=_ProxyClass@12 @3 PRIVATE
+ DllRegisterServer=_ProxyRegister@0 @4 PRIVATE
+ DllUnregisterServer=_ProxyUnregister@0 @5 PRIVATE
+ GetdfDIJoystick=_ProxyJoystick@0 @6

@@ -1,29 +1,23 @@
-# Release verification — 1.0.0 / r45
+# v1.1.0 verification
 
-Checked on 2026-09-29 using isolated workspace copies. The live game installation and Documents profile were not changed by these checks.
+The maintainer tested the public-package candidate in VR and accepted it.
+The final requested change adds +restart to shortcut/DZB2 game arguments.
+The runtime payload is unchanged from that candidate and retains accepted r134
+gameplay code. Its executable code SHA-256 is:
+`8c500e1b3be73b111525b00f574aa403c1006283caa203589cc3ebb4d10bafe5`.
 
-| Check | Result |
-| --- | --- |
-| Supported stock BF2 executable starts without an RFX import | Passed |
-| Add RFX import to separate executable copy | Passed |
-| Preserve original game .text bytes and original file | Passed |
-| Repeat import operation without duplicate import | Passed |
-| Reject changed/unsupported code and truncated executable | Passed |
-| Generate all 116 reload cues from local game WAV files | Passed; 116/116 bit-identical to r45 PCM |
-| Simulated failure after three installed files | Passed; prior files restored |
-| Retain existing vr_stereo.ini | Passed |
-| Apply recommended Controls.con with backup | Passed |
-| Refuse overwrite of existing install journal | Passed |
-| Uninstall restores prior mod DLL and controls | Passed |
-| New preferences installed when INI absent | Passed |
-| Preserve files edited after installation and retain backups | Passed |
-| Resolve conflict and complete restoration | Passed |
-| Shortcut creation and target / working directory / mod arguments | Passed in isolated folder |
-| Setup window and bundled help | Opened and inspected |
-| Native x86 process automatically loads RFX before entry | Passed |
-| RFX hooks all three expected import slots in native probe | Passed |
-| Public RFX executable code matches confirmed r45 | Passed; SHA-256 below |
+Isolated checks passed for clean installation, upgrades from public v1 and r134,
+both render choices, unchanged saved preferences, rollback after injected failure,
+restoring exact prior runtime/journal, protected later edits/newer code/other
+loaders, and original BF2.exe/renderer preservation. All 822 generated sounds
+match the private baseline with the tested installed archives. Native startup
+probes passed for stock/DZB2 audio and direct/original-executable loading.
 
-RFX .text (virtual bytes): f824ba53583c621c68533a0c94ef8808d8abcd6d16ab136a32eaa17fcc19ad38.
+DZB2 checks cover local runtime preparation, shader adapter, mods junction,
+later-installed assets and persistent settings. Final embedded resources and
+shortcut arguments were checked. The Alt-Tab hotfix message is conditional on
+the specifically identified older renderer; compatible installations pass.
 
-The creator confirmed the r45 gameplay baseline in the headset before packaging. Installer checks do not establish compatibility with every installation or constitute a new headset/FPS benchmark. The native probe verifies loading; a full BF2 match under the newly generated executable name still needs user/hardware compatibility feedback. The source and installer do not promise a fixed frame rate.
+The probes do not simulate a BF2 match. Actual affected Steam installations,
+other GPUs/headsets and reported remote-camera freezes are not universally
+verified. See the release notes for known limits. SHA256SUMS accompanies downloads.

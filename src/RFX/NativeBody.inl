@@ -20,7 +20,7 @@ BodyMesh bodyMeshes[16]{};
 void* bodyOwner=nullptr;void* bodySource=nullptr;void* bodyInstance=nullptr;
 Mat bodyWorld{},bodyBones[80]{};
 bool bodyProfile=false,bodyReady=false,bodySubmitted=false,bodyUnified=false;
-bool bodyDetailTargets=false;
+bool bodyDetailTargets=false,bodyDead=false;
 bool bodyDepthProfile=false,bodyDepthShared=false;
 unsigned bodyEyeDepthClears=0;
 void RememberBodyDepth(IDirect3DDevice9* device);
@@ -95,12 +95,36 @@ bool BodyTopology(void* rig){
     }
     return true;
 }
+#include "NativeCorpsePose.inl"
 #include "NativeBodySmooth.inl"
+void FollowVisualBodyHead(){
+    auto& state=visualBodyFilter;
+    // Work from the unmodified native world each pair: never feed this
+    // visual turn back into gameplay, locomotion, aiming or the pose filter.
+    const Vec spine=Direction(Sub(Position(bodyBones[47]),Position(bodyBones[0])),bodyWorld);
+    const bool upright=Length(spine)>.2f&&Unit(spine).y>.65f;
+    const Mat relative=Mul(pairFrame.head,Inverse(reference));
+    const Vec forward=Row(relative,2);
+    const float horizontal=std::sqrt(forward.x*forward.x+forward.z*forward.z);
+    float goal=state.headYaw;
+    if(!Tuning().bodyHeadFollow||!upright)goal=0;
+    else if(horizontal>.35f){
+        // A 30 degree free-look zone avoids making every glance turn feet.
+        const float yaw=std::atan2(forward.x,forward.z),free=.523598776f;
+        goal=std::copysign(std::max(0.f,std::abs(yaw)-free),yaw);
+    }
+    const float dt=state.arms.seconds;
+    const float delta=std::remainder(goal-state.headYaw,6.283185307f);
+    state.headYaw=std::remainder(state.headYaw+delta*(dt>0?1-std::exp(-dt/.12f):0),6.283185307f);
+    if(!upright)return; // native prone orientation stays intact
+    const Vec p=Position(bodyWorld);
+    bodyWorld=Mul(bodyWorld,Yaw(state.headYaw));SetPosition(bodyWorld,p);
+}
 bool AlignFullBody(void* owner){
     // Align the model's anatomical eyes to the actual rendered head. r5's
     // forced synthetic shoulder frame pushed the connected collar into view.
     // Keep this model's own head-to-shoulder proportions and torso rotation.
-    const Mat nativeWorld=bodyWorld,base=Level(views[0].source);
+    const Mat nativeWorld=bodyWorld,base=TrackingBase(views[0].source);
     const Mat head=Compose(base,reference,pairFrame.head,Config().units);
     if(!Rigid(head))return false;
     const Vec eyeWorld=Point(Point({0.f,.07304f,.07993f},bodyBones[47]),nativeWorld);
@@ -108,6 +132,13 @@ bool AlignFullBody(void* owner){
     const Vec correction=Sub(Position(head),eyeWorld);
     if(!std::isfinite(Length(correction))||Length(baseline)>.85f||Length(correction)>1.6f||std::abs(correction.y)>1.1f)return false;
     SetPosition(bodyWorld,Add(Position(nativeWorld),{correction.x,0.f,correction.z}));
+    // A little eye clearance keeps bulky vest/collar meshes out of the
+    // near view. Controller wrist targets are solved again after this shift.
+    const Vec spine=Direction(Sub(Position(bodyBones[47]),Position(bodyBones[0])),nativeWorld);
+    if(Length(spine)>.2f&&Unit(spine).y>.65f){
+        const Vec backward=Scale(Row(Level(nativeWorld),2),-Tuning().bodySetback*Config().units);
+        SetPosition(bodyWorld,Add(Position(bodyWorld),backward));
+    }
     // Feet keep their native height. Vertical correction is distributed up
     // the spine, and the upper torso and both arms translate together.
     const Vec lift=Direction({0.f,correction.y,0.f},Inverse(bodyWorld));
@@ -117,8 +148,8 @@ bool AlignFullBody(void* owner){
         if(!Rigid(bodyBones[i]))return false;
     }
     static void* lastOwner=nullptr;static int lastStance=-1;
-    static Mat lastReference{};static unsigned aligned=0;
-    const int stance=Value<int>(owner,0x230);const bool recentered=!Near(lastReference,reference,.001f,.0001f);
+    static std::uint64_t lastRecenter=0;static unsigned aligned=0;
+    const int stance=Value<int>(owner,0x230);const bool recentered=lastRecenter!=referenceGeneration;
     if(++aligned<=3||aligned%300==1||lastOwner!=owner||lastStance!=stance||recentered){
         Mat headFrame=base;SetPosition(headFrame,Position(head));const Mat inv=Inverse(headFrame);
         const Vec eye=Point(Point(Point({0.f,.07304f,.07993f},bodyBones[47]),bodyWorld),inv);
@@ -126,7 +157,7 @@ bool AlignFullBody(void* owner){
         Log("FULLBODY6 anatomical fit frame=%llu stance=%d recentered=%d eyeError=(%.3f %.3f %.3f) left=(%.3f %.3f %.3f) right=(%.3f %.3f %.3f) feetY=preserved",
             pairFrame.id,stance,recentered?1:0,eye.x,eye.y,eye.z,left.x,left.y,left.z,right.x,right.y,right.z);
     }
-    lastOwner=owner;lastStance=stance;lastReference=reference;return true;
+    lastOwner=owner;lastStance=stance;lastRecenter=referenceGeneration;return true;
 }
 void* BodyMeshFor(void* definition){
     for(const auto& mesh:bodyMeshes)if(mesh.definition==definition)return mesh.instance;
@@ -147,9 +178,35 @@ void* BodyMeshFor(void* definition){
     }
     BodyStatus("session mesh cache limit reached; body omitted");return nullptr;
 }
+#include "NativeBodyRagdoll.inl"
+bool BeginDownedBody(){
+    void* owner=HelmetBodyOwner();if(!owner||LocalAlive())return false;
+    void* source=Value<void*>(owner,0x38);void* definition=Value<void*>(source,0x58);void* rig=Value<void*>(owner,0x290);
+    if(Value<void*>(owner)!=game+0x4E80F8||Value<void*>(source)!=render+0x221410||
+       Value<void*>(definition)!=render+0x21C160||!Value<BYTE>(definition,0x4C)||!BodyTopology(rig))return false;
+    const auto geo=Value<std::uintptr_t>(definition,0xE0),end=Value<std::uintptr_t>(definition,0xE4);
+    const auto materials=Value<std::uintptr_t>(definition,0xD0),matEnd=Value<std::uintptr_t>(definition,0xD4);
+    if(!geo||end<geo||end-geo<64||end-geo>1024||!materials||matEnd<materials||matEnd-materials<32||matEnd-materials>512)return false;
+    const bool nativePose=PrepareCorpsePose(owner,rig,pairFrame.id);
+    if(nativePose){memcpy(bodyBones,corpsePose.bones,sizeof(bodyBones));bodyWorld=corpsePose.world;downedArms={};}
+    else{
+        // Unsupported/custom physics retain the previously working view.
+        if(!Copy(bodyBones,Value<Mat*>(rig,0x10),sizeof(bodyBones))||!Read(owner,0x88,bodyWorld)||!Rigid(bodyWorld))return false;
+        for(const auto& bone:bodyBones)if(!Rigid(bone))return false;
+        RelaxDownedArms(owner,rig);
+    }
+    void* instance=BodyMeshFor(definition);
+    if(!instance||Value<void*>(instance)!=render+0x221410||Value<int>(instance,0x3C)!=1)return false;
+    reinterpret_cast<MeshWorld>(render+0x1A6CB0)(instance,&bodyWorld);
+    reinterpret_cast<MeshBones>(render+0x1A8F30)(instance,bodyBones,80);
+    bodyOwner=owner;bodySource=source;bodyInstance=instance;bodyReady=bodyUnified=bodyDead=true;
+    BodyStatus(nativePose?"full native ragdoll snapshot; helmet/head masked":"native corpse with passive visual arms; helmet/head masked");return true;
+}
 void BeginFullBodyPair(){
-    bodyReady=bodyUnified=bodyDepthShared=bodyDetailTargets=false;bodyOwner=bodySource=bodyInstance=nullptr;
+    bodyReady=bodyUnified=bodyDepthShared=bodyDetailTargets=bodyDead=false;bodyOwner=bodySource=bodyInstance=nullptr;
     if(!bodyProfile){BodyStatus("native body profile unavailable");return;}
+    if(!LocalAlive()){if(!BeginDownedBody())BodyStatus("downed body unavailable");return;}
+    downedArms={};corpsePose={};
     if(!Tuning().showNativeFullBody){BodyStatus("disabled in settings");return;}
     void* owner=Soldier();void* seat=Value<void*>(Value<void*>(Player(),0x80),4);
     if(!LocalAlive()||!owner||seat!=owner||Value<int>(owner,0x2B8)!=0||Value<void*>(owner,0x254)){
@@ -195,6 +252,10 @@ void BeginFullBodyPair(){
     for(const auto& bone:bodyBones)if(!Rigid(bone)){BodyStatus("native body bone matrix rejected");return;}
     // Failure leaves the current native pose intact and resets the filter.
     SmoothVisualBody(owner,rig,definition);
+    FollowVisualBodyHead();
+    // Carry the private torso through the same presentation frame as its
+    // hands and eyes. Never modify the soldier's physics/world transform.
+    bodyWorld=Mul(Mul(bodyWorld,Inverse(Level(views[0].source))),TrackingBase(views[0].source));
     if(!AlignFullBody(owner)){BodyStatus("native body/camera alignment rejected; extra body omitted");return;}
     // A new weapon changes the authored wrist/arm basis. Keep torso and leg
     // smoothing continuous, but never carry sleeve twist across that change.
@@ -217,7 +278,7 @@ void BeginFullBodyPair(){
         const Mat intoBody=Mul(nativeWorld,Inverse(bodyWorld));
         const Vec wrists[]={Point(handWrists[0],intoBody),Point(handWrists[1],intoBody)};
         Mat solved[80];
-        bodyUnified=SolveBodyArms(bodyBones,Mul(leftPalm,intoBody),Mul(rightPalm,intoBody),Mul(Level(views[0].source),Inverse(bodyWorld)),solved,armStats,bodyDetailTargets?wrists:nullptr,chargeWeight,&visualBodyFilter.arms,visualBodyFilter.akElbowWeight);
+        bodyUnified=SolveBodyArms(bodyBones,Mul(leftPalm,intoBody),Mul(rightPalm,intoBody),Mul(TrackingBase(views[0].source),Inverse(bodyWorld)),solved,armStats,bodyDetailTargets?wrists:nullptr,chargeWeight,&visualBodyFilter.arms,visualBodyFilter.akElbowWeight);
         if(bodyUnified)memcpy(bodyBones,solved,sizeof(bodyBones));else visualBodyFilter.arms={};
     }
     static unsigned attempts=0;static bool previousUnified=false;
@@ -248,7 +309,15 @@ void BeginFullBodyEye(){
     bodySourceCalls=0;bodyEyePackets=bodyEyeDraws=bodyEyeHandMask=bodyEyeHiddenArms=bodyEyeKeptArms=bodyEyeDetailDraws=0;
     for(auto& profile:bodyEyeDetailProfiles)profile=nullptr;
 }
+void SubmitDownedBody(unsigned a,unsigned b,unsigned c){
+    if(!eyeActive||scopePass||!bodyReady||!bodyDead||bodySubmitted||bodyOwner!=HelmetBodyOwner()||!originalSkinPrepare)return;
+    bodySubmitted=true;const DWORD stale=0xffffffff;
+    Copy(static_cast<BYTE*>(bodyInstance)+0x34C,&stale,4);Copy(static_cast<BYTE*>(bodyInstance)+0x350,&stale,4);
+    originalSkinPrepare(bodyInstance,a,b,c);bodyRenderConnected=true;++bodySubmissions;
+}
 void __fastcall SkinPrepareHook(void* self,void*,unsigned a,unsigned b,unsigned c){
+    SubmitDownedBody(a,b,c);
+    if(eyeActive&&bodyDead&&bodySubmitted&&self==bodySource&&!scopePass)return;
     if(scopePass&&bodySource&&self==bodySource)return;
     // Use the exact local soldier geometry pointer, not a draw-size heuristic.
     // This boundary queues mesh packets before BF2 draws its world/1P lists.

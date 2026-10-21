@@ -2,6 +2,7 @@
 #include <cstddef>
 #include <cstdio>
 #include <cmath>
+#include <cstring>
 namespace CleanVR { namespace {
 #define VR_OPTION(page,member,toggle,section,key,label,help,lo,hi,step,initial) \
     {page,toggle,section,key,label,help,(float)lo,(float)hi,(float)step,(float)initial,offsetof(TuneSettings,member)},
@@ -37,7 +38,12 @@ bool SaveLiveValues(const float* values,const bool* changed){
     bool ok=true;
     for(unsigned i=0;i<count;++i)if(changed[i]){
         char value[32];sprintf_s(value,"%.4f",values[i]);
-        if(!WritePrivateProfileStringA(options[i].section,options[i].key,value,path)){
+        const char* key=options[i].key;
+        if(values[i]>.5f&&(!strcmp(key,"snap_turn")||!strcmp(key,"smooth_turn"))){
+            const char* opposite=!strcmp(key,"snap_turn")?"smooth_turn":"snap_turn";
+            if(!WritePrivateProfileStringA("input",opposite,"0",path)){ok=false;break;}
+        }
+        if(!WritePrivateProfileStringA(options[i].section,key,value,path)){
             Log("SETTINGS44 save failed key=%s error=%lu",options[i].key,GetLastError());ok=false;break;
         }
     }

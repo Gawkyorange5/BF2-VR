@@ -147,8 +147,26 @@ bool DrawSkinMask(void* effect,void* material,IDirect3DIndexBuffer9* filtered,un
     }
     return SUCCEEDED(result);
 }
+bool DrawHelmetBody(void* effect,void* packet){
+    void* source=eyeActive?HelmetBodySource():nullptr;
+    if(!source||Value<void*>(packet,0x118)!=static_cast<BYTE*>(source)+0x360)return false;
+    if(bodyDead&&bodySubmitted)return true; // our head-masked clone supplies this exact local body
+    BYTE* materials=nullptr;const unsigned parts=SkinMaterials(source,materials);
+    const auto palette=Value<std::uintptr_t>(packet,0x4C),first=reinterpret_cast<std::uintptr_t>(source)+0x180;
+    if(!parts||palette<first||palette>=first+parts*0x68||(palette-first)%0x68)return false;
+    const unsigned part=(unsigned)((palette-first)/0x68);void* material=Value<void*>(packet);
+    if(material!=materials+part*0x1C8)return false;
+    // Reuse the existing verified head-removal index lists on this exact
+    // local corpse draw. Remote corpses and original game buffers stay intact.
+    void* saved=bodyInstance;bodyInstance=source;const auto* p=BodyMaskFor(material,part);bodyInstance=saved;
+    if(!p)return false;if(!p->wholeKept)return true;
+    auto* device=Value<IDirect3DDevice9*>(effect,0x14C);if(!device)return false;
+    auto& buffer=bodyIndexBuffers[1][p-bodyMaskProfiles];
+    return DrawSkinMask(effect,material,MaskBuffer(device,buffer,p->wholeIndices,p->wholeKept),p->vertices,p->wholeKept);
+}
 void __fastcall BodyDrawHook(void* effect,void*,void* packet){
     if(scopePass){originalBodyDraw(effect,packet);return;}
+    if(DrawHelmetBody(effect,packet))return;
     // Packet identity is cheap and immutable for this draw. Reject unrelated
     // world/remote/gun packets before Class("PlayerManager") and ownership
     // traversal, while retaining every ownership/palette check for our hands.

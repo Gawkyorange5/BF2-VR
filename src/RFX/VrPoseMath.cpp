@@ -391,7 +391,7 @@ bool SolveHands(const Mat b[70],const HandBinding& binding,const HandTargets& t,
     support=false;if(!binding.valid||!t.rightValid||!Rigid(t.rightGrip)||!Rigid(t.rightAim)||!Rigid(t.head)||!Rigid(t.torso))return false;
     for(int i=0;i<70;++i)if(!Rigid(b[i]))return false;
     HandAimState filtered=aimState?*aimState:HandAimState{};
-    Mat weapon=t.rightAim,right=Mul(binding.right,weapon);
+    Mat weapon=t.rightAim,right=t.freeHands&&t.palmsValid?Mul(t.rightPalm,t.rightGrip):Mul(binding.right,weapon);
     SetPosition(right,t.palmsValid?Position(Mul(t.rightPalm,t.rightGrip)):Position(t.rightGrip));
     weapon=Mul(Inverse(binding.right),right);Mat left=Mul(binding.left,weapon);
     if(t.leftValid){
@@ -399,12 +399,28 @@ bool SolveHands(const Mat b[70],const HandBinding& binding,const HandTargets& t,
         const float separation=Length(Sub(Position(t.leftGrip),Position(t.rightGrip))),distance=Length(Sub(Position(left),Position(t.leftGrip)));
         // Distance gates acquisition only. Once attached, keep the hand on
         // the foregrip until grip release, a reload interaction or tracking loss.
-        support=t.supportPressed&&binding.leftReady&&(t.wasSupporting||(distance<.20f&&separation>.12f&&separation<.8f));
+        support=!t.freeHands&&t.supportPressed&&binding.leftReady&&(t.wasSupporting||(distance<.20f&&separation>.12f&&separation<.8f));
         const bool pumping=t.pumpPose&&t.supportPressed&&binding.leftReady&&t.pumpAimWeight>0;
         const Mat oneHand=weapon;
         if(support){
             const Vec authored=Sub(Position(binding.left),Position(binding.right));
-            const Vec tracked=Sub(Position(t.leftGrip),Position(t.rightGrip));
+            Vec tracked=Sub(Position(t.leftGrip),Position(t.rightGrip));
+            // A secondary grip and a virtual shoulder stock are independent.
+            // Both modes aim along the two controllers. Only a shouldered long
+            // gun receives a third reference point; lowering it releases that
+            // assistance continuously, without moving either wrist to the head.
+            if(t.virtualStock&&!pumping&&Length(authored)>.18f&&separation>.16f){
+                Mat shoulderFrame=ShoulderFrame(t.head,t.torso);
+                const Vec shoulder=Point({.17f,.02f,-.065f},shoulderFrame);
+                const Vec rear=Sub(Position(t.rightGrip),Scale(Unit(tracked),.24f));
+                const float proximity=Clamp((.25f-Length(Sub(rear,shoulder)))/.15f);
+                const Vec stockLine=Sub(Position(t.leftGrip),shoulder);
+                const float agreement=Dot(Unit(stockLine),Unit(tracked));
+                if(proximity>0&&agreement>.8f){
+                    const float weight=.65f*proximity*proximity*(3.f-2.f*proximity)*Clamp((agreement-.8f)/.15f);
+                    tracked=Add(Scale(Unit(tracked),1-weight),Scale(Unit(stockLine),weight));
+                }
+            }
             // Swing the current right-hand attitude onto the support line.
             // A projected-up-vector basis can flip when swept past its pole.
             // Fade the line's influence for nearly coincident controllers,
@@ -424,12 +440,18 @@ bool SolveHands(const Mat b[70],const HandBinding& binding,const HandTargets& t,
         }
         if(support){
             Vec wrist=t.palmsValid?Position(Mul(t.rightPalm,t.rightGrip)):Position(t.rightGrip);
-            if(aimState&&!pumping)StabilizeSupportedAim(t,weapon,wrist,filtered);
+            // Stock OFF is raw two-controller aiming: no shoulder reference and
+            // no near-face pose history. Keep the support latch and grip pose.
+            if(aimState&&!pumping&&t.virtualStock&&t.aimSmoothing)StabilizeSupportedAim(t,weapon,wrist,filtered);
             else filtered.valid=false;
             right=Mul(binding.right,weapon);SetPosition(right,wrist);
             weapon=Mul(Inverse(binding.right),right);left=Mul(binding.left,weapon);
-        }else if(t.palmsValid)left=Mul(t.leftPalm,t.leftGrip);
-        else{left=Mul(binding.left,t.leftAim);SetPosition(left,Position(t.leftGrip));}
+        }
+        if(!support){
+            // Releasing grip frees the left palm in either stock mode.
+            if(t.palmsValid)left=Mul(t.leftPalm,t.leftGrip);
+            else{left=Mul(binding.left,t.leftAim);SetPosition(left,Position(t.leftGrip));}
+        }
     }
     if(!support)filtered.valid=false;
     Mat candidate[70];std::memcpy(candidate,b,sizeof(candidate));

@@ -98,6 +98,7 @@ public:
 
 	HRESULT STDMETHODCALLTYPE CreateDevice(UINT Adapter, D3DDEVTYPE DeviceType, HWND hFocusWindow, DWORD BehaviorFlags, D3DPRESENT_PARAMETERS* pPresentationParameters, IDirect3DDevice9** ppReturnedDeviceInterface)
 	{
+		CleanVR::RenderWindow::ConfigurePresentation(pPresentationParameters,hFocusWindow);
 		HRESULT hr = m_d3d->CreateDevice(Adapter, DeviceType, hFocusWindow, BehaviorFlags,
 			pPresentationParameters, ppReturnedDeviceInterface);
 
