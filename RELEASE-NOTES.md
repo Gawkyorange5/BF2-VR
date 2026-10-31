@@ -6,7 +6,8 @@ r140–r141. It preserves the existing hold-to-sprint controls.
 
 **Compatible with [DZB2](https://www.moddb.com/mods/dzb2).** Install DZB2 separately,
 then use the included DZB2 VR launcher. This update retains its weapon, gadget,
-scope and vehicle profiles. Use Medium Lighting; known limits are listed below.
+scope and vehicle profiles. **DZB2 itself requests Medium Lighting** in its
+graphics setup; follow its linked settings instructions. Known limits are below.
 
 ## Performance
 

@@ -6,7 +6,8 @@ This package uses the accepted **r141 gameplay code**.
 
 **DZB2 compatible:** [Download DZB2 from ModDB](https://www.moddb.com/mods/dzb2),
 install it separately, then use **Battlefield 2 DZB2 VR** or the included
-**Launch DZB2 VR.cmd**. Use Medium Lighting for the tested DZB2 VR configuration.
+**Launch DZB2 VR.cmd**. **DZB2 itself requests Medium Lighting in its graphics setup.** Follow its
+linked graphics-settings instructions; keep Medium Lighting for VR.
 
 [Download v1.2.0](https://github.com/Gawkyorange5/BF2-VR/releases/tag/v1.2.0) · [Features and changes](RELEASE-NOTES.md) · [Bug fixes](docs/FIXES.md)
 
