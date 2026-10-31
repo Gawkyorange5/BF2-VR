@@ -13,16 +13,16 @@ namespace BF2VR {
   CheckBox bindings=new CheckBox(),shortcut=new CheckBox(),ready=new CheckBox(),steam=new CheckBox();Button install=new Button(),remove=new Button(),browse=new Button();
   Label status=new Label();bool busy;
   public SetupForm(){
-   Text="BF2-VR Setup · v1.1.0 · installer rev 2 · r134";ClientSize=new Size(730,780);MinimumSize=Size;StartPosition=FormStartPosition.CenterScreen;Font=new Font("Segoe UI",10);AutoScaleMode=AutoScaleMode.Dpi;
+   Text="BF2-VR Setup · v1.2.0 · r141";ClientSize=new Size(730,780);MinimumSize=Size;StartPosition=FormStartPosition.CenterScreen;Font=new Font("Segoe UI",10);AutoScaleMode=AutoScaleMode.Dpi;
    var title=new Label{Text="Battlefield 2 VR",Font=new Font("Segoe UI",20,FontStyle.Bold),AutoSize=true,Location=new Point(20,15)};Controls.Add(title);
    AddText("1. Patch BF2 to 1.5 and play a map successfully flat-screen first.\n2. Connect your headset and select its OpenXR runtime.\n3. Close BF2, select the game folder and your profile, then install.",20,65,690,70);
    AddText("Battlefield 2 folder (contains BF2.exe)",20,143,600,25);folder.SetBounds(20,171,595,28);Controls.Add(folder);browse.Text="Browse…";browse.SetBounds(625,169,85,30);Controls.Add(browse);
    browse.Click+=delegate{using(var d=new FolderBrowserDialog{Description="Choose the Battlefield 2 game folder",SelectedPath=folder.Text})if(d.ShowDialog()==DialogResult.OK){folder.Text=d.SelectedPath;RefreshMods();}};
    AddText("BF2 profile for controller bindings",20,210,310,25);profile.SetBounds(20,238,310,30);profile.DropDownStyle=ComboBoxStyle.DropDownList;Controls.Add(profile);
    foreach(string p in InstallEngine.Profiles())profile.Items.Add(Path.GetFileName(p));if(profile.Items.Count>0)profile.SelectedIndex=0;
-   AddText("Desktop shortcut (installed mods)",365,210,340,25);mod.SetBounds(365,238,345,30);mod.DropDownStyle=ComboBoxStyle.DropDownList;Controls.Add(mod);
+   AddText("Additional shortcut (installed mods)",365,210,340,25);mod.SetBounds(365,238,345,30);mod.DropDownStyle=ComboBoxStyle.DropDownList;Controls.Add(mod);
    bindings.Text="Apply recommended controller bindings (backs up Controls.con)";bindings.Checked=profile.Items.Count>0;bindings.SetBounds(20,281,690,27);Controls.Add(bindings);
-   shortcut.Text="Create a Battlefield 2 VR desktop shortcut";shortcut.Checked=true;shortcut.SetBounds(20,312,690,27);Controls.Add(shortcut);
+   shortcut.Text="Create regular BF2 VR shortcut + selected mod shortcut";shortcut.Checked=true;shortcut.SetBounds(20,312,690,27);Controls.Add(shortcut);
    ready.Text="My game is patched to 1.5 and I have played a map flat-screen successfully.";ready.SetBounds(20,347,690,28);Controls.Add(ready);
    AddText("VR render resolution",20,382,690,25);resolution.SetBounds(20,410,690,28);resolution.DropDownStyle=ComboBoxStyle.DropDownList;resolution.Items.AddRange(ResolutionChoice.Labels);resolution.SelectedIndex=0;Controls.Add(resolution);
    steam.Text="Steam edition: optional original-executable loader (see guide)";steam.SetBounds(20,445,690,28);Controls.Add(steam);

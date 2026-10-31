@@ -3,10 +3,11 @@
 struct InventoryDrop {
     void* owner=nullptr;void* identity=nullptr;void* weapon=nullptr;
     int item=0,slot=-1;ULONGLONG born=0,tick=0;Mat world{};Vec velocity{},angular{};
-    bool active=false,resting=false;
+    bool active=false,resting=false,rebound=false,returning=false;
+    std::uint64_t origin=0;Mat returnFrom{};Vec returnVelocity{};
 } inventoryDrops[10];
 struct InventoryMotion {
-    struct Sample{Mat pose;ULONGLONG tick;};Sample samples[16]{};
+    struct Sample{Mat pose;ULONGLONG tick;Vec bodyHand;};Sample samples[16]{};
     int count=0;void* owner=nullptr;std::uint64_t origin=0;Mat world{};
 } inventoryMotion;
 struct ItemThrow {
@@ -81,9 +82,17 @@ void C4ReleaseStarted(void* weapon){
     ReleaseSRWLockExclusive(&itemThrowLock);
     if(report)Log("C454 native launch delay started; waiting for projectile creation");
 }
-bool InventoryItemAway(int item,ULONGLONG now){
+bool InventoryItemInFlight(int item,ULONGLONG now){
     if(item<1||item>9)return false;const auto& d=inventoryDrops[item];
-    return d.active&&d.owner==inventoryHands.owner&&d.identity==inventoryHands.identity&&now>=d.born&&now-d.born<3000;
+    return d.active&&d.owner==inventoryHands.owner&&d.identity==inventoryHands.identity&&now>=d.born&&
+        now-d.born<(d.rebound?InventoryGameplay::WeaponAwayMs:3000);
+}
+bool InventoryItemAway(int item,ULONGLONG now){
+    return InventoryItemInFlight(item,now)&&!inventoryDrops[item].rebound;
+}
+void RecallInventoryItem(void* owner,int item){
+    if(item<1||item>9)return;auto& d=inventoryDrops[item];
+    if(d.rebound&&d.owner==owner&&d.identity==inventoryHands.identity)d.active=false;
 }
 int PhysicalConsumable(void* weapon){
     char name[80]{};if(!ReloadName(weapon,name))return 0;
@@ -138,7 +147,14 @@ void SampleInventoryMotion(const Runtime::Frame& f,void* owner){
     m.world=world;
     if(m.count&&f.tick==m.samples[m.count-1].tick)return;
     if(m.count==16){memmove(m.samples,m.samples+1,15*sizeof(m.samples[0]));m.count=15;}
-    m.samples[m.count++]={world,f.tick};
+    m.samples[m.count++]={world,f.tick,Sub(Position(f.hands[1].grip),Position(f.head))};
+}
+float InventoryBodyHandSpeed(){
+    const auto& m=inventoryMotion;if(m.count<2)return INFINITY;
+    const auto& last=m.samples[m.count-1];int first=m.count-2;
+    while(first>0&&last.tick-m.samples[first].tick<65)--first;
+    const auto& before=m.samples[first];const auto dt=last.tick-before.tick;
+    return dt>=15&&dt<=150?Length(Sub(last.bodyHand,before.bodyHand))*1000.f/float(dt):INFINITY;
 }
 Vec InventoryReleaseVelocity(){
     const auto& m=inventoryMotion;if(m.count<2)return {};
@@ -178,6 +194,11 @@ Mat ThrowRotation(Vec axis,float angle){
 }
 void ReleaseInventoryItem(const Runtime::Frame& f,void* owner,int item,int slot,bool holster,bool stationary){
     void* weapon=InventoryItem(owner,item);if(!weapon)return;
+    if(holster&&IsPhysicalC4(weapon)){
+        const bool valid=slot>=0&&slot<7&&bodySlots.valid&&bodySlots.owner==owner&&bodySlots.origin==f.origin&&bodySlots.items[slot]==item;
+        holster=valid&&InventoryGameplay::C4Stow(Position(f.hands[1].grip),Position(bodySlots.anchors[slot]),InventoryBodyHandSpeed());
+        if(!holster)Log("THROW140 C4 release overrides broad shoulder grab volume");
+    }
     if(holster&&CookingStart(weapon)<0){if(IsPhysicalC4(weapon))C4Holstered(weapon);Log("SLOTS51 returned nativeItem=%d to slot=%d",item,slot);return;}
     const Vec velocity=stationary?Vec{}:InventoryReleaseVelocity(),angular=stationary?Vec{}:InventoryReleaseAngular();Mat launch=inventoryMotion.world;
     if(inventoryMotion.owner!=owner||!Rigid(launch))return;
@@ -198,10 +219,10 @@ void ReleaseInventoryItem(const Runtime::Frame& f,void* owner,int item,int slot,
         Log("THROW54 release item=%d kind=%d velocity=(%.2f %.2f %.2f)",item,consumable,velocity.x,velocity.y,velocity.z);
     }else if(item>=1&&item<=9){
         auto& d=inventoryDrops[item];d={};d.owner=owner;d.identity=inventoryHands.identity;d.weapon=weapon;
-        d.item=item;d.slot=slot;d.born=d.tick=f.tick;d.world=launch;d.velocity=velocity;d.angular=angular;d.active=true;
+        d.item=item;d.slot=slot;d.born=d.tick=f.tick;d.origin=f.origin;d.rebound=InventoryGameplay::Rebounds(slot,consumable);d.world=launch;d.velocity=velocity;d.angular=angular;d.active=true;
         FireFrame pose{};AcquireSRWLockShared(&fireLock);pose=fire;ReleaseSRWLockShared(&fireLock);
         if(pose.owner==owner&&pose.weapon==weapon&&pose.origin==f.origin&&f.tick>=pose.tick&&f.tick-pose.tick<150&&Rigid(pose.trackedWeapon))d.world=pose.trackedWeapon;
-        Log("GEAR51 released item=%d speed=%.2f return=3s",item,Length(velocity));
+        Log("GEAR140 released item=%d speed=%.2f rebound=%d returnMs=%u",item,Length(velocity),d.rebound,d.rebound?InventoryGameplay::WeaponAwayMs:3000u);
     }
     Runtime::Haptic(1,.18f,35);
 }
@@ -221,10 +242,19 @@ void UpdateRightCooking(const Runtime::Frame& f){
 }
 void UpdateInventoryDrops(ULONGLONG now){
     for(auto& d:inventoryDrops)if(d.active){
-        if(now<d.born||now-d.born>=3000||d.owner!=inventoryHands.owner||d.identity!=inventoryHands.identity||
+        if(now<d.born||now-d.born>=(d.rebound?InventoryGameplay::WeaponAwayMs:3000)||d.owner!=inventoryHands.owner||d.identity!=inventoryHands.identity||
            inventoryHands.dead||InventoryItem(d.owner,d.item)!=d.weapon){d.active=false;continue;}
-        if(d.resting){d.tick=now;continue;}
-        float elapsed=std::min(.15f,float(now-d.tick)*.001f);d.tick=now;
+        Mat holster{};
+        if(d.rebound){
+            if(d.origin!=pairFrame.origin||!bodySlots.valid||bodySlots.origin!=pairFrame.origin||
+               bodySlots.owner!=d.owner||bodySlots.identity!=d.identity||d.slot<0||d.slot>=7||bodySlots.items[d.slot]!=d.item||
+               now<bodySlots.tick||now-bodySlots.tick>150){d.active=false;continue;}
+            const Mat anchor=Compose(TrackingBase(views[0].source),reference,bodySlots.anchors[d.slot],Config().units);
+            holster=Mul(RotateBetween({0,0,1},InventoryGameplay::BarrelDirection(d.slot,bodySlots.pistolChest)),anchor);
+            if(!Rigid(holster)){d.active=false;continue;}
+        }
+        const ULONGLONG stepTo=d.rebound?std::min(now,d.born+InventoryGameplay::WeaponFlightMs):now;
+        float elapsed=d.resting||stepTo<=d.tick?0:std::min(.15f,float(stepTo-d.tick)*.001f);d.tick=stepTo;
         while(elapsed>0){
             const float dt=std::min(.016f,elapsed);elapsed-=dt;
             const Vec old=Position(d.world);d.velocity.y-=9.81f*Config().units*dt;
@@ -247,6 +277,11 @@ void UpdateInventoryDrops(ULONGLONG now){
             if(spin>.001f)d.world=Mul(d.world,ThrowRotation(Scale(d.angular,1.f/spin),spin*dt));
             SetPosition(d.world,p);
             if(stopped){d.velocity={};d.angular={};d.resting=true;break;}
+        }
+        if(d.rebound&&now>=d.born+InventoryGameplay::WeaponFlightMs){
+            if(!d.returning){d.returning=true;d.returnFrom=d.world;d.returnVelocity=d.velocity;}
+            const float fraction=float(now-d.born-InventoryGameplay::WeaponFlightMs)/InventoryGameplay::WeaponReturnMs;
+            d.world=InventoryGameplay::ReturnPose(d.returnFrom,holster,d.returnVelocity,fraction);
         }
     }
 }

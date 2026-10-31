@@ -1,9 +1,11 @@
 #include "Bf2Adapter.h"
+#include "SlotManipulation.h"
 #include "CleanVR.h"
 #include "VrSettings.h"
 #include "Refractor.h"
 #include "ReloadAudio.h"
 #include "FrameTiming.h"
+#include "InventoryGameplay.h"
 #include <cstring>
 #include <cmath>
 #include <cstdint>
@@ -1029,7 +1031,7 @@ int FireModeItem(){
 }
 bool GrenadePrimed(){const auto t=ThrowSnapshot();return RightGrenadePrimed()||(t.active&&t.cookStart>=0&&ThrowOwned(t));}
 void ClearBodySlotControls(){ResetBodySlots();}
-bool PreviewBodySlotLayout(const Runtime::Frame& f,const float offsets[7][3],float height,int selected){return UpdateSlotPreview(f,offsets,height,selected);}
+bool PreviewBodySlotLayout(const Runtime::Frame& f,const float offsets[7][3],const float rotations[7][3],float height,int selected,bool pistolChest,Mat& torso){return UpdateSlotPreview(f,offsets,rotations,height,selected,pistolChest,torso);}
 void ClearBodySlotLayoutPreview(){EndSlotPreview();}
 bool EmptyHands(){return InventoryStowed(Soldier());}
 bool C4Controls(const Runtime::Frame& f,bool enabled,bool left,bool right,bool& down){return UpdateC4(f,enabled,left,right,down);}
@@ -1226,13 +1228,29 @@ bool DefibIndicator(float& x,float& y,float& sx,float& sy,float& progress,bool& 
     return std::abs(x)<1&&std::abs(y)<1;
 }
 void GunCrosshairAvailable(bool available){gunCrosshairAvailable=available;if(!available)gunCrosshairReady=false;}
-bool GunCrosshair(float& x,float& y,float& halfWidth,float& halfHeight,float& hitAlpha,DWORD& hitColor){
-    hitAlpha=0;hitColor=gunHitColor;
-    if(!pair||!eyeActive||!gunCrosshairReady||gunCrosshairAiming)return false;
+bool GunCrosshair(float& x,float& y,float& halfWidth,float& halfHeight,float& hitAlpha,DWORD& hitColor,bool& drawReticle){
+    hitAlpha=0;hitColor=gunHitColor;drawReticle=false;
+    if(!pair||!eyeActive||!gunCrosshairReady)return false;
+    drawReticle=!gunCrosshairAiming;
     if(gunHitSampled)hitAlpha=gunHitAlpha;
-    const Vec p=Point(gunCrosshairPoint,Inverse(views[0].eye));
+    if(!drawReticle&&hitAlpha<=.001f)return false;
+    Vec p=Point(gunCrosshairPoint,Inverse(views[0].eye));
+    Mat markerProjection=views[0].projection;
+    if(!drawReticle&&hitAlpha>.001f){
+        ScopeView lens{};Mat intoEye{},projection{};Vec eye{};float visibility=0;
+        if(ScopeEye(lens,intoEye,projection,eye,visibility)){
+            // Match the scope shader's finite bore-zero reticle, including
+            // measured/canted DZB2 glass and the weapon camera projection.
+            const Vec zero=lens.geometry?Point({0,0,100},Inverse(lens.aperture)):Vec{0,0,100};
+            const float dz=zero.z-eye.z;
+            if(dz>1.f){
+                const Vec onGlass=Add(eye,Scale(Sub(zero,eye),(lens.center.z-eye.z)/dz));
+                p=Point(onGlass,intoEye);markerProjection=projection;
+            }
+        }
+    }
     if(!std::isfinite(p.x+p.y+p.z)||p.z<=views[0].eyeNear)return false;
-    const Mat& projection=views[0].projection;
+    const Mat& projection=markerProjection;
     x=p.x/p.z*projection.m[0][0]+projection.m[2][0];
     y=p.y/p.z*projection.m[1][1]+projection.m[2][1];
     halfWidth=gunCrosshairRadius*projection.m[0][0];

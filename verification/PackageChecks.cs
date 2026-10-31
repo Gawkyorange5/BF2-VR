@@ -21,6 +21,16 @@ class PackageChecks {
   Application.EnableVisualStyles();Application.SetCompatibleTextRenderingDefault(false);
   using(var f=(Form)Activator.CreateInstance(a.GetType("BF2VR.SetupForm"))){
    var flags=BindingFlags.Instance|BindingFlags.NonPublic;
+   string listFixture=Path.Combine(fixture,"shortcut-list");
+   foreach(string n in new[]{"bf2","DZB2","xpack","OtherMod","survival","Survival_Test"}){
+    string d=Path.Combine(listFixture,"mods",n);Directory.CreateDirectory(d);File.WriteAllText(Path.Combine(d,"init.con"),"rem fixture");
+   }
+   ((TextBox)f.GetType().GetField("folder",flags).GetValue(f)).Text=listFixture;
+   f.GetType().GetMethod("RefreshMods",flags).Invoke(f,null);
+   var mod=(ComboBox)f.GetType().GetField("mod",flags).GetValue(f);
+   Check(mod.Items.Count==4&&mod.Items.Contains("bf2")&&mod.Items.Contains("DZB2")&&mod.Items.Contains("xpack")&&mod.Items.Contains("OtherMod"),"Public shortcut list excludes private entries and retains installed mods");
+   Check(mod.Text=="bf2","Shortcut selection defaults to the base game");
+   Check(f.Text.Contains("v1.2.0")&&f.Text.Contains("r141"),"Setup identifies public v1.2.0 and accepted r141 basis");
    var resolution=(ComboBox)f.GetType().GetField("resolution",flags).GetValue(f);
    Check(resolution.Items.Count==3&&resolution.SelectedIndex==0,"Setup defaults to Keep current and offers both render modes");
    Check(!((CheckBox)f.GetType().GetField("steam",flags).GetValue(f)).Checked,"Steam loader is optional and off by default");
@@ -28,7 +38,7 @@ class PackageChecks {
   }
   var pe=a.GetType("BF2VR.PeImage");var validate=pe.GetMethod("ValidateGame",BindingFlags.Public|BindingFlags.Static);
   string g=Path.Combine(fixture,"Game with spaces");validate.Invoke(null,new object[]{g});Console.WriteLine("PASS: compatible existing installation accepted without downloading a hotfix");
-  string older=args[2];string temp=Path.Combine(fixture,"earlier renderer check");Directory.CreateDirectory(temp);
+  string older=args[2];string temp=Path.Combine(fixture,"earlier renderer check "+Guid.NewGuid().ToString("N"));Directory.CreateDirectory(temp);
   File.Copy(Path.Combine(g,"BF2.exe"),Path.Combine(temp,"BF2.exe"));File.Copy(older,Path.Combine(temp,"RendDX9.dll"));
   bool rejected=false;try{validate.Invoke(null,new object[]{temp});}catch(TargetInvocationException e){rejected=e.InnerException.Message.Contains("earlier BF2 1.5 renderer")&&e.InnerException.Message.Contains("https://community.pcgamingwiki.com/files/file/1031");}
   Check(rejected,"Specific earlier renderer receives conditional hotfix guidance and link");

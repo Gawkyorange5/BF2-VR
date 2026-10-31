@@ -1,4 +1,4 @@
-# Manual reloads — v1.1.0
+# Manual reloads — v1.2.0
 
 See [controller and physical reload instructions](CONTROLS.md) and
 [reload/gear settings](SETTINGS.md). Enable Manual Reload for physical gestures.

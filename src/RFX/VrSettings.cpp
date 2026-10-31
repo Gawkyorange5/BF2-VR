@@ -26,6 +26,20 @@ const Settings& Config(){
     s.fastBodyFilter=GetPrivateProfileIntA("performance","fast_body_filter",1,path)!=0;
     s.drawProfiling=GetPrivateProfileIntA("performance","draw_profiling",0,path)!=0;
     s.gpuTiming=GetPrivateProfileIntA("performance","gpu_timing",0,path)!=0;
+    char timingOverride[8]{};if(GetEnvironmentVariableA("BF2VR_GPU_TIMING",timingOverride,sizeof(timingOverride))==1)
+        s.gpuTiming=timingOverride[0]=='1';
+    s.directMsaaResolve=GetPrivateProfileIntA("performance","direct_msaa_resolve",1,path)!=0;
+    char resolveOverride[8]{};if(GetEnvironmentVariableA("BF2VR_DIRECT_MSAA",resolveOverride,sizeof(resolveOverride))==1)
+        s.directMsaaResolve=resolveOverride[0]=='1';
+    s.singlePassDesktop=GetPrivateProfileIntA("performance","single_pass_desktop",1,path)!=0;
+    char desktopOverride[8]{};if(GetEnvironmentVariableA("BF2VR_DESKTOP_ONE_PASS",desktopOverride,sizeof(desktopOverride))==1)
+        s.singlePassDesktop=desktopOverride[0]=='1';
+    s.reuseTransferImages=GetPrivateProfileIntA("performance","reuse_transfer_images",1,path)!=0;
+    char reuseOverride[8]{};if(GetEnvironmentVariableA("BF2VR_REUSE_IMAGES",reuseOverride,sizeof(reuseOverride))==1)
+        s.reuseTransferImages=reuseOverride[0]=='1';
+    s.sharedGpuTransfer=GetPrivateProfileIntA("performance","shared_gpu_transfer",1,path)!=0;
+    char sharedOverride[8]{};if(GetEnvironmentVariableA("BF2VR_SHARED_TRANSFER",sharedOverride,sizeof(sharedOverride))==1)
+        s.sharedGpuTransfer=sharedOverride[0]=='1';
     s.legacyScriptLoop=GetPrivateProfileIntA("performance","legacy_script_loop",s.enabled?0:1,path)!=0;
     s.menuPollMs=GetPrivateProfileIntA("performance","menu_poll_ms",s.enabled?100:0,path);
     if(s.menuPollMs>250)s.menuPollMs=s.enabled?100:0;
@@ -94,10 +108,20 @@ TuneSettings Tuning(){
     s.assistedRevive=GetPrivateProfileIntA("inventory","assisted_revive",0,path)!=0;
     s.slotHeight=number("inventory","hip_below_head",.72f,.45f,1.1f);
     s.slotRadius=number("inventory","slot_radius",.15f,.08f,.23f);
+    s.pistolChest=GetPrivateProfileIntA("inventory","pistol_chest",1,path)!=0;
+    const float chestDefault[]={.03f,-.03f,-.20f};
+    const char* rotationKeys[]={"pitch","yaw","roll"};
+    for(int axis=0;axis<3;++axis){char key[48];sprintf_s(key,"secondary_chest_%c","xyz"[axis]);
+        s.pistolChestOffset[axis]=number("inventory_slots",key,chestDefault[axis],-1.25f,1.25f);
+        sprintf_s(key,"secondary_chest_%s",rotationKeys[axis]);
+        s.pistolChestRotation[axis]=number("inventory_slots",key,0.f,-180.f,180.f);}
+
     const char* slots[]={"left_shoulder","right_shoulder","primary","secondary","grenade","knife","rear_head"};
     for(int i=0;i<7;++i)for(int axis=0;axis<3;++axis){
         char key[48];sprintf_s(key,"%s_%c",slots[i],"xyz"[axis]);
-        s.slotOffsets[i][axis]=number("inventory_slots",key,0.f,-.65f,.65f);
+        s.slotOffsets[i][axis]=number("inventory_slots",key,0.f,-1.25f,1.25f);
+        sprintf_s(key,"%s_%s",slots[i],rotationKeys[axis]);
+        s.slotRotations[i][axis]=number("inventory_slots",key,0.f,-180.f,180.f);
     }
     s.bodyHeadFollow=GetPrivateProfileIntA("body","head_follow",1,path)!=0;
     s.hudScale=number("hud","scale",.85f,.35f,1.4f);

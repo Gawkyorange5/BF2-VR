@@ -3,6 +3,7 @@
 #include <Windows.h>
 #define XR_NO_PROTOTYPES
 #include <openxr/openxr.h>
+struct ID3D11Device;struct ID3D11DeviceContext;struct ID3D11Texture2D;
 namespace CleanVR { namespace Runtime {
 // Serializes OpenXR and its D3D11 context, including an entire stereo replay.
 // The loading keeper never touches BF2 objects or the D3D9 game device.
@@ -34,12 +35,17 @@ bool HudSize(unsigned width,unsigned height);
 // A separately retained menu image; allocated/uploaded only while open.
 bool SettingsOverlay(const XrPosef&,float width,float height,const unsigned char* bgra,unsigned pixelsWide,unsigned pixelsHigh,bool transparent=false);
 void HideSettingsOverlay();
-bool Upload(int surface,const unsigned char* bgra,unsigned pitch); // 0/1 eyes, 2 cinema, 3 alpha HUD
+bool Upload(int surface,const unsigned char* bgra,unsigned pitch,bool pointer=false,float u=0,float v=0); // 0/1 eyes, 2 cinema, 3 alpha HUD
 struct TransferRegion {int surface;unsigned x,y,width,height;};
 // Unavailable means no XR images were touched: callers may use Upload instead.
 // Failed means abandon this frame; do not acquire the same chains again.
 enum class BatchResult {Unavailable,Failed,Uploaded};
 BatchResult UploadAtlas(const unsigned char* bgra,unsigned pitch,unsigned width,unsigned height,const TransferRegion* regions,unsigned count);
+// Borrowed under Guard. False for runtime formats requiring CPU swizzling.
+bool SharedGraphics(ID3D11Device*&,ID3D11DeviceContext*&);
+BatchResult UploadGpu(ID3D11Texture2D* const* images,const int* surfaces,unsigned count);
+bool SharedCinemaGraphics(ID3D11Device*&,ID3D11DeviceContext*&);
+BatchResult UploadCinemaGpu(ID3D11Texture2D*,bool pointer,float u,float v);
 void ResetTransfer(); // release the reusable D3D11 transfer atlas
 bool SubmitEyes(const XrPosef* hudPose=nullptr,float hudWidth=0,float hudHeight=0,bool hudUnpremultiplied=false);
 bool SubmitQuad(const XrPosef& pose,float width,float height);

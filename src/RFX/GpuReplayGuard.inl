@@ -8,7 +8,7 @@ struct GpuReplayGuard {
     unsigned failures=0;
     IDirect3DSurface9 *resolve=nullptr,*cpu=nullptr;
     void Reset(){Release(event);Release(resolve);Release(cpu);checked=uma=active=reported=queryUnavailable=false;failures=0;}
-    void Configure(){
+    void Configure(bool sharedPair=false){
         if(!checked){
             checked=true;IDirect3D9* api=nullptr;D3DCAPS9 caps{};D3DADAPTER_IDENTIFIER9 id{};
             if(SUCCEEDED(device->GetDeviceCaps(&caps))&&SUCCEEDED(device->GetDirect3D(&api))&&api&&
@@ -17,7 +17,7 @@ struct GpuReplayGuard {
             Release(api);
         }
         const int mode=(int)Tuning().gpuCompatibility;
-        const bool next=mode==1||(mode==0&&!uma);
+        const bool next=mode==1||(mode==0&&!uma&&!sharedPair);
         if(!reported||active!=next){
             reported=true;Log("GRAPHICS48 compatibility=%d enabled=%d matchingUMA=%d; GPU replay waits and separate MSAA resolves",mode,next?1:0,uma?1:0);
         }

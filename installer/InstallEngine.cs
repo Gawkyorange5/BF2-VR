@@ -8,7 +8,7 @@ using System.Web.Script.Serialization;
 
 namespace BF2VR {
  public sealed class InstalledFile { public string Target,Backup,OriginalHash,InstalledHash; }
- public sealed class InstallState { public string Version="1.1.0-r134",Game,Profile,PreviousState; public List<InstalledFile> Files=new List<InstalledFile>(); public bool Complete; }
+ public sealed class InstallState { public string Version="1.2.0-r141",Game,Profile,PreviousState,ShortcutMod; public List<InstalledFile> Files=new List<InstalledFile>(); public bool Complete; }
  public sealed class InstallEngine {
   public const string StateFolder=".bf2-vr";
   public static readonly string[] GameFiles={"BF2-VR.exe","RFX.dll","openxr_loader.dll","stl_8_wrapper.dll","BF2-VR-Settings.exe","vr_stereo.ini","BF2-VR-README.txt","BF2-VR-DZB2.exe","Launch DZB2 VR.cmd","dinput8.dll"};
@@ -59,7 +59,7 @@ namespace BF2VR {
    string installedRuntime=Path.Combine(folder,"RFX.dll");
    if(File.Exists(installedRuntime)){
     string code=new PeImage(File.ReadAllBytes(installedRuntime)).TextHash();
-    if(!new[]{"f824ba53583c621c68533a0c94ef8808d8abcd6d16ab136a32eaa17fcc19ad38","8c500e1b3be73b111525b00f574aa403c1006283caa203589cc3ebb4d10bafe5"}.Contains(code))throw new IOException("The installed VR code is not the approved r134 baseline or public v1.0.0. It may contain a newer custom build. No files changed; merge that build before installing this release.");
+    if(!new[]{"f824ba53583c621c68533a0c94ef8808d8abcd6d16ab136a32eaa17fcc19ad38","8c500e1b3be73b111525b00f574aa403c1006283caa203589cc3ebb4d10bafe5","25bda20576a04f0102262e5044ecaf830e1cc83160f7cb9aa35a7d9c0100b724"}.Contains(code))throw new IOException("The installed VR code is not the accepted r141 baseline or public v1.0.0/v1.1.0. It may contain a newer custom build. No files changed; merge that build before installing this release.");
    }
    if(steam&&File.Exists(Path.Combine(folder,"dinput8.dll"))&&HashFile(Path.Combine(folder,"dinput8.dll"))!=PeImage.Hash(Resource("payload.dinput8.dll")))throw new IOException("Another dinput8.dll loader is already installed. It was not replaced.");
    string stateDir=Path.Combine(folder,StateFolder);string previous=null;
@@ -69,7 +69,7 @@ namespace BF2VR {
     previous=".bf2-vr-history-"+Guid.NewGuid().ToString("N");Directory.Move(stateDir,Path.Combine(folder,previous));
    }
    Directory.CreateDirectory(stateDir);Directory.CreateDirectory(Path.Combine(stateDir,"backup"));string stage=Path.Combine(stateDir,"stage");Directory.CreateDirectory(stage);
-   var state=new InstallState{Game=folder,Profile=profile,PreviousState=previous};Save(stateDir,state);
+   var state=new InstallState{Game=folder,Profile=profile,PreviousState=previous,ShortcutMod=shortcut?mod:null};Save(stateDir,state);
    try{
     Log("Checking BF2 1.5 and preparing a separate VR executable...");
     var files=new Dictionary<string,byte[]>();
@@ -88,7 +88,11 @@ namespace BF2VR {
     if(new PeImage(File.ReadAllBytes(dll)).TextHash()!=before)throw new IOException("Resource generation unexpectedly changed VR code.");
     foreach(var p in files)Put(Path.Combine(stage,p.Key),Path.Combine(folder,p.Key),stateDir,state);
     if(profile!=null){string con=Path.Combine(stage,"Controls.con");File.WriteAllBytes(con,Resource("payload.Controls.con"));Put(con,Path.Combine(profile,"Controls.con"),stateDir,state);}
-    if(shortcut){string lnk=Path.Combine(stage,"Battlefield 2 VR.lnk");MakeShortcut(lnk,folder,mod,steam);Put(lnk,Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.DesktopDirectory),"Battlefield 2 VR.lnk"),stateDir,state);}
+    if(shortcut){
+     foreach(string selected in mod.Equals("bf2",StringComparison.OrdinalIgnoreCase)?new[]{"bf2"}:new[]{"bf2",mod}){
+      string name=ShortcutName(selected),lnk=Path.Combine(stage,name);MakeShortcut(lnk,folder,selected,steam);Put(lnk,Path.Combine(DesktopDirectory(),name),stateDir,state);
+     }
+    }
     state.Complete=true;Save(stateDir,state);RemoveStage(stage);
 #if !INSTALLER_VERIFY
     try{using(var k=Microsoft.Win32.Registry.CurrentUser.CreateSubKey(@"Software\BF2-VR")){k.SetValue("GameFolder",folder);}}catch(Exception registryError){Log("Installed; could not remember folder for the portable command: "+registryError.Message);}
@@ -97,6 +101,19 @@ namespace BF2VR {
    }catch(Exception error){Log("Installation stopped: "+error.Message);try{Restore(stateDir,state,false);Log("Previous files restored.");}catch(Exception rollback){Log("Automatic restore needs attention: "+rollback.Message+". Keep "+stateDir+" and use Remove / Restore.");}throw;}
   }
   static byte[] LargeAddress(byte[] exe){int nt=BitConverter.ToInt32(exe,0x3c);ushort flags=BitConverter.ToUInt16(exe,nt+22);Buffer.BlockCopy(BitConverter.GetBytes((ushort)(flags|0x20)),0,exe,nt+22,2);return exe;}
+#if INSTALLER_VERIFY
+  internal static string VerifyDesktop;
+#endif
+  static string DesktopDirectory(){
+#if INSTALLER_VERIFY
+   if(VerifyDesktop!=null)return VerifyDesktop;
+#endif
+   return Environment.GetFolderPath(Environment.SpecialFolder.DesktopDirectory);
+  }
+  internal static string ShortcutName(string mod){
+   if(mod==null||!System.Text.RegularExpressions.Regex.IsMatch(mod,"^[a-zA-Z0-9_-]+$"))throw new IOException("Invalid shortcut mod name.");
+   return mod.Equals("bf2",StringComparison.OrdinalIgnoreCase)?"Battlefield 2 VR.lnk":"Battlefield 2 "+(mod.Equals("DZB2",StringComparison.OrdinalIgnoreCase)?"DZB2":mod)+" VR.lnk";
+  }
   static void MakeShortcut(string file,string folder,string mod,bool steam){
    Type type=Type.GetTypeFromProgID("WScript.Shell");if(type==null)throw new IOException("Windows shortcut service is unavailable. Install with the shortcut checkbox cleared.");
    object shell=Activator.CreateInstance(type),link=null;
@@ -113,7 +130,8 @@ namespace BF2VR {
    if(s==null || s.Game!=folder || s.Files==null || s.Files.Count>20)throw new IOException("Invalid installation journal.");
    if(s.PreviousState!=null&&!System.Text.RegularExpressions.Regex.IsMatch(s.PreviousState,@"^\.bf2-vr-history-[0-9a-f]{32}$"))throw new IOException("Invalid previous installation path.");
    var allowed=new HashSet<string>(GameFiles.Select(n=>Full(Path.Combine(folder,n))),StringComparer.OrdinalIgnoreCase);
-   allowed.Add(Full(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.DesktopDirectory),"Battlefield 2 VR.lnk")));
+   allowed.Add(Full(Path.Combine(DesktopDirectory(),"Battlefield 2 VR.lnk")));
+   if(s.ShortcutMod!=null)allowed.Add(Full(Path.Combine(DesktopDirectory(),ShortcutName(s.ShortcutMod))));
    if(s.Profile!=null){string profiles=Full(DocumentsProfiles())+Path.DirectorySeparatorChar;
     // A separately compiled verification harness may use isolated profiles; production cannot.
     bool valid=Full(s.Profile).StartsWith(profiles,StringComparison.OrdinalIgnoreCase);

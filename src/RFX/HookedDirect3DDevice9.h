@@ -1,6 +1,7 @@
 #pragma once
 #include <d3d9.h>
 #include "CleanVR.h"
+#include "NativeExBackend.h"
 #include "RenderWindow.h"
 #include "HudCapture.h"
 #include "D3DWorkProfile.h"
@@ -22,6 +23,9 @@ public:
 
 	HookedDirect3DDevice9(IDirect3D9* d3d, IDirect3DDevice9* device, D3DPRESENT_PARAMETERS* pPresentationParameters) : m_d3d(d3d), m_device(device)
 	{
+		// The Ex device owns a different factory from BF2's wrapped classic
+		// factory. Keep the wrapper alive independently of that native device.
+		m_d3d->AddRef();
 		m_szx = pPresentationParameters->BackBufferWidth;
 		m_szy = pPresentationParameters->BackBufferHeight;
 		CleanVR::AttachDevice(m_device);
@@ -29,6 +33,7 @@ public:
 
 	~HookedDirect3DDevice9()
 	{
+		m_d3d->Release();
 	}
 
 	/*** IUnknown methods ***/
@@ -71,7 +76,14 @@ public:
 		// Let the device validate the incoming pointer for us
 		HRESULT hr = m_device->GetDirect3D(ppD3D9);
 		if (SUCCEEDED(hr))
+		{
+			// Replace the native factory reference with a real wrapper reference.
+			// Otherwise BF2 releases the classic factory using an Ex reference,
+			// then calls CheckDeviceFormat through an already-freed wrapper.
+			(*ppD3D9)->Release();
+			m_d3d->AddRef();
 			*ppD3D9 = m_d3d;
+		}
 
 		return hr;
 	}
@@ -128,7 +140,7 @@ public:
 		CleanVR::RenderWindow::ConfigurePresentation(pPresentationParameters);
 		m_szx = pPresentationParameters->BackBufferWidth;
 		m_szy = pPresentationParameters->BackBufferHeight;
-		HRESULT result = m_device->Reset(pPresentationParameters);
+		HRESULT result = CleanVR::NativeEx::Reset(m_device,pPresentationParameters);
 		CleanVR::AfterReset(m_device, result);
 		return result;
 	}

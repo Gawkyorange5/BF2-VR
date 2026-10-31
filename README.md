@@ -1,10 +1,14 @@
-# Battlefield 2 VR — v1.1.0
+# Battlefield 2 VR — v1.2.0
 
 PC VR for Battlefield 2, with OpenXR head tracking, tracked hands and weapons,
 physical reloading and equipment, vehicle controls, and DZB2 compatibility.
-This package uses the accepted **r134 gameplay code**.
+This package uses the accepted **r141 gameplay code**.
 
-[Download v1.1.0](https://github.com/Gawkyorange5/BF2-VR/releases/tag/v1.1.0) · [Features and changes](RELEASE-NOTES.md) · [Bug fixes](docs/FIXES.md)
+**DZB2 compatible:** [Download DZB2 from ModDB](https://www.moddb.com/mods/dzb2),
+install it separately, then use **Battlefield 2 DZB2 VR** or the included
+**Launch DZB2 VR.cmd**. Use Medium Lighting for the tested DZB2 VR configuration.
+
+[Download v1.2.0](https://github.com/Gawkyorange5/BF2-VR/releases/tag/v1.2.0) · [Features and changes](RELEASE-NOTES.md) · [Bug fixes](docs/FIXES.md)
 
 ## Start here
 
@@ -15,7 +19,8 @@ This package uses the accepted **r134 gameplay code**.
    Microsoft x86 runtimes listed in `docs/INSTALL.md`.
 3. Run **BF2-VR-Setup.exe**. Select the folder containing `BF2.exe`, choose your
    profile and resolution preference, then click **Install / Update BF2-VR**.
-4. Start **Battlefield 2 VR** from the created shortcut. For DZB2, install that
+4. Start **Battlefield 2 VR** for regular BF2. Selecting DZB2 in Setup also creates
+   a separate **Battlefield 2 DZB2 VR** shortcut. For DZB2, install that
    mod separately and use the included **Launch DZB2 VR.cmd**.
 
 The ZIP can be extracted anywhere. You do not need to copy its files into the
@@ -33,7 +38,8 @@ should apply the included controller profile.
 - `docs/INSTALL.md`: complete installation, DZB2, updating and restoration.
 - `docs/CONTROLS.md`: on-foot, reload, equipment, radio and vehicle controls.
 - `docs/SETTINGS.md`: saved options, resolution choices and slot adjustment.
-- `RELEASE-NOTES.md`: changes since the first public release and known limits.
+- `RELEASE-NOTES.md`: performance and gameplay changes since v1.1.0, plus known limits.
+- `docs/CHANGES-v1.1.0.md`: the previous release's full feature list.
 - `docs/FIXES.md`: the retained bug fixes since the first public release.
 - `THIRD_PARTY.md` and `licenses/`: credits and dependency notices.
 

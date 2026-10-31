@@ -13,7 +13,7 @@ bool InventoryStowed(void* owner){
 struct BodySlotsState {
     void* owner=nullptr;void* identity=nullptr;std::uint64_t origin=0;
     ULONGLONG tick=0,scan=0;bool pressed=true,consumed=false,valid=false;
-    float yaw=0;int hover=-1;int items[7]{};Mat anchors[7]{};
+    bool pistolChest=true;float yaw=0;int hover=-1;int items[7]{};Mat anchors[7]{};
 } bodySlots;
 bool PhysicalReleaseCarry(){
     // Personal-weapon passenger seats auto-hold the selected item. Right
@@ -25,6 +25,7 @@ void ClearInventoryCarryDrops();
 void ResetInventoryMotion();
 void SampleInventoryMotion(const Runtime::Frame& f,void* owner);
 bool InventoryItemAway(int item,ULONGLONG now);
+void RecallInventoryItem(void* owner,int item);
 bool InventoryThrowBusy();
 bool RightGrenadePrimed();
 void ReleaseInventoryItem(const Runtime::Frame& f,void* owner,int item,int slot,bool holster,bool stationary=false);
@@ -76,16 +77,15 @@ void ScanBodySlots(void* owner,BodySlotsState& slots){
 
 BodySlotsState slotLayoutPreview;
 int previewSlot=-1;
-Vec SlotPoint(int i,float height,const float offsets[7][3]){
-    const Vec defaults[]={{-.25f,-.20f,-.10f},{.25f,-.20f,-.10f},{.23f,-height,0},{-.23f,-height,0},{.18f,-.36f,.18f},{0,-height+.05f,.20f},{0,-.10f,-.28f}};
-    return Add(defaults[i],{offsets[i][0],offsets[i][1],offsets[i][2]});
+Vec SlotPoint(int i,float height,const float offsets[7][3],bool pistolChest){
+    return Add(InventoryGameplay::SlotBase(i,height,pistolChest),{offsets[i][0],offsets[i][1],offsets[i][2]});
 }
 bool SlotPreviewCurrent(){
     return previewSlot>=0&&slotLayoutPreview.valid&&slotLayoutPreview.origin==pairFrame.origin&&
         pairFrame.tick>=slotLayoutPreview.tick&&pairFrame.tick-slotLayoutPreview.tick<=150;
 }
 void EndSlotPreview(){slotLayoutPreview={};previewSlot=-1;}
-bool UpdateSlotPreview(const Runtime::Frame& f,const float offsets[7][3],float height,int selected){
+bool UpdateSlotPreview(const Runtime::Frame& f,const float offsets[7][3],const float rotations[7][3],float height,int selected,bool pistolChest,Mat& torsoOut){
     void* owner=nullptr;void* identity=nullptr;
     if(selected<0||selected>=7||!f.valid||!f.focused||!FootOwner(owner,identity)){
         EndSlotPreview();return false;
@@ -99,8 +99,9 @@ bool UpdateSlotPreview(const Runtime::Frame& f,const float offsets[7][3],float h
     }
     if(!s.scan||f.tick<s.scan||f.tick-s.scan>400){ScanBodySlots(owner,s);s.scan=f.tick;}
     Mat torso=Yaw(s.yaw);SetPosition(torso,Position(f.head));
-    for(int i=0;i<7;++i){s.anchors[i]=torso;SetPosition(s.anchors[i],Point(SlotPoint(i,height,offsets),torso));}
-    s.tick=f.tick;s.valid=true;previewSlot=selected;return true;
+    torsoOut=torso;
+    for(int i=0;i<7;++i)s.anchors[i]=SlotManipulation::Anchor(InventoryGameplay::SlotBase(i,height,pistolChest),offsets[i],rotations[i],torso);
+    s.pistolChest=pistolChest;s.tick=f.tick;s.valid=true;previewSlot=selected;return true;
 }
 
 int CycleInventoryItem(void* owner,int equipped,int direction){
@@ -177,11 +178,13 @@ int UpdateBodySlots(const Runtime::Frame& f,bool enabled,bool actions,bool grip,
     if(std::abs(error)>.40f)s.yaw=Wrapped(s.yaw+(error-std::copysign(.40f,error))*(1-std::exp(-dt/.14f)));
     Mat torso=Yaw(s.yaw);SetPosition(torso,Position(f.head));
     const float height=tune.slotHeight;
-    Vec points[7];for(int i=0;i<7;++i)points[i]=SlotPoint(i,height,tune.slotOffsets);
+    s.pistolChest=tune.pistolChest;
+    Vec points[7];for(int i=0;i<7;++i)points[i]=SlotPoint(i,height,tune.slotOffsets,tune.pistolChest);
+    if(tune.pistolChest)points[3]=Add(InventoryGameplay::SlotBase(3,height,true),{tune.pistolChestOffset[0],tune.pistolChestOffset[1],tune.pistolChestOffset[2]});
     int hover=-1,heldSlot=-1;float nearest=1.f;
     const Vec hand=Point(Position(f.hands[1].grip),Inverse(torso));
     for(int i=0;i<7;++i){
-        s.anchors[i]=torso;SetPosition(s.anchors[i],Point(points[i],torso));
+        s.anchors[i]=Mul(SlotManipulation::Rotation(i==3&&tune.pistolChest?tune.pistolChestRotation:tune.slotRotations[i]),torso);SetPosition(s.anchors[i],Point(points[i],torso));
         if(s.items[i]==equipped)heldSlot=i;
         if(!s.items[i]||InventoryItemAway(s.items[i],now))continue;
         const Vec d=Sub(hand,points[i]);float distance=Length(d)/tune.slotRadius;
@@ -220,12 +223,13 @@ int UpdateBodySlots(const Runtime::Frame& f,bool enabled,bool actions,bool grip,
                 Log("SLOTS56 glued swap requested bodySlot=%d nativeItem=%d previous=%d",hover,item,equipped);
             }
         }else if(!hands.empty&&!tune.gluedItems&&((tune.holdGrip&&released&&hands.releaseArmed)||(!tune.holdGrip&&pressed))){
-            ReleaseInventoryItem(f,owner,equipped,heldSlot,tune.bodySlots&&hover==heldSlot);
+            ReleaseInventoryItem(f,owner,equipped,heldSlot,tune.bodySlots&&heldSlot>=0&&hover==heldSlot);
             hands.empty=true;hands.releaseArmed=false;s.consumed=true;selected=-1;
         }else if(hands.empty&&pressed){
             const int item=tune.bodySlots?(hover>=0?s.items[hover]:0):equipped;
             void* weapon=InventoryItem(owner,item);
             if(weapon&&!InventoryItemAway(item,now)){
+                RecallInventoryItem(owner,item); // holster grab can interrupt the short rebound
                 s.consumed=true;
                 if(equipped==item&&Value<void*>(weapon,0x28)==owner){
                     hands.empty=false;hands.releaseArmed=true;selected=-1;Runtime::Haptic(1,.65f,85);

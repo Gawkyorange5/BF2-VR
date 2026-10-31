@@ -25,7 +25,7 @@ int BodySlotControls(const Runtime::Frame&,bool enabled,bool actions,bool grip,i
 int FireModeItem(); // native reselect of the item actually held; zero when unavailable
 void ClearBodySlotControls();
 bool GrenadePrimed();
-bool PreviewBodySlotLayout(const Runtime::Frame&,const float offsets[7][3],float height,int selected);
+bool PreviewBodySlotLayout(const Runtime::Frame&,const float offsets[7][3],const float rotations[7][3],float height,int selected,bool pistolChest,Mat& torso);
 void ClearBodySlotLayoutPreview();
 bool EmptyHands();
 bool C4Controls(const Runtime::Frame&,bool enabled,bool left,bool right,bool& down);
@@ -56,7 +56,7 @@ bool EyeActive();
 Mat EyeProjection();
 // NDC center and angular half size of one shared world-space aim point.
 // Direction marker only: no collision, spread or bullet-drop prediction.
-bool GunCrosshair(float& x,float& y,float& halfWidth,float& halfHeight,float& hitAlpha,DWORD& hitColor);
+bool GunCrosshair(float& x,float& y,float& halfWidth,float& halfHeight,float& hitAlpha,DWORD& hitColor,bool& drawReticle);
 void GunCrosshairAvailable(bool);
 // Immutable, premeasured aperture; data is compiled into the DLL.
 struct ScopeGeometry {

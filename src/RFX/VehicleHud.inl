@@ -1,19 +1,20 @@
 // One GPU pass over the isolated HUD, once per pair, only in occupied vehicles.
 // The original resolved texture remains available if any setup/draw fails.
 IDirect3DTexture9* vehicleTexture=nullptr;
+HANDLE vehicleSharedHandle=nullptr;
 IDirect3DSurface9* vehicleSurface=nullptr;
 IDirect3DPixelShader9* vehicleShader=nullptr;
 IDirect3DStateBlock9* vehicleState=nullptr;
 float vehicleStrength=0.f;
 bool vehicleReady=false,vehicleBlocked=false,vehicleReported=false;
-void ClearVehicleHud(){Release(vehicleSurface);Release(vehicleTexture);vehicleReady=false;}
+void ClearVehicleHud(){Release(vehicleSurface);Release(vehicleTexture);vehicleSharedHandle=nullptr;vehicleReady=false;}
 bool EnhanceVehicleHud(){
     vehicleReady=false;
     if(vehicleStrength<1.f||vehicleBlocked)return true;
     HRESULT hr=S_OK;
     if(!vehicleShader)hr=device->CreatePixelShader(reinterpret_cast<const DWORD*>(VehicleHudBytecode),&vehicleShader);
     if(SUCCEEDED(hr)&&!vehicleTexture){
-        hr=device->CreateTexture(width,height,1,D3DUSAGE_RENDERTARGET,D3DFMT_A8R8G8B8,D3DPOOL_DEFAULT,&vehicleTexture,nullptr);
+        hr=CreateHudTexture(&vehicleTexture,vehicleSharedHandle);
         if(SUCCEEDED(hr))hr=vehicleTexture->GetSurfaceLevel(0,&vehicleSurface);
         if(FAILED(hr))ClearVehicleHud();
     }

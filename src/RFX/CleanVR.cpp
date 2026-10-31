@@ -7,6 +7,9 @@
 #include "HudCapture.h"
 #include "MenuPointer.h"
 #include "FrameTiming.h"
+#include "SharedGpuTransfer.h"
+#include "NativeExBackend.h"
+#include "NativeFrameLimit.h"
 #include "D3DWorkProfile.h"
 #include <d3dx9math.h>
 #include <algorithm>
@@ -21,6 +24,11 @@ bool initialized=false,inPair=false,pairReady=false,flatFallback=false,reference
 bool hudReady=false,hudFailed=false,hudUnpremultiplied=false;XrPosef hudPose{};float hudWidth=0,hudHeight=0;
 unsigned pairCount=0,suppressedPresents=0;
 unsigned nativeWidth=0,nativeHeight=0;double hudDrawMs=0;
+// Process-lifetime owner, like NativeEx's reset block. Release on explicit
+// device reset only; COM/driver teardown under the DLL loader lock can deadlock.
+SharedGpuTransfer& sharedTransfer=*new SharedGpuTransfer;
+SharedGpuTransfer& cinemaTransfer=*new SharedGpuTransfer;
+ULONGLONG lastCinemaCpu=0;
 std::uint64_t sceneSerial=0,submittedScene=~0ull;
 ULONGLONG lastPresentationTick=0;bool presentationSeen=false;
 template<class T> void Release(T*& p){if(p){p->Release();p=nullptr;}}
@@ -31,7 +39,8 @@ struct PairTiming {
     double render=0,stage=0,read=0,upload=0,hud=0,finish=0,desktop=0,total=0;
     double hudDraw=0,uploadWait=0,uploadCopy=0;
     double uploadMap=0,uploadWrite=0,uploadSubmit=0;
-    unsigned batches=0,directEyes=0,directReads=0;
+    unsigned batches=0,directEyes=0,directReads=0,sharedPairs=0;double sharedWait=0;
+    unsigned directMsaa=0,legacyMsaa=0,a8Msaa=0,plainCopies=0,hudReuse=0,desktopReuse=0,desktopDraws=0;
 };
 struct Performance {
     std::uint64_t previousFrame=0;double previousStart=0,windowStart=0;
@@ -49,6 +58,8 @@ struct Performance {
         sum.finish+=t.finish;sum.desktop+=t.desktop;sum.total+=t.total;wait+=f.waitMs;budget+=(double)f.period/1000000.0;
         sum.hudDraw+=t.hudDraw;sum.uploadWait+=t.uploadWait;sum.uploadCopy+=t.uploadCopy;
         sum.uploadMap+=t.uploadMap;sum.uploadWrite+=t.uploadWrite;sum.uploadSubmit+=t.uploadSubmit;
+        sum.sharedPairs+=t.sharedPairs;sum.sharedWait+=t.sharedWait;
+        sum.directMsaa+=t.directMsaa;sum.legacyMsaa+=t.legacyMsaa;sum.a8Msaa+=t.a8Msaa;sum.plainCopies+=t.plainCopies;sum.hudReuse+=t.hudReuse;sum.desktopReuse+=t.desktopReuse;sum.desktopDraws+=t.desktopDraws;
         sum.batches+=t.batches;sum.directEyes+=t.directEyes;sum.directReads+=t.directReads;
         if(start-windowStart<5000||!intervalCount)return;
         const unsigned n=std::min(intervalCount,512u);double ordered[512];std::copy(intervals,intervals+n,ordered);std::sort(ordered,ordered+n);
@@ -56,6 +67,10 @@ struct Performance {
         Log("PERF stereo frames=%u ok=%u fps=%.2f intervalMs=%.2f p95=%.2f max=%.2f budgetMs=%.2f sceneMs=%.2f xrWaitMs=%.2f",count,successful,intervalCount*1000.0/intervalSum,intervalSum/intervalCount,ordered[(n*95-1)/100],intervalMax,budget/divisor,sum.total/divisor,wait/divisor);
         Log("PERF workMs render=%.2f stage=%.2f readback=%.2f upload=%.2f hudOther=%.2f submitPrepare=%.2f desktop=%.2f (CPU wall times; readback includes GPU wait; xrWait is included in submitPrepare across frames)",sum.render/divisor,sum.stage/divisor,sum.read/divisor,sum.upload/divisor,sum.hud/divisor,sum.finish/divisor,sum.desktop/divisor);
         Log("PERF subsetsMs hudDraw=%.2f uploadWait=%.2f uploadCopyFlush=%.2f (included in render/upload above)",sum.hudDraw/divisor,sum.uploadWait/divisor,sum.uploadCopy/divisor);
+        Log("GPU135 transfer sharedPairs=%u/%u producerWaitMs=%.2f CPU readback avoided for these pairs",sum.sharedPairs,count,sum.sharedWait/divisor);
+        Log("RESOLVE137 eye transfers directMsaa=%u legacyTwoStep=%u nativeFpsLimit=%d (0=unlimited,-1=unavailable; limit is read-only)",sum.directMsaa,sum.legacyMsaa,NativeFrameLimit::Current());
+        Log("REUSE138 paths existingA8MsaaEyes=%u nonMsaaEyeCopies=%u hudCopiesAvoided=%u desktopCopiesAvoided=%u pairs=%u",sum.a8Msaa,sum.plainCopies,sum.hudReuse,sum.desktopReuse,count);
+        Log("COMPOSITE139 desktopExtraDrawsAvoided=%u pairs=%u",sum.desktopDraws,count);
         Log("PERF transfer batches=%u/%u (one readback/upload/flush per successful batch)",sum.batches,count);
         Log("PERF directAtlas eyes=%u/%u (successful resolve-and-pack copies; one intermediate eye copy omitted per eye)",sum.directEyes,count*2);
         Log("PERF directReadback frames=%u/%u (completed current-frame atlas reads without GetRenderTargetData)",sum.directReads,count);
@@ -115,8 +130,8 @@ struct Capture {
         uploadMs+=FrameClockMs()-copied;cpu->UnlockRect();return ok;
     }
     bool Read(unsigned w,unsigned h){
-        // Cinema still needs writable CPU pixels for its pointer and blank
-        // loading-screen detection. Keep that path separate from stereo.
+        // Unsupported GPU sharing keeps this bounded cinema fallback.
+        // The usual menu path never allocates or reads these CPU pixels.
         if(!Stage(w,h)||!EnsureCpu()||FAILED(device->GetRenderTargetData(target,cpu)))return false;
         pixels.resize((size_t)w*h*4);
         D3DLOCKED_RECT lock{};if(FAILED(cpu->LockRect(&lock,nullptr,D3DLOCK_READONLY)))return false;
@@ -207,16 +222,6 @@ void Prepare(){
     if(resetting||!Runtime::Begin()){ReleaseInput();return;}Runtime::Frame f{};
     if(Runtime::Snapshot(f))InputFrame(f);else ReleaseInput();
 }
-void DrawPointer(Capture& c,const Hit& hit){
-    if(!hit.valid)return;const auto glyph=MenuPointer::Make(hit.u,hit.v,c.width,c.height,Config().pointerPixels);
-    const auto draw=[&](const MenuPointer::Rect* rectangles,unsigned count,std::uint32_t color){
-        for(unsigned i=0;i<count;++i){const auto& r=rectangles[i];
-            for(int y=r.top;y<r.bottom;++y)for(int x=r.left;x<r.right;++x)
-                std::memcpy(c.pixels.data()+((size_t)y*c.width+x)*4,&color,4);
-        }
-    };
-    draw(glyph.border,glyph.borderCount,MenuPointer::Border);draw(glyph.fill,glyph.fillCount,MenuPointer::Fill);
-}
 bool HasPicture(const Capture& c){
     // Some loading Presents contain just a cleared backbuffer. Keep the last
     // visible loading/menu image instead of replacing it with solid black.
@@ -238,17 +243,42 @@ void Finish(){
     if(cinema&&f.shouldRender){
         IDirect3DSurface9* back=nullptr;D3DSURFACE_DESC desc{};
         if(SUCCEEDED(device->GetBackBuffer(0,0,D3DBACKBUFFER_TYPE_MONO,&back))){back->GetDesc(&desc);Release(back);}
-        auto& c=captures[2];
-        if(desc.Width&&desc.Height&&Runtime::QuadSize(desc.Width,desc.Height)&&c.Read(desc.Width,desc.Height)){
-            const float aspect=CinemaAspect(c.width,c.height),width=1.15f+1.55f*Config().scale;
-            if(!HasPicture(c)&&Runtime::HasCinemaImage()){
-                static unsigned blanks=0;if(++blanks<=4||blanks%300==0)Log("LOADING ignored cleared native backbuffer; retaining cinema image #%u",blanks);
-                Runtime::SubmitRetained();
+        if(desc.Width&&desc.Height&&Runtime::QuadSize(desc.Width,desc.Height)){
+            const float aspect=CinemaAspect(desc.Width,desc.Height),width=1.15f+1.55f*Config().scale;
+            Hit pointer=Pointer(f,aspect);if(Controls::PhysicalRadioPointer(pointer.u,pointer.v))pointer.valid=true;
+            auto result=Runtime::BatchResult::Unavailable;
+            ID3D11Device* d11=nullptr;ID3D11DeviceContext* context=nullptr;double wait=0;
+            if(Config().sharedGpuTransfer&&NativeEx::Active(device)&&Runtime::SharedCinemaGraphics(d11,context)&&
+               cinemaTransfer.BeginCinema(device,d11,context)&&cinemaTransfer.StageBackbuffer(2,desc.Width,desc.Height)&&cinemaTransfer.Complete(4,wait)){
+                result=Runtime::UploadCinemaGpu(cinemaTransfer.Texture(2),pointer.valid,pointer.u,pointer.v);
+                // Compose may read the shared source even if XR acquisition fails.
+                cinemaTransfer.Consumed();
+            }
+            static unsigned gpuMenus=0,cpuMenus=0,throttled=0;static ULONGLONG lastReport=0;
+            if(result==Runtime::BatchResult::Uploaded){
+                ++gpuMenus;captures[2].Clear();lastCinemaCpu=0;
+                Runtime::SubmitQuad(panelPose,width,width*aspect);
+            }else if(result==Runtime::BatchResult::Failed){
+                Runtime::SubmitRetained(); // no second XR acquisition in this frame
             }else{
-                Hit pointer=Pointer(f,aspect);
-                if(Controls::PhysicalRadioPointer(pointer.u,pointer.v))pointer.valid=true;
-                DrawPointer(c,pointer);
-                if(Runtime::Upload(2,c.pixels.data(),c.width*4))Runtime::SubmitQuad(panelPose,width,width*aspect);else Runtime::SubmitRetained();
+                const ULONGLONG now=GetTickCount64();auto& c=captures[2];
+                // Only pixel transfer is throttled. Prepare/InputFrame and XR
+                // submission still run every frame; no sleeps or input delays.
+                if(Runtime::HasCinemaImage()&&lastCinemaCpu&&now-lastCinemaCpu<33){++throttled;Runtime::SubmitRetained();}
+                else{
+                    lastCinemaCpu=now;
+                    if(c.Read(desc.Width,desc.Height)){
+                        ++cpuMenus;
+                        if(!HasPicture(c)&&Runtime::HasCinemaImage())Runtime::SubmitRetained();
+                        else if(Runtime::Upload(2,c.pixels.data(),c.width*4,pointer.valid,pointer.u,pointer.v))Runtime::SubmitQuad(panelPose,width,width*aspect);
+                        else Runtime::SubmitRetained();
+                    }else Runtime::SubmitRetained();
+                }
+            }
+            const ULONGLONG now=GetTickCount64();
+            if(!lastReport||now-lastReport>=5000){
+                Log("MENU136 transfer gpu=%u cpu=%u throttled=%u size=%ux%u; GPU blank-frame retention and pointer; gameplay uses accepted r135 path",gpuMenus,cpuMenus,throttled,desc.Width,desc.Height);
+                gpuMenus=cpuMenus=throttled=0;lastReport=now;
             }
         }else Runtime::SubmitRetained();
     }else Runtime::SubmitEmpty();
@@ -297,10 +327,10 @@ void AttachDevice(IDirect3DDevice9* d){
     IDirect3DSwapChain9* chain=nullptr;
     if(d&&SUCCEEDED(d->GetSwapChain(0,&chain))){D3DPRESENT_PARAMETERS p{};if(SUCCEEDED(chain->GetPresentParameters(&p)))Log("PERF D3D9 backbuffer=%ux%u samples=%u quality=%u presentInterval=0x%08X windowed=%d",p.BackBufferWidth,p.BackBufferHeight,(unsigned)p.MultiSampleType,p.MultiSampleQuality,p.PresentationInterval,p.Windowed?1:0);Release(chain);}
     nativeWidth=nativeHeight=0;IDirect3DSurface9* back=nullptr;
-    if(d&&SUCCEEDED(d->GetBackBuffer(0,0,D3DBACKBUFFER_TYPE_MONO,&back))){D3DSURFACE_DESC desc{};if(SUCCEEDED(back->GetDesc(&desc))){nativeWidth=desc.Width;nativeHeight=desc.Height;}Release(back);}
+    if(d&&SUCCEEDED(d->GetBackBuffer(0,0,D3DBACKBUFFER_TYPE_MONO,&back))){D3DSURFACE_DESC desc{};if(SUCCEEDED(back->GetDesc(&desc))){nativeWidth=desc.Width;nativeHeight=desc.Height;Log("PATH138 actual backbuffer format=%u samples=%u size=%ux%u",(unsigned)desc.Format,(unsigned)desc.MultiSampleType,desc.Width,desc.Height);}Release(back);}
     AutoResolution::Confirm(nativeWidth,nativeHeight);
 }
-void BeforeReset(){Runtime::Guard lock;if(SettingsMenu::Active()){SettingsMenu::Close();referenceSet=false;}resetting=true;replayGuard.Reset();performance=Performance{};gpuTiming.Reset();D3DWorkProfile::Reset();ResetGunCrosshair();ResetGunScope();ReleaseInput();Runtime::SubmitRetained();pairReady=false;hudReady=hudFailed=hudUnpremultiplied=false;batchCapture.Reset();HudCapture::Reset();Engine::ResetBodyResources();flatFallback=false;submittedScene=~0ull;presentationSeen=false;for(auto& c:captures)c.Clear();}
+void BeforeReset(){Runtime::Guard lock;if(SettingsMenu::Active()){SettingsMenu::Close();referenceSet=false;}resetting=true;sharedTransfer.Reset();cinemaTransfer.Reset();lastCinemaCpu=0;replayGuard.Reset();performance=Performance{};gpuTiming.Reset();D3DWorkProfile::Reset();ResetGunCrosshair();ResetGunScope();ReleaseInput();Runtime::SubmitRetained();pairReady=false;hudReady=hudFailed=hudUnpremultiplied=false;batchCapture.Reset();HudCapture::Reset();Engine::ResetBodyResources();flatFallback=false;submittedScene=~0ull;presentationSeen=false;for(auto& c:captures)c.Clear();}
 void AfterReset(IDirect3DDevice9* d,HRESULT result){resetting=FAILED(result);if(!resetting)AttachDevice(d);else Log("RESOLUTION60 D3D9 reset failed hr=0x%08X",(unsigned)result);}
 void AfterEndScene(IDirect3DDevice9* d){
     if(resetting||!Config().enabled)return;if(!device)AttachDevice(d);
@@ -338,7 +368,12 @@ bool DrawScene(Engine::SceneFunction original,void* self,unsigned a,unsigned b,u
     hudReady=hudUnpremultiplied=false;hudDrawMs=0;HudCapture::NewPair();batchCapture.NewPair();
     inPair=true;suppressedPresents=0;bool rendered=true,result=true;
     gpuTiming.Begin(device);D3DWorkProfile::BeginPair();timing.setup=FrameClockMs()-start;
-    replayGuard.Configure();
+    unsigned sharedW[2]{},sharedH[2]{};for(int e=0;e<2;++e)Runtime::EyeSize(e,sharedW[e],sharedH[e]);
+    ID3D11Device* sharedDevice=nullptr;ID3D11DeviceContext* sharedContext=nullptr;
+    const bool sharedPair=Config().sharedGpuTransfer&&NativeEx::Active(device)&&
+        Runtime::SharedGraphics(sharedDevice,sharedContext)&&sharedTransfer.Begin(device,sharedDevice,sharedContext,sharedW,sharedH);
+    HudCapture::SharedTransferReady(sharedPair);
+    replayGuard.Configure(sharedPair);
     const double workStart=batchCapture.Measuring()?FrameClockMs():0;
     // The prior frame's desktop composite can also still be in flight.
     bool replayReady=replayGuard.Wait();
@@ -354,16 +389,19 @@ bool DrawScene(Engine::SceneFunction original,void* self,unsigned a,unsigned b,u
         // eye advances renderer-side time (a,b are the native double's words).
         D3DWorkProfile::BeginEye(device,(unsigned)eye);
         const bool ok=original(self,eye==0?a:0,eye==0?b:0,c);
-        D3DWorkProfile::EndEye();if(ok){DrawGunCrosshair();DrawGunScope();}Engine::EndEye();if(eye==0)result=ok;
+        D3DWorkProfile::EndEye();if(ok){DrawGunScope();DrawGunCrosshair();} // confirmed-hit ticks remain visible over the physical lens
+        Engine::EndEye();if(eye==0)result=ok;
         timing.eyes[eye]=FrameClockMs()-renderStart;timing.render+=timing.eyes[eye];
         gpuTiming.Mark(1+2*eye);
         unsigned width=0,height=0;Runtime::EyeSize(eye,width,height);
         const double stageStart=FrameClockMs();
-        const bool staged=ok&&width&&(batchCapture.StageEye((unsigned)eye,width,height)||captures[eye].Stage(width,height));timing.stage+=FrameClockMs()-stageStart;
+        const bool staged=ok&&width&&(sharedPair?sharedTransfer.StageBackbuffer((unsigned)eye,width,height):
+            (batchCapture.StageEye((unsigned)eye,width,height)||captures[eye].Stage(width,height)));timing.stage+=FrameClockMs()-stageStart;
         gpuTiming.Mark(2+2*eye);
         if(!staged){rendered=false;break;}
     }
     gpuTiming.End();
+    if(sharedPair){timing.directMsaa=sharedTransfer.DirectMsaaCopies();timing.legacyMsaa=sharedTransfer.LegacyMsaaCopies();timing.a8Msaa=sharedTransfer.ExistingA8Resolves();timing.plainCopies=sharedTransfer.PlainCopies();}
     // Prepare the HUD before acquiring images so it can share the eyes'
     // transfer. Vehicle HUD encoding is corrected before this shared transfer.
     const double hudStart=FrameClockMs();Mat hud{};
@@ -376,7 +414,27 @@ bool DrawScene(Engine::SceneFunction original,void* self,unsigned a,unsigned b,u
     }
     timing.hud=FrameClockMs()-hudStart;
     if(rendered){
-        const auto batch=batchCapture.Upload(wantHud,timing,f);
+        Runtime::BatchResult batch=Runtime::BatchResult::Unavailable;
+        if(sharedPair){
+            const double uploadStart=FrameClockMs();
+            IDirect3DSurface9* hudSource=wantHud?HudCapture::ResolvedForTransfer():nullptr;
+            const bool hudImported=wantHud&&Config().reuseTransferImages&&sharedTransfer.ImportHud(hudSource,HudCapture::SharedHandleForTransfer(),HudCapture::Width(),HudCapture::Height());
+            const bool hudStaged=!wantHud||hudImported||sharedTransfer.Stage(3,hudSource,HudCapture::Width(),HudCapture::Height());
+            if(hudImported)++timing.hudReuse;
+            if(hudStaged&&sharedTransfer.Complete(wantHud?11u:3u,timing.sharedWait)){
+                ID3D11Texture2D* images[]={sharedTransfer.Texture(0),sharedTransfer.Texture(1),sharedTransfer.Texture(3)};
+                const int indices[]={0,1,3};batch=Runtime::UploadGpu(images,indices,wantHud?3:2);
+                if(batch!=Runtime::BatchResult::Unavailable)sharedTransfer.Consumed();
+                if(batch==Runtime::BatchResult::Uploaded)++timing.sharedPairs;
+            }else batch=Runtime::BatchResult::Failed;
+            timing.upload+=FrameClockMs()-uploadStart;
+            if(batch==Runtime::BatchResult::Unavailable){
+                sharedTransfer.Disable();
+                // No XR image acquired: recover this exact eye pair, never an
+                // earlier pair with newer tracking. Next pair uses CPU fallback.
+                for(int e=0;e<2;++e)if(!captures[e].FromAtlas(sharedTransfer.Surface(e),Runtime::TransferRegion{e,0,0,sharedW[e],sharedH[e]})){batch=Runtime::BatchResult::Failed;break;}
+            }
+        }else batch=batchCapture.Upload(wantHud,timing,f);
         if(batch==Runtime::BatchResult::Uploaded)hudReady=wantHud;
         else if(batch==Runtime::BatchResult::Failed)rendered=false;
         else{
@@ -406,7 +464,9 @@ bool DrawScene(Engine::SceneFunction original,void* self,unsigned a,unsigned b,u
     IDirect3DSurface9* mirror=nullptr;RECT crop{};
     const float desktopAspect=RenderWindow::DesktopAspect();
     if(rendered&&desktopAspect>0){
-        if(batchCapture.mirrorReady){
+        if(sharedPair&&rendered&&sharedTransfer.Surface(1)){
+            mirror=sharedTransfer.Surface(1);crop={0,0,(LONG)sharedW[1],(LONG)sharedH[1]};
+        }else if(batchCapture.mirrorReady){
             const auto& r=batchCapture.mirrorRegion;mirror=batchCapture.target;
             crop={(LONG)r.x,(LONG)r.y,(LONG)(r.x+r.width),(LONG)(r.y+r.height)};
         }else if(captures[1].target){
@@ -425,6 +485,7 @@ bool DrawScene(Engine::SceneFunction original,void* self,unsigned a,unsigned b,u
         }else mirror=nullptr;
     }
     HudCapture::CompositeDesktop(mirror,mirror?&crop:nullptr);
+    timing.desktopReuse=HudCapture::DesktopCopiesAvoided();timing.desktopDraws=HudCapture::DesktopDrawsAvoided();
     if(suppressedPresents&&!Engine::FlushDeferredPresent())device->Present(nullptr,nullptr,nullptr,nullptr);
     timing.desktop=FrameClockMs()-desktopStart;timing.total=FrameClockMs()-start;performance.Add(f,start,timing,rendered);
     D3DWorkProfile::EndPair(rendered);

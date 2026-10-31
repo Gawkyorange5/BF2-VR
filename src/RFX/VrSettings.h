@@ -13,6 +13,10 @@ struct Settings {
     bool directEyeAtlas=true;
     bool umaDirectReadback=true;
     bool drawProfiling=false,gpuTiming=false;
+    bool sharedGpuTransfer=true; // r135 private startup backend; restart required
+    bool singlePassDesktop=true; // combine mirror world and HUD without changing headset images
+    bool reuseTransferImages=true; // share existing HUD and sample existing desktop eye texture
+    bool directMsaaResolve=true; // same-size X8 -> A8 resolve, with legacy fallback
     bool legacyScriptLoop=false;
     unsigned menuPollMs=100;
 };
@@ -38,6 +42,10 @@ struct TuneSettings {
     bool physicalRadio=true;
     float radioSensitivity=3.f; // gain over the original shoulder selection travel
     float slotHeight=.72f,slotRadius=.15f;
+    bool pistolChest=true;
+    float pistolChestOffset[3]{.03f,-.03f,-.20f}; // independent from the retained secondary hip offsets
+    float slotRotations[7][3]{}; // local X/Y/Z degrees; separate from live weapon grips
+    float pistolChestRotation[3]{};
     float slotOffsets[7][3]{}; // metres in torso axes: right, up, forward
     float turnSpeed=240.f; // relative mouse counts/second; not degrees/second
     float hudScale=.85f,hudDepth=12.f,hudFov=60.f;

@@ -165,11 +165,11 @@ void BeginInventoryGear(){
     if((!preview&&!Tuning().bodySlots)||!slots.valid||slots.owner!=owner||slots.identity!=identity||slots.origin!=pairFrame.origin)return;
     const int equipped=Value<int>(owner,0x1E0);
     for(int i=0;i<7;++i){
-        const int item=slots.items[i];if(!item||(!preview&&(InventoryItemAway(item,pairFrame.tick)||(!InventoryStowed(owner)&&equipped==item))))continue;
+        const int item=slots.items[i];if(!item||(!preview&&(InventoryItemInFlight(item,pairFrame.tick)||(!InventoryStowed(owner)&&equipped==item))))continue;
         void* weapon=InventoryItem(owner,item);if(!weapon)continue;
         auto* mesh=GearFor(Value<void*>(weapon,0x38),i);if(!mesh)continue;
         const Mat anchor=Compose(TrackingBase(views[0].source),reference,slots.anchors[i],Config().units);
-        const Vec direction=i==5?Vec{1,0,0}:i==4?Vec{0,1,0}:(i<2||i==6)?Vec{0,1,0}:Vec{0,-1,0};
+        const Vec direction=InventoryGameplay::BarrelDirection(i,slots.pistolChest);
         Mat local=RotateBetween({0,0,1},direction);
         // Grip is at the reachable slot, barrel points down at the hip. The
         // full native geometry supplies materials and per-model proportions.

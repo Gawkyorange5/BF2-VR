@@ -1,4 +1,4 @@
-# Troubleshooting v1.1.0
+# Troubleshooting v1.2.0
 
 See [installation and troubleshooting](INSTALL.md#troubleshooting-and-reports)
 for the supported renderer check, optional Alt-Tab hotfix link, Steam, DZB2

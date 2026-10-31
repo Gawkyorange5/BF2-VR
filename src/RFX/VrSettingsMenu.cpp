@@ -1,6 +1,8 @@
 #include "VrSettingsMenu.h"
 #include "LiveSettings.h"
 #include "Bf2Adapter.h"
+#include "InventoryGameplay.h"
+#include "SlotManipulation.h"
 #include <algorithm>
 #include <cmath>
 #include <cstdio>
@@ -9,7 +11,7 @@
 namespace CleanVR { namespace SettingsMenu { namespace {
 constexpr int width=1024,height=800,firstRow=140,rowHeight=96,rowsPerPage=5;
 constexpr float panelWidth=1.65f,panelHeight=panelWidth*height/width,distance=1.7f;
-const char* pages[]={"Turning","HUD","Body","Vehicles","Scopes","Move","Weapons","Graphics","Gear","Slots"};
+const char* pages[]={"General","HUD","Body","Vehicles","Scopes","Move","Weapons","Graphics","Gear","Slots"};
 constexpr int pageCount=sizeof(pages)/sizeof(pages[0]),tabStep=97,tabWidth=91;
 bool active=false,dirty=true,triggerWas=false,closeWas=false,chordArmed=false,chordWas=false;
 ULONGLONG chordSince=0,lastDraw=0,repeatAt=0;std::uint64_t frameId=0,origin=0;
@@ -18,7 +20,12 @@ unsigned count=0;const LiveOption* options=nullptr;
 constexpr unsigned optionCapacity=128;
 float values[optionCapacity]{},loaded[optionCapacity]{};bool changed[optionCapacity]{};
 char status[180]="";
-int selectedSlot=0,slotOption[7][3]{};bool slotPreviewVisible=false;
+int selectedSlot=0,slotOption[7][3]{},pistolChestOption=-1,chestSlotOption[3]{-1,-1,-1};bool slotPreviewVisible=false;
+int slotRotationOption[7][3]{},chestRotationOption[3]{-1,-1,-1};
+SlotManipulation::Drag slotDrag;
+bool ChestHolster(){return pistolChestOption>=0?values[pistolChestOption]>.5f:Tuning().pistolChest;}
+int SlotOption(int slot,int axis){return slot==3&&ChestHolster()?chestSlotOption[axis]:slotOption[slot][axis];}
+int RotationOption(int slot,int axis){return slot==3&&ChestHolster()?chestRotationOption[axis]:slotRotationOption[slot][axis];}
 const char* slotNames[]={"Gadget 1 - left shoulder","Gadget 2 - right shoulder","Primary weapon - right hip","Secondary weapon - left hip","Grenade - right chest","Knife - waistband","Gadget 3 - behind head"};
 const char* slotKeys[]={"left_shoulder","right_shoulder","primary","secondary","grenade","knife","rear_head"};
 HDC dc=nullptr;HBITMAP bitmap=nullptr;HGDIOBJ originalBitmap=nullptr;void* pixels=nullptr;
@@ -104,41 +111,60 @@ int PageParts(){
     int rows=0;for(unsigned i=0;i<count;++i)if(options[i].page==(unsigned)page)++rows;
     return std::max(1,(rows+rowsPerPage-1)/rowsPerPage);
 }
-void SlotClick(ULONGLONG now){
-    if(Inside(24,142,165,50)){selectedSlot=(selectedSlot+6)%7;dirty=true;return;}
-    if(Inside(835,142,165,50)){selectedSlot=(selectedSlot+1)%7;dirty=true;return;}
-    for(int axis=0;axis<3;++axis){
-        const int y=220+axis*120;
-        if(Inside(560,y+12,140,52)||Inside(850,y+12,140,52)){
-            repeat=slotOption[selectedSlot][axis];repeatDirection=px<710?-1:1;
-            if(repeat>=0){Step((unsigned)repeat,repeatDirection);repeatAt=now+400;}
-        }
+void SlotClick(ULONGLONG){
+    if(selectedSlot==3&&pistolChestOption>=0){
+        if(Inside(560,576,195,48)){Change(pistolChestOption,0);slotDrag.Cancel();return;}
+        if(Inside(765,576,225,48)){Change(pistolChestOption,1);slotDrag.Cancel();return;}
     }
+    if(Inside(24,142,165,50)){selectedSlot=(selectedSlot+6)%7;slotDrag.Cancel();dirty=true;return;}
+    if(Inside(835,142,165,50)){selectedSlot=(selectedSlot+1)%7;slotDrag.Cancel();dirty=true;return;}
 }
 void DrawSlots(){
     Button("Previous",24,142,165,50);Button("Next",835,142,165,50);
-    char label[128];sprintf_s(label,"%d / 7   %s",selectedSlot+1,slotNames[selectedSlot]);
+    char label[128];sprintf_s(label,"%d / 7   %s",selectedSlot+1,selectedSlot==3?(ChestHolster()?"Pistol - chest":"Pistol - left hip"):slotNames[selectedSlot]);
     Text(label,214,153,615,normalFont,RGB(110,191,255));
-    const char* names[]={"Horizontal position","Vertical position","Depth from body"};
-    const char* minus[]={"Left","Down","Back"};const char* plus[]={"Right","Up","Forward"};
-    for(int axis=0;axis<3;++axis){
-        const int y=220+axis*120,index=slotOption[selectedSlot][axis];
-        Box(24,y,976,106,RGB(22,34,47));Text(names[axis],36,y+12,495,normalFont,RGB(236,243,250));
-        Text("1 cm per click. Hold the button to move further.",36,y+53,500,smallFont,RGB(171,192,207));
-        Button(minus[axis],560,y+12,140,52);Button(plus[axis],850,y+12,140,52);
-        if(index>=0){sprintf_s(label,"%+.0f cm%s",values[index]*100,changed[index]?" *":"");Text(label,712,y+27,135,normalFont,RGB(95,218,227));}
-    }
-    Text(slotPreviewVisible?"Blue bubble = selected grab point. Look down or over your shoulder to see it.":"Spawn on foot to preview the blue bubble and your kit. Offsets can be saved now.",24,586,976,smallFont,RGB(110,191,255));
-    Text("Preview heading stays fixed while you look around. Apply saves all edited slots.",24,612,976,smallFont,RGB(171,192,207));
+    Box(24,220,976,338,RGB(22,34,47));
+    Text("GRAB AND PLACE",44,243,930,titleFont,RGB(110,191,255));
+    Text("1. Touch the blue bubble with either controller.",44,304,920,normalFont,RGB(236,243,250));
+    Text("2. Hold that controller's grip to move the slot.",44,354,920,normalFont,RGB(236,243,250));
+    Text("3. Turn your wrist to rotate the item, then release grip.",44,404,920,normalFont,RGB(236,243,250));
+    Text("4. Click Apply to save your placement and rotation.",44,454,920,normalFont,RGB(236,243,250));
+    Text(slotDrag.hand>=0?"Holding the slot. Move and rotate your hand.":slotPreviewVisible?"Blue bubble ready. Preview heading stays fixed while you look around.":"Spawn on foot to move your kit slots.",44,514,920,smallFont,RGB(115,223,211));
+    if(selectedSlot==3){
+        Text("Pistol holster",36,586,490,normalFont,RGB(236,243,250));
+        Button("Left hip",560,576,195,48,!ChestHolster());Button("Chest",765,576,225,48,ChestHolster());
+    }else Text("Choose another item with Previous / Next. Reset restores this slot only.",24,586,976,smallFont,RGB(171,192,207));
+    Text("Each pistol placement keeps its own position and rotation. B discards unapplied edits.",24,625,976,smallFont,RGB(110,191,255));
 }
 void UpdateSlotPreview(const Runtime::Frame& f){
     bool visible=false;
     if(page==9){
-        float offsets[7][3]{},height=Tuning().slotHeight;
+        float offsets[7][3]{},rotations[7][3]{},height=Tuning().slotHeight;
         for(unsigned i=0;i<count;++i)if(!strcmp(options[i].key,"hip_below_head"))height=values[i];
-        for(int i=0;i<7;++i)for(int axis=0;axis<3;++axis)if(slotOption[i][axis]>=0)offsets[i][axis]=values[slotOption[i][axis]];
-        visible=Engine::PreviewBodySlotLayout(f,offsets,height,selectedSlot);
-    }else Engine::ClearBodySlotLayoutPreview();
+        for(int i=0;i<7;++i)for(int axis=0;axis<3;++axis){
+            if(SlotOption(i,axis)>=0)offsets[i][axis]=values[SlotOption(i,axis)];
+            if(RotationOption(i,axis)>=0)rotations[i][axis]=values[RotationOption(i,axis)];
+        }
+        Mat torso{};
+        visible=Engine::PreviewBodySlotLayout(f,offsets,rotations,height,selectedSlot,ChestHolster(),torso);
+        if(visible){
+            const Vec base=InventoryGameplay::SlotBase(selectedSlot,height,ChestHolster());
+            const Mat anchor=SlotManipulation::Anchor(base,offsets[selectedSlot],rotations[selectedSlot],torso);
+            const int hand=slotDrag.hand;
+            const auto event=slotDrag.Update(f,selectedSlot+(ChestHolster()?7:0),anchor,torso,base,offsets[selectedSlot],rotations[selectedSlot]);
+            if(event==SlotManipulation::Event::Grabbed){Runtime::Haptic(slotDrag.hand,.35f,45);dirty=true;}
+            if(event==SlotManipulation::Event::Moved||event==SlotManipulation::Event::Released){
+                for(int axis=0;axis<3;++axis){
+                    const int pi=SlotOption(selectedSlot,axis),ri=RotationOption(selectedSlot,axis);
+                    if(pi>=0)Change(pi,offsets[selectedSlot][axis]);
+                    if(ri>=0)Change(ri,rotations[selectedSlot][axis]);
+                }
+                Engine::PreviewBodySlotLayout(f,offsets,rotations,height,selectedSlot,ChestHolster(),torso);
+                if(event==SlotManipulation::Event::Released){Runtime::Haptic(hand,.2f,30);dirty=true;}
+            }
+            if(event==SlotManipulation::Event::Cancelled){strcpy_s(status,"Placement paused. Release grip, then grab the bubble again.");dirty=true;}
+        }else slotDrag.Cancel();
+    }else{slotDrag.Cancel();Engine::ClearBodySlotLayoutPreview();}
     if(visible!=slotPreviewVisible){slotPreviewVisible=visible;dirty=true;}
 }
 void Click(ULONGLONG now){
@@ -149,7 +175,10 @@ void Click(ULONGLONG now){
     }
     if(Inside(24,650,200,48)){Apply();return;}
     if(Inside(240,650,250,48)){
-        if(page==9){for(int axis=0;axis<3;++axis){const int i=slotOption[selectedSlot][axis];if(i>=0)Change(i,options[i].initial);}}
+        if(page==9){slotDrag.Cancel();for(int axis=0;axis<3;++axis){
+            const int i=SlotOption(selectedSlot,axis),r=RotationOption(selectedSlot,axis);
+            if(i>=0)Change(i,options[i].initial);if(r>=0)Change(r,options[r].initial);
+        }}
         else for(unsigned i=0;i<count;++i)if(options[i].page==(unsigned)page)Change(i,options[i].initial);return;
     }
     if(Inside(780,650,220,48)){Close();return;}
@@ -167,7 +196,7 @@ void Click(ULONGLONG now){
 }
 void Draw(){
     Box(0,0,width,height,RGB(15,24,35));Text("BATTLEFIELD 2 VR SETTINGS",24,20,760,titleFont,RGB(237,247,255));
-    Text("r98",924,28,70,smallFont,RGB(135,174,196));
+    Text("r141",924,28,70,smallFont,RGB(135,174,196));
     for(int i=0;i<pageCount;++i)Button(pages[i],24+i*tabStep,82,tabWidth,44,page==i,true);
     int row=0;char value[80];
     if(page==9)DrawSlots();
@@ -177,7 +206,7 @@ void Draw(){
         const auto& o=options[i];const int y=firstRow+visible*rowHeight;
         Box(24,y,976,90,RGB(22,34,47));Text(o.label,36,y+6,642,normalFont,RGB(236,243,250));
         Text(o.help,36,y+38,646,smallFont,RGB(171,192,207));
-        if(o.toggle){const bool on=values[i]>.5f;const char* label=!strcmp(o.key,"body_slots")?(on?"Physical gear":"Button cycling"):!strcmp(o.key,"hold_grip")?(on?"Hold grip":"Toggle grip"):(on?"On":"Off");Button(label,738,y+8,236,48,on);}
+        if(o.toggle){const bool on=values[i]>.5f;const char* label=!strcmp(o.key,"body_slots")?(on?"Physical gear":"Button cycling"):!strcmp(o.key,"pistol_chest")?(on?"Chest":"Hip"):!strcmp(o.key,"hold_grip")?(on?"Hold grip":"Toggle grip"):(on?"On":"Off");Button(label,738,y+8,236,48,on);}
         else{
             Button("-",690,y+8,60,48);Button("+",930,y+8,60,48);
             if(!strcmp(o.key,"resolution_mode"))sprintf_s(value,"%s%s",values[i]<.5f?"Automatic":values[i]<1.5f?"Custom":"Game",changed[i]?" *":"");
@@ -206,40 +235,54 @@ bool Open(const Runtime::Frame& f){
         slotOption[i][axis]=-1;char key[48];sprintf_s(key,"%s_%c",slotKeys[i],"xyz"[axis]);
         for(unsigned j=0;j<count;++j)if(!strcmp(options[j].section,"inventory_slots")&&!strcmp(options[j].key,key))slotOption[i][axis]=(int)j;
     }
-    Engine::ClearBodySlotLayoutPreview();slotPreviewVisible=false;
+    pistolChestOption=-1;for(auto& index:chestSlotOption)index=-1;
+    for(unsigned j=0;j<count;++j){
+        if(!strcmp(options[j].section,"inventory")&&!strcmp(options[j].key,"pistol_chest"))pistolChestOption=(int)j;
+        for(int axis=0;axis<3;++axis){char key[48];sprintf_s(key,"secondary_chest_%c","xyz"[axis]);
+            if(!strcmp(options[j].section,"inventory_slots")&&!strcmp(options[j].key,key))chestSlotOption[axis]=(int)j;
+        }
+    }
+    for(int i=0;i<7;++i)for(int axis=0;axis<3;++axis){
+        slotRotationOption[i][axis]=-1;const char* axes[]={"pitch","yaw","roll"};char key[64];
+        sprintf_s(key,"%s_%s",slotKeys[i],axes[axis]);
+        for(unsigned j=0;j<count;++j)if(!strcmp(options[j].section,"inventory_slots")&&!strcmp(options[j].key,key))slotRotationOption[i][axis]=(int)j;
+    }
+    for(int axis=0;axis<3;++axis){
+        chestRotationOption[axis]=-1;const char* axes[]={"pitch","yaw","roll"};char key[64];sprintf_s(key,"secondary_chest_%s",axes[axis]);
+        for(unsigned j=0;j<count;++j)if(!strcmp(options[j].section,"inventory_slots")&&!strcmp(options[j].key,key))chestRotationOption[axis]=(int)j;
+    }
+    Engine::ClearBodySlotLayoutPreview();slotPreviewVisible=false;slotDrag.Cancel();page=0;
     active=true;dirty=true;pagePart=0;Place(f);triggerWas=f.hands[1].trigger>.4f;closeWas=f.hands[1].secondary;
     chordArmed=false;chordWas=false;chordSince=lastDraw=0;frameId=0;drag=repeat=-1;px=py=-1;
     strcpy_s(status,"Choose settings, then Apply. Closing will recenter your view.");
     Log("SETTINGS44 headset menu opened");return true;
 }
 void Close(){
-    if(!active)return;active=false;Engine::ClearBodySlotLayoutPreview();Runtime::HideSettingsOverlay();FreeCanvas();
+    if(!active)return;active=false;slotDrag.Cancel();Engine::ClearBodySlotLayoutPreview();Runtime::HideSettingsOverlay();FreeCanvas();
     Log("SETTINGS44 headset menu closed");
 }
 void Input(const Runtime::Frame& f){
     if(!active||frameId==f.id)return;frameId=f.id;
-    if(origin!=f.origin){Place(f);drag=repeat=-1;triggerWas=true;dirty=true;}
+    if(origin!=f.origin){Place(f);slotDrag.Cancel();drag=repeat=-1;triggerWas=true;dirty=true;}
     const bool chord=f.hands[0].stickClick&&f.hands[1].stickClick;
     if(!f.hands[0].stickClick&&!f.hands[1].stickClick)chordArmed=true;
     if(chord&&chordArmed&&!chordWas)chordSince=f.tick;
     const bool close=f.hands[1].secondary;
     if((close&&!closeWas)||(chord&&chordArmed&&f.tick>=chordSince+600)){Close();return;}
     closeWas=close;chordWas=chord;
+    UpdateSlotPreview(f);
     LocatePointer(f);
     const bool pressed=f.hands[1].trigger>(triggerWas?.4f:.55f);
-    if(pressed&&!triggerWas){Click(f.tick);if(!active)return;}
+    if(pressed&&!triggerWas&&slotDrag.hand<0){Click(f.tick);if(!active)return;}
     if(pressed&&drag>=0&&px>=0)Slide((unsigned)drag);
     if(pressed&&repeat>=0){
         int row=0;for(int i=0;i<repeat;++i)if(options[i].page==(unsigned)page)++row;
         bool hovering=false;
-        if(page==9){for(int axis=0;axis<3;++axis)if(slotOption[selectedSlot][axis]==repeat)
-            hovering=Inside(repeatDirection<0?560:850,220+axis*120+12,140,52);}
-        else hovering=Inside(repeatDirection<0?690:930,firstRow+(row-pagePart*rowsPerPage)*rowHeight+8,60,48);
+        if(page!=9)hovering=Inside(repeatDirection<0?690:930,firstRow+(row-pagePart*rowsPerPage)*rowHeight+8,60,48);
         if(!hovering)repeat=-1;
         else if(f.tick>=repeatAt){Step((unsigned)repeat,repeatDirection);repeatAt=f.tick+90;}
     }
     if(!pressed||px<0){drag=repeat=-1;}triggerWas=pressed;
-    UpdateSlotPreview(f);
 }
 void Present(){
     if(!active)return;

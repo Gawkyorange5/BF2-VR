@@ -1,132 +1,77 @@
-# BF2-VR v1.1.0 — changes since public v1.0.0 / r45
+# BF2-VR v1.2.0 — performance and physical gear update
 
-Gameplay basis: accepted **r134**. This release gathers the retained changes
-from the private development series. Reverted experiments are not advertised
-as features. The maintainer tested and accepted the public-package candidate.
-The final launcher adds `+restart` to skip intro movies.
+This release uses the accepted **r141 gameplay code**, with the retained
+rendering improvements from r135–r139 and the physical-gear changes from
+r140–r141. It preserves the existing hold-to-sprint controls.
 
-## Installer revision 2
+**Compatible with [DZB2](https://www.moddb.com/mods/dzb2).** Install DZB2 separately,
+then use the included DZB2 VR launcher. This update retains its weapon, gadget,
+scope and vehicle profiles. Use Medium Lighting; known limits are listed below.
 
-Public setup choices and descriptions have been cleaned up. The shortcut list
-is labeled as installed mods. This packaging correction preserves the same r134
-gameplay code, controller bindings, settings and `+restart` launch arguments.
+## Performance
 
-## Bug fixes, not just new features
+- Native Direct3D 9Ex and shared GPU texture transfer avoid the CPU readback/upload
+  round trip on the supported path. Adapter matching and fallback handling remain.
+- Shared transfer for 2D menus and loading/cinema screens.
+- Improved multisample resolve handling for supported AA formats, including the
+  native A8 surface path used in the tested 8x AA configuration.
+- Reuse of existing HUD and eye images avoids redundant copies and resolves.
+- The desktop preview reuses an eye image and combines it with the HUD in one
+  composition pass; it does not render another world view.
+- Preserves OpenXR-recommended per-eye resolution, the game-resolution option,
+  and the player's AA setting. Supported paths also benefit 2x/4x AA; AA Off
+  retains the transfer and composition improvements without an MSAA resolve.
 
-The sections below include retained fixes as well as additions. For the dedicated
-fix list, see [Fixes since the first public release](docs/FIXES.md): movement and
-smooth turning; HUD/crosshairs/optics; gripping and manual reloads; physical
-gadgets; death/respawn and vehicles; installation and compatibility.
+These changes reduce specific rendering costs. FPS still depends on GPU, CPU,
+OpenXR render size, AA, map, mod and streaming settings. No universal FPS or
+percentage gain is promised. Later experimental performance builds are excluded.
+GPU timing is off by default and draw instrumentation is compiled out.
 
-## Motion, view and interface
+## Gameplay and usability
 
-- Head-directed movement, including sprint, with a menu option.
-- Roomscale body follow through native collision movement and adjustable lean allowance.
-- Snap turning alongside smooth turning; the modes exclude each other.
-- Smooth-turn timing and camera improvements that removed the reported regular stepping.
-- Head-following HUD behavior and correction of the HUD climbing with gun recoil.
-- Vehicle HUD visibility/alpha fixes at headset resolution.
-- Gun-following crosshairs and hit feedback in the original game's color.
-- Fixed flat-screen infantry crosshair leakage for knife, grenade, defibs and other gadgets.
-- Optional gun crosshairs, optional sight proximity hiding, adjustable hiding sensitivity,
-  and shotgun exclusion from sight proximity hiding.
-- Smooth-turn crosshair duplication and stale optic lens fixes.
-- In-headset settings organization, persistent physical-slot adjustment and selected-slot preview.
-- Windowed headset-resolution pointer correction to keep menu clicks inside the game window.
+- Primary weapons and pistols briefly fly/tumble when dropped or thrown, then
+  rebound to their holsters much sooner. Reaching for the holster can reclaim
+  the weapon during its return.
+- Hit-confirmation markers remain visible while aiming through sights, even
+  when the ordinary gun-following crosshair is hidden.
+- Corrected physical C4 release so a quick close-to-body throw is less likely
+  to be mistaken for putting the item back in its holster.
+- Pistol chest holster by default, with a Chest/Hip choice on the first VR settings
+  page. Each placement has separately saved position and rotation.
+- In Slots, select a slot, squeeze either controller's grip near its highlighted
+  bubble, then move and rotate it physically. Release and choose **Apply** to save.
+  This replaces the old directional adjustment controls in the headset menu.
 
-## Hands, inventory and gadgets
+## Installation
 
-- Adjustable virtual shoulder stock. Turning it off keeps two-hand support with free aim;
-  stock smoothing is available when enabled.
-- Physical body equipment or button-based equipment selection.
-- Hold-grip, toggle-grip and glued-to-hand carry modes; physical slot swaps remain available
-  while glued. Optional empty-handed spawn in physical mode.
-- Simultaneous visible holstered gear, configurable slot positions, and persistent offsets.
-- Gadget 1 on the left shoulder, gadget 2 on the right shoulder, and optional gadget 3
-  behind the head when the kit provides it. Primary right hip, sidearm left hip,
-  grenade right chest and knife at the waistband.
-- Physical throwing with greater release velocity and tumbling for dropped display items;
-  ordinary dropped gear returns to its slot. Supported deployables use native active objects.
-- Active physical grenade, medkit, ammo, C4, mine and claymore release paths.
-- Optional grenade cooking and corrected pin-sound timing.
-- C4 block/detonator handling, off-hand detonator placement and lifecycle fixes.
-- Physical knife stabs/swings and throwing-knife hits.
-- Two physical defib paddles, deliberate rubbing charge, whole-body revive detection,
-  and an optional assisted reach mode for seated play.
-- Medkit/ammo/grenade/knife wrist and item alignment corrections.
-- Physical shoulder radio: right hand near the left shoulder, hold right trigger,
-  make a small directional selection, release to choose. Menu-style pointer feedback;
-  infantry and supported vehicle radio remain in stereo.
-- Ladder acquisition corrections and crouch toggle/button layout changes.
-- Optional arms-out airborne wingsuit glide; parachute still needed for a safe landing.
+- Updates public v1.0.0, v1.1.0 and the accepted private r141 installation.
+- Keeps existing VR preferences and custom slot layouts. Select **Keep current
+  resolution setting** to retain your rendering choice; graphics/AA profiles
+  are not reset. Controller bindings are optional on existing installations.
+- Selecting DZB2 creates **Battlefield 2 VR** and **Battlefield 2 DZB2 VR** shortcuts
+  separately. Selecting regular BF2 does not overwrite an existing DZB2 shortcut.
+- Includes **Launch DZB2 VR.cmd**. DZB2 is installed separately; use Medium Lighting
+  for its tested VR configuration. Launch arguments retain `+restart`.
+- The BF2 1.50 Alt-Tab hotfix is needed only for the specifically identified older
+  renderer. Compatible installations do not need another download.
 
-## Manual reloading
+## What remains included
 
-- **189 reload profiles** across stock and DZB2 weapons, including aliases and the XM25.
-  Coverage expanded through SMGs, assault rifles, LMGs, snipers, shotguns and pistols.
-- Native magazine/handle contacts, detachable magazines, shells, pumps, bolt actions,
-  LMG cover/belt interactions and revolver speed loaders where profiled.
-- B ejects supported pistol/MP7 magazines in manual mode; G18 also permits a physical pull.
-- Manual reload on/off option. B performs normal reload with manual mode off;
-  manual mode prevents ordinary automatic empty-magazine reloads. Vehicle reload unchanged.
-- Optional magwell alignment guide, stable seating and corrected completion-animation behavior.
-- Partial reload charging behavior and reinserting the same magazine corrected.
-- Weapon-specific magazine grips, speed-loader grips and drum alignment refinements.
-- Action-timed audio reconstructed locally, expanded from 116 to **822 resources**
-  including reload, pin and targeting cues. No game audio is bundled in the public download.
+The v1.1.0 features remain: physical reloads and gadgets, optional grenade cooking,
+C4 in one hand with the detonator in the other, the vehicle seat wheel, shoulder
+radio, optional helmet death views, DZB2 profiles and optics, and existing controls.
+See [previous release features](docs/CHANGES-v1.1.0.md) and [fixes](docs/FIXES.md).
 
-## Death views and vehicles
+## Verification and limits
 
-- Optional on-foot helmet death view following the downed body, with looser arms/body,
-  terrain-clearance fixes, kit-menu suicide handling and respawn-flow correction.
-- Separate optional vehicle helmet death view following a crash's roll from the seat.
-  Native wreck disappearance still limits how long the cockpit can remain visible.
-- Land-vehicle attitude follows the chassis, with role-specific HUD/view handling.
-- Expanded seat classification and flight controls for DZB2 factions, tanks/APCs,
-  helicopters, jets, mounted guns and remote gunner systems.
-- Head aiming for supported tank/turret/gunner seats and APC wire-missile guidance profiles.
-- Right-stick look-around support in transport drivers, vehicle left-grip weapon switching,
-  and hold-Y **CHANGE SEATS** wheel requesting F1–F8.
-- Upright tilted seat-wheel presentation and fixes for missing panel rendering.
-- Audited personal-weapon passenger seats automatically hold the gun in the right hand;
-  left grip supports it and right grip remains exit.
+The saved r141 gameplay DLL is not recompiled for this release. Distribution
+removes local debug-path metadata and game sound data; Setup rebuilds sounds
+from the player's own archives. Executable code and runtime data are checked
+against r141, alongside installation, upgrade, rollback and startup checks.
+The r141 private build was played and accepted; this final public packaging has
+not had a separate headset playtest. The maintainer authorized publication.
 
-## Sights and DZB2 support
-
-- Expanded physical rifle/sniper optics, 1x reflex/red dots and launcher optics.
-- SRAW/ERYX native reticle and firing/guidance indicators, controller-directed guidance,
-  and separate adjustable launcher magnification.
-- DZB2 Stinger/Javelin sight, targeting HUD and native lock-on behavior/audio support.
-- Javelin alternate-template motion support, left support handle, and sight alignment fixes.
-- DZB2 laptop family motion controls with handle alignment, active deployment, and
-  post-throw arm-state fixes.
-- Active throws for profiled DZB2 mines/explosives, smoke/black grenades, beacon,
-  sensor and grapple, plus relevant hand-alignment fixes.
-- Compatible original-DZB2 launcher included, with local shader compatibility preparation.
-
-## Rendering, installation and retained optimizations
-
-- Automatic OpenXR-recommended per-eye rendering, game-resolution alternative,
-  and custom percentage setting; existing preferences survive installation.
-- Compatibility handling for shared/transferred images and discrete-GPU reports.
-- Retained HUD-pass/transfer, menu lookup and reload/body filtering improvements.
-  The rejected later body-rendering cache and abandoned renderer experiments are excluded.
-- Supported 1.5 code identification, explicit pre-hotfix DVD guidance, optional Steam
-  original-executable loader, and a separate large-address-aware VR executable.
-- Transactional install/update, rollback, protected user edits, and backed-up controls.
-- Clean public packaging preserves r134 code and rebuilds sounds from local assets.
-
-## Known limits and future work
-
-- Performance varies by hardware, runtime render size, AA, map and mod. No fixed FPS
-  or maximum-settings guarantee is made, and packaging adds no new performance experiment.
-- Use Medium Lighting for the tested DZB2 VR setup. High Lighting froze rendering in
-  prior testing. AC-130/remote-camera freezes remain a reported issue, not a solved claim.
-- Steam and diverse GPUs/headsets still need public testing; a successful installer
-  check does not prove gameplay on every system.
-- Vehicle passengers are supported through audited templates. Their pose can still
-  be imperfect. Wreck models disappearing remains a native game limitation.
-- Physical crouch/prone, physical steering wheels/flight controls and independent
-  dual-wield equipment are not part of this release. Crouch/prone use buttons.
-- Other mods can inherit compatible behavior, but unknown weapons/vehicles may need
-  explicit profiles. DZB2 game content is a separate installation.
+Existing limits remain: DZB2 High Lighting and some remote-camera freezes,
+imperfect passenger poses, and native wreck disappearance. This release does
+not claim to fix every map, GPU, runtime or Steam installation. Keep Setup for
+**Restore previous**, and see [installation](docs/INSTALL.md) for troubleshooting.

@@ -1,4 +1,4 @@
-# BF2-VR v1.1.0 controller layout
+# BF2-VR v1.2.0 controller layout
 
 For Touch-style controllers. Install through Setup; existing settings can be retained.
 
@@ -72,7 +72,7 @@ cancel the wheel without selecting a seat.
 
 The panel stays at its opening position while your hand moves to select a seat.
 
-### Open passenger seats with personal weapons (r134)
+### Open passenger seats with personal weapons (r141)
 
 Audited open passenger seats, including the stock Humvee rear seats, keep
 the native equipped handheld weapon glued to the tracked right hand
@@ -157,13 +157,14 @@ context. In supported vehicle passenger seats, the gun is held automatically.
 | Gadget 2 | Right shoulder |
 | Gadget 3, when the kit has it | Behind the head |
 | Primary weapon | Right hip |
-| Sidearm | Left hip |
+| Sidearm | Chest, barrel pointing left; Hip selectable in VR settings |
 | Grenade | Right chest |
 | Knife | Middle waistband |
 
-In **Slots**, select an item and adjust left/right, up/down and forward/back.
-The highlighted preview identifies the slot. Apply saves positions to the
-runtime's vr_stereo.ini. Adjust them once for your seated/standing reach.
+In **Slots**, select an item and squeeze either grip near its highlighted bubble.
+Move and rotate it physically, release, then choose **Apply** to save. Chest and
+hip pistol layouts are separate. The Pistol holster choice is on the first
+settings page. Saved layouts persist in vr_stereo.ini.
 
 Use the left trigger at a supported magazine to remove it; grab a replacement
 from the ammunition pickup area and insert it in the magwell. The insertion
@@ -175,8 +176,8 @@ shell, bolt, cylinder/speed-loader or cover/belt actions. Disable Manual reloadi
 to use automatic B reload. Vehicle B reload always remains native.
 
 Letting go while throwing a supported grenade/deployable releases its active
-native object. Ordinary thrown weapons tumble and return to their holster
-after a delay. Cooking is optional: a supported frag is armed on grab, so throw
+native object. Primary weapons and pistols briefly fly/tumble, then rebound quickly to their
+holsters. Other ordinary thrown gear keeps its existing return behavior. Cooking is optional: a supported frag is armed on grab, so throw
 before the fuse expires. The left C4 detonator stays available according to the
 equipped C4 state. This release does not support arbitrary independent dual wield.
 

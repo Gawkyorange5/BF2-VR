@@ -4,6 +4,7 @@
 #include "FrameTiming.h"
 #include "ControllerInput.h"
 #include "MenuPointer.h"
+#include "CinemaGpu.h"
 #include <d3d11.h>
 #include <dxgi.h>
 #define XR_USE_PLATFORM_WIN32
@@ -45,6 +46,7 @@ bool initialized=false,running=false,open=false,available=false;std::uint64_t se
 std::uint64_t originSerial=0;XrTime originChangeTime=0;
 XrEnvironmentBlendMode blend=XR_ENVIRONMENT_BLEND_MODE_OPAQUE;
 ID3D11Device* device=nullptr;ID3D11DeviceContext* context=nullptr;
+CinemaGpu& cinemaGpu=*new CinemaGpu; // explicit Shutdown, never COM destruction under loader lock
 bool unifiedMemory=false;DXGI_ADAPTER_DESC1 graphicsAdapter{};
 XrActionSet actionSet=XR_NULL_HANDLE;XrPath handPaths[2]{};
 XrAction aimAction{},gripAction{},triggerAction{},squeezeAction{},stickAction{},clickAction{},primaryAction{},secondaryAction{},menuAction{};
@@ -94,13 +96,8 @@ bool ReleaseImage(Chain& c,bool copied){
     if(!Check(xrReleaseSwapchainImage(c.handle,&ri),"release image"))return false;
     c.acquired=c.waited=false;c.uploaded=copied;return true;
 }
-void DrawRadioPointer(Chain& c){
-    // Only the acquired XR HUD image is modified. In particular, never query
-    // BF2's HUD manager or bind/clear its D3D9 target inside the native HUD hook.
-    // Both normal uploads and packed transfers call here after their HUD copy,
-    // before their existing Flush and xrReleaseSwapchainImage.
-    float u=0,v=0;
-    if(&c!=&chains[3]||!c.acquired||!c.waited||!Controls::PhysicalRadioPointer(u,v))return;
+void DrawMenuPointer(Chain& c,float u,float v){
+    if(!c.acquired||!c.waited)return;
     const auto glyph=MenuPointer::Make(u,v,c.width,c.height,Config().pointerPixels);
     if(!glyph.borderCount&&!glyph.fillCount)return;
     const bool swap=format==DXGI_FORMAT_R8G8B8A8_UNORM||format==DXGI_FORMAT_R8G8B8A8_UNORM_SRGB;
@@ -118,6 +115,10 @@ void DrawRadioPointer(Chain& c){
     };
     paint(glyph.border,glyph.borderCount,MenuPointer::Border);
     paint(glyph.fill,glyph.fillCount,MenuPointer::Fill);
+}
+void DrawRadioPointer(Chain& c){
+    float u=0,v=0;if(&c!=&chains[3]||!Controls::PhysicalRadioPointer(u,v))return;
+    DrawMenuPointer(c,u,v);
     static bool reported=false;
     if(!reported){reported=true;Log("RADIO112 pointer composed on XR HUD upload; native D3D9 HUD capture uses r110 path");}
 }
@@ -413,7 +414,7 @@ bool SettingsOverlay(const XrPosef& pose,float width,float height,const unsigned
     settingsLayer.visible=true;settingsLayer.transparent=transparent;settingsLayer.pose=pose;settingsLayer.width=width;settingsLayer.height=height;
     settingsLayer.origin=current.origin;settingsLayer.updated=GetTickCount64();return true;
 }
-bool Upload(int index,const unsigned char* bgra,unsigned pitch){
+bool Upload(int index,const unsigned char* bgra,unsigned pitch,bool pointer,float u,float v){
     Guard lock;
     if(!open||index<0||index>4||!bgra||!current.shouldRender)return false;auto& c=chains[index];if(!c.handle||pitch<c.width*4)return false;
     const double acquireStart=FrameClockMs();
@@ -432,6 +433,7 @@ bool Upload(int index,const unsigned char* bgra,unsigned pitch){
     // alpha HUD retains its original premultiplied channels. UpdateSubresource
     // snapshots source bytes before returning; the caller can then unlock.
     context->UpdateSubresource(c.images[c.image].texture,0,nullptr,source,sourcePitch,0);
+    if(index==2){cinemaGpu.Seed(context,c.images[c.image].texture);if(pointer)DrawMenuPointer(c,u,v);}
     DrawRadioPointer(c);
     const double flushStart=FrameClockMs();transferTiming.write+=flushStart-copyStart;context->Flush();
     const double finished=FrameClockMs();transferTiming.submit+=finished-flushStart;transferTiming.copy+=finished-copyStart;
@@ -530,6 +532,56 @@ BatchResult UploadAtlas(const unsigned char* bgra,unsigned pitch,unsigned width,
     for(unsigned i=0;i<count;++i)if(!ReleaseImage(chains[regions[i].surface],true))released=false;
     return released?BatchResult::Uploaded:BatchResult::Failed;
 }
+bool SharedGraphics(ID3D11Device*& d,ID3D11DeviceContext*& c){
+    Guard lock;d=nullptr;c=nullptr;
+    if(!device||!context||(format!=DXGI_FORMAT_B8G8R8A8_UNORM&&format!=DXGI_FORMAT_B8G8R8A8_UNORM_SRGB))return false;
+    d=device;c=context;return true;
+}
+bool SharedCinemaGraphics(ID3D11Device*& d,ID3D11DeviceContext*& c){
+    Guard lock;return !cinemaGpu.Failed()&&SharedGraphics(d,c);
+}
+BatchResult UploadCinemaGpu(ID3D11Texture2D* image,bool pointer,float u,float v){
+    Guard lock;
+    if(!open||!current.shouldRender||!device||!context)return BatchResult::Failed;
+    auto& c=chains[2];D3D11_TEXTURE2D_DESC desc{};if(!image||!c.handle)return BatchResult::Unavailable;
+    image->GetDesc(&desc);
+    if(desc.Width!=c.width||desc.Height!=c.height||
+       (format!=DXGI_FORMAT_B8G8R8A8_UNORM&&format!=DXGI_FORMAT_B8G8R8A8_UNORM_SRGB))return BatchResult::Unavailable;
+    if(!cinemaGpu.Prepare(device,image)||!cinemaGpu.Compose(context,image,HasCinemaImage()))return BatchResult::Unavailable;
+    if(!AcquireImage(c)){ReleaseImage(c,false);return BatchResult::Failed;}
+    context->CopyResource(c.images[c.image].texture,cinemaGpu.Image());
+    if(pointer)DrawMenuPointer(c,u,v);
+    context->Flush();return ReleaseImage(c,true)?BatchResult::Uploaded:BatchResult::Failed;
+}
+BatchResult UploadGpu(ID3D11Texture2D* const* images,const int* indices,unsigned count){
+    Guard lock;
+    if(!open||!current.shouldRender||!device||!context)return BatchResult::Failed;
+    if(!images||!indices||count<2||count>3)return BatchResult::Unavailable;
+    unsigned mask=0;
+    for(unsigned i=0;i<count;++i){
+        const int index=indices[i];if(index!=0&&index!=1&&index!=3)return BatchResult::Unavailable;
+        const auto& c=chains[index];D3D11_TEXTURE2D_DESC desc{};
+        if(!images[i]||!c.handle||(mask&(1u<<index)))return BatchResult::Unavailable;
+        images[i]->GetDesc(&desc);
+        if(desc.Width!=c.width||desc.Height!=c.height||desc.SampleDesc.Count!=1||desc.MipLevels!=1||desc.ArraySize!=1||
+            desc.Format!=DXGI_FORMAT_B8G8R8A8_UNORM||
+            (format!=DXGI_FORMAT_B8G8R8A8_UNORM&&format!=DXGI_FORMAT_B8G8R8A8_UNORM_SRGB))return BatchResult::Unavailable;
+        mask|=1u<<index;
+    }
+    if((mask&3)!=3)return BatchResult::Unavailable;
+    const double start=FrameClockMs();bool acquired=true;
+    for(unsigned i=0;i<count;++i)if(!AcquireImage(chains[indices[i]])){acquired=false;break;}
+    const double copying=FrameClockMs();transferTiming.wait+=copying-start;
+    if(!acquired){for(unsigned i=0;i<count;++i)ReleaseImage(chains[indices[i]],false);return BatchResult::Failed;}
+    for(unsigned i=0;i<count;++i){auto& c=chains[indices[i]];
+        // UNORM and SRGB are in the same typeless copy family. Preserve raw
+        // rendered bytes; the existing swapchain format controls interpretation.
+        context->CopyResource(c.images[c.image].texture,images[i]);DrawRadioPointer(c);
+    }
+    context->Flush();const double done=FrameClockMs();transferTiming.copy+=done-copying;transferTiming.submit+=done-copying;
+    bool released=true;for(unsigned i=0;i<count;++i)if(!ReleaseImage(chains[indices[i]],true))released=false;
+    return released?BatchResult::Uploaded:BatchResult::Failed;
+}
 bool SubmitEyes(const XrPosef* hudPose,float hudWidth,float hudHeight,bool hudUnpremultiplied){
     Guard lock;lastWasCinema=false;lastGameSubmission=GetTickCount64();
     if(!open||!current.valid||!current.shouldRender||!chains[0].uploaded||!chains[1].uploaded){SubmitEmpty();return false;}
@@ -577,7 +629,7 @@ void Shutdown(){
     if(session&&xrDestroySession)xrDestroySession(session);session=XR_NULL_HANDLE;
     if(actionSet&&xrDestroyActionSet)xrDestroyActionSet(actionSet);actionSet=XR_NULL_HANDLE;
     if(instance&&xrDestroyInstance)xrDestroyInstance(instance);instance=XR_NULL_HANDLE;
-    ResetTransfer();if(context){context->Release();context=nullptr;}if(device){device->Release();device=nullptr;}
+    cinemaGpu.Reset();ResetTransfer();if(context){context->Release();context=nullptr;}if(device){device->Release();device=nullptr;}
     if(loader){FreeLibrary(loader);loader=nullptr;}running=available=false;
 }
 }} // namespace

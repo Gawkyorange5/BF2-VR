@@ -10,15 +10,16 @@ Resolution and custom scale take effect after a normal game restart. Keep
 current in Setup preserves them. Headset mode uses OpenXR's recommended eye
 size; Game mode uses BF2's rendering size. Neither promises a fixed frame rate.
 
-The catalog below is generated from the r134 settings definitions. Existing
+The catalog below is generated from the r141 settings definitions. Existing
 saved values take precedence. Numeric ranges are provided where helpful; slot
 offsets are in metres. Graphics switches are existing compatibility controls,
 not a recommendation to experiment before testing the accepted baseline.
 
-## Turning
+## First page: turning and pistol holster
 
 | Setting | Behavior | Range |
 | --- | --- | --- |
+| Pistol holster | Chest by default; choose Hip if preferred. Layouts are saved independently. | Chest / Hip |
 | Smooth turning | Enabling this switches snap turning off. Both off: physical turns only. | 0–1 |
 | VR turn speed | 240 = default; 480 = 2x input rate. BF2 sensitivity also affects turning. | 10–1500 |
 | Snap turning | Enabling this switches smooth turning off. Center stick between turns. | 0–1 |
@@ -113,27 +114,9 @@ not a recommendation to experiment before testing the accepted baseline.
 
 ## Slots
 
-| Setting | Behavior | Range |
-| --- | --- | --- |
-| Gadget 1 (left shoulder): left / right | Offset in metres; negative = left, positive = right. Preview in headset Slots tab. | -.65–.65 |
-| Gadget 1 (left shoulder): down / up | Offset in metres; negative = down, positive = up. Preview in headset Slots tab. | -.65–.65 |
-| Gadget 1 (left shoulder): back / forward | Offset in metres; negative = back, positive = forward. Preview in headset Slots tab. | -.65–.65 |
-| Gadget 2 (right shoulder): left / right | Offset in metres; negative = left, positive = right. Preview in headset Slots tab. | -.65–.65 |
-| Gadget 2 (right shoulder): down / up | Offset in metres; negative = down, positive = up. Preview in headset Slots tab. | -.65–.65 |
-| Gadget 2 (right shoulder): back / forward | Offset in metres; negative = back, positive = forward. Preview in headset Slots tab. | -.65–.65 |
-| Primary: left / right | Offset in metres; negative = left, positive = right. Preview in headset Slots tab. | -.65–.65 |
-| Primary: down / up | Offset in metres; negative = down, positive = up. Preview in headset Slots tab. | -.65–.65 |
-| Primary: back / forward | Offset in metres; negative = back, positive = forward. Preview in headset Slots tab. | -.65–.65 |
-| Secondary: left / right | Offset in metres; negative = left, positive = right. Preview in headset Slots tab. | -.65–.65 |
-| Secondary: down / up | Offset in metres; negative = down, positive = up. Preview in headset Slots tab. | -.65–.65 |
-| Secondary: back / forward | Offset in metres; negative = back, positive = forward. Preview in headset Slots tab. | -.65–.65 |
-| Grenade: left / right | Offset in metres; negative = left, positive = right. Preview in headset Slots tab. | -.65–.65 |
-| Grenade: down / up | Offset in metres; negative = down, positive = up. Preview in headset Slots tab. | -.65–.65 |
-| Grenade: back / forward | Offset in metres; negative = back, positive = forward. Preview in headset Slots tab. | -.65–.65 |
-| Knife: left / right | Offset in metres; negative = left, positive = right. Preview in headset Slots tab. | -.65–.65 |
-| Knife: down / up | Offset in metres; negative = down, positive = up. Preview in headset Slots tab. | -.65–.65 |
-| Knife: back / forward | Offset in metres; negative = back, positive = forward. Preview in headset Slots tab. | -.65–.65 |
-| Gadget 3 (behind head): left / right | Offset in metres; negative = left, positive = right. Preview in headset Slots tab. | -.65–.65 |
-| Gadget 3 (behind head): down / up | Offset in metres; negative = down, positive = up. Preview in headset Slots tab. | -.65–.65 |
-| Gadget 3 (behind head): back / forward | Offset in metres; negative = back, positive = forward. Preview in headset Slots tab. | -.65–.65 |
-
+Choose a physical slot, then squeeze either controller's grip near its blue
+preview bubble. Move and rotate your hand, release, and press **Apply** to save.
+The slot keeps its saved position and rotation on future launches. Select
+**Pistol holster** on the first settings page to choose Chest or Hip; their
+layouts are saved separately. Reset restores the selected slot's defaults.
+The headset slot editor replaces the old move-left/right/up/down buttons.

@@ -28,6 +28,9 @@ OpenXR loader includes JsonCpp (Baptiste Lepilleur and The JsonCpp Authors), wit
 
 ## DZB2 compatibility
 
+The retained r135–r139 performance work also benefited from justiceofrip's
+[performance review and suggestions](https://github.com/Gawkyorange5/BF2-VR/issues/1).
+
 DZB2 assets remain a separate installation. The maintainer confirmed permission
 from DZB2's developer for the ongoing project; this package does not redistribute
 DZB2 meshes, textures, animations, sounds, maps or scripts. Numerical profiles
@@ -39,3 +42,9 @@ MIT-licensed BF2142VR shader-memory work. Its existing license notice is retaine
 Microsoft's original d3dx9_25.dll is copied locally from the owner's working game
 when needed, and is not included in the download. The DirectInput forwarder uses
 the system DirectInput library; it does not bundle that Microsoft library.
+
+## MinHook
+
+The retained r141 native hooks include MinHook (Tsuda Kageyu and contributors),
+under its BSD-style license. See licenses/MinHook-LICENSE.txt; the source license
+is also retained in src/third_party/minhook/LICENSE.txt.

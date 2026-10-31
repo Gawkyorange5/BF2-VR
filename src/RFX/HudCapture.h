@@ -6,6 +6,10 @@ namespace CleanVR { namespace HudCapture {
 bool Begin(IDirect3DDevice9*);
 bool End();
 bool Upload(double& readMs,double& uploadMs);
+HANDLE SharedHandleForTransfer(); // valid after ResolvedForTransfer
+void SharedTransferReady(bool); // after this pair's D3D11 consumer reuse fence
+unsigned DesktopCopiesAvoided();
+unsigned DesktopDrawsAvoided();
 IDirect3DSurface9* ResolvedForTransfer(); // borrowed, valid until Reset/next Begin
 void CompositeDesktop(IDirect3DSurface9* eye=nullptr,const RECT* crop=nullptr);
 void Reset();

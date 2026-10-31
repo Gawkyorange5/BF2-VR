@@ -1,4 +1,4 @@
-# Building v1.1.0
+# Building v1.2.0
 
 ## Rebuild the installer
 
@@ -12,7 +12,7 @@ launcher. This build does not download or modify a game installation.
 
 ## Runtime source
 
-The source in `src/` is the accepted r134 runtime. Before building, run:
+The source in `src/` is the accepted r141 runtime. Before building, run:
 
     python tools/prepare_audio_placeholders.py
 
@@ -27,7 +27,7 @@ For distribution, run `python tools/prepare_runtime.py <built-RFX.dll> payload/R
 It removes local PDB path metadata and zeroes audio while preserving resource
 layout and the Windows manifest. Never ship an installed runtime with game audio.
 
-The v1.1.0 release payload uses the accepted binary without recompiling its
+The v1.2.0 release payload uses the accepted binary without recompiling its
 gameplay code. Rebuilding native source may produce different machine code;
 review the installer's accepted code IDs and rerun compatibility/loader checks
 before distributing a custom build. Do not bypass unknown-build rejection.

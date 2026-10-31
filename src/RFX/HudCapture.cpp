@@ -1,4 +1,7 @@
 #include "HudCapture.h"
+#include "NativeExBackend.h"
+#include "DesktopCropBytecode.h"
+#include "DesktopCompositeBytecode.h"
 #include "VrSettings.h"
 #include "XrSessionClient.h"
 #include "FrameTiming.h"
@@ -13,6 +16,12 @@ namespace CleanVR { namespace HudCapture { namespace {
 IDirect3DDevice9* device=nullptr;
 IDirect3DSurface9 *back=nullptr,*surface=nullptr,*resolved=nullptr,*cpu=nullptr;
 IDirect3DTexture9* texture=nullptr;
+HANDLE hudSharedHandle=nullptr;
+bool hudShareRejected=false;
+bool hudSharingReady=false;
+IDirect3DPixelShader9* desktopCropShader=nullptr;
+bool desktopReuseRejected=false,desktopReuseReported=false;
+unsigned desktopCopiesAvoided=0;
 IDirect3DTexture9* desktopWorld=nullptr;
 IDirect3DSurface9* desktopWorldSurface=nullptr;
 unsigned desktopWorldW=0,desktopWorldH=0;D3DFORMAT desktopWorldFormat=D3DFMT_UNKNOWN;
@@ -27,10 +36,22 @@ constexpr D3DRENDERSTATETYPE types[]={D3DRS_SEPARATEALPHABLENDENABLE,D3DRS_SRCBL
 constexpr DWORD values[]={TRUE,D3DBLEND_ONE,D3DBLEND_INVSRCALPHA,D3DBLENDOP_ADD,15};
 DWORD states[5]{};
 template<class T>void Release(T*& p){if(p){p->Release();p=nullptr;}}
+HRESULT CreateHudTexture(IDirect3DTexture9** output,HANDLE& shared){
+    shared=nullptr;
+    if(hudSharingReady&&Config().reuseTransferImages&&Config().sharedGpuTransfer&&NativeEx::Active(device)&&!hudShareRejected){
+        HRESULT hr=device->CreateTexture(width,height,1,D3DUSAGE_RENDERTARGET,D3DFMT_A8R8G8B8,D3DPOOL_DEFAULT,output,&shared);
+        if(SUCCEEDED(hr)&&shared)return hr;
+        if(*output){(*output)->Release();*output=nullptr;}shared=nullptr;hudShareRejected=true;
+        Log("REUSE138 shared HUD allocation unavailable hr=%08X; retaining original allocation/copy",(unsigned)hr);
+    }
+    return device->CreateTexture(width,height,1,D3DUSAGE_RENDERTARGET,D3DFMT_A8R8G8B8,D3DPOOL_DEFAULT,output,nullptr);
+}
 #include "VehicleHud.inl"
+#include "DesktopSource.inl"
+#include "DesktopComposite.inl"
 bool Failure(const char* step,HRESULT hr){if(!warned){warned=true;Log("HUD capture failed: %s hr=%08X; retaining native HUD",step,(unsigned)hr);}return false;}
 void ClearDesktopWorld(){Release(desktopWorldSurface);Release(desktopWorld);desktopWorldW=desktopWorldH=0;desktopWorldFormat=D3DFMT_UNKNOWN;}
-void Surfaces(){ClearVehicleHud();ClearDesktopWorld();Release(surface);Release(resolved);Release(texture);Release(cpu);width=height=0;resolvedReady=false;}
+void Surfaces(){ClearVehicleHud();ClearDesktopWorld();Release(surface);Release(resolved);Release(texture);Release(cpu);hudSharedHandle=nullptr;width=height=0;resolvedReady=false;}
 bool DirectDesktopWorld(IDirect3DSurface9* eye,const RECT* crop,IDirect3DSurface9* desktop){
     if(desktopDirectBlocked||!eye||!crop||!desktop)return false;
     D3DSURFACE_DESC src{},dst{};
@@ -97,7 +118,20 @@ bool Resolve(){
     resolvedReady=true;return true;
 }
 }
-void NewPair(){ready=false;resolvedReady=false;vehicleReady=false;}
+void NewPair(){ready=false;resolvedReady=false;vehicleReady=false;desktopCopiesAvoided=desktopDrawsAvoided=0;}
+void SharedTransferReady(bool allowed){
+    // If sharing stops (including a failed consumer wait), do not overwrite an
+    // imported HUD that D3D11 might still read. Detach before the next draw;
+    // SharedGpuTransfer and queued GPU work retain the previous allocation.
+    if(!allowed&&!active&&(hudSharedHandle||vehicleSharedHandle)){Surfaces();ready=false;}
+    // A HUD allocated during an initial CPU-only frame must not permanently
+    // prevent reuse when the runtime/shared transport becomes available.
+    if(allowed&&!hudSharingReady&&!active&&surface&&!hudSharedHandle&&!hudShareRejected&&Config().reuseTransferImages){Surfaces();ready=false;}
+    hudSharingReady=allowed;
+}
+unsigned DesktopCopiesAvoided(){return desktopCopiesAvoided;}
+unsigned DesktopDrawsAvoided(){return desktopDrawsAvoided;}
+HANDLE SharedHandleForTransfer(){return ready&&resolvedReady?(vehicleReady?vehicleSharedHandle:hudSharedHandle):nullptr;}
 bool Ready(){return ready;}
 bool Unpremultiplied(){return ready&&resolvedReady&&vehicleReady;}
 unsigned Width(){return width;}
@@ -114,7 +148,7 @@ bool Begin(IDirect3DDevice9* d){
     if(FAILED(hr)){Release(back);return Failure("target description",hr);}
     if(!surface||width!=desc.Width||height!=desc.Height||samples!=desc.MultiSampleType||quality!=desc.MultiSampleQuality){
         Surfaces();width=desc.Width;height=desc.Height;samples=desc.MultiSampleType;quality=desc.MultiSampleQuality;
-        hr=device->CreateTexture(width,height,1,D3DUSAGE_RENDERTARGET,D3DFMT_A8R8G8B8,D3DPOOL_DEFAULT,&texture,nullptr);
+        hr=CreateHudTexture(&texture,hudSharedHandle);
         if(SUCCEEDED(hr))hr=texture->GetSurfaceLevel(0,&resolved);
         if(SUCCEEDED(hr)){if(samples==D3DMULTISAMPLE_NONE){surface=resolved;surface->AddRef();}else hr=device->CreateRenderTarget(width,height,D3DFMT_A8R8G8B8,samples,quality,FALSE,&surface,nullptr);}
         if(FAILED(hr)){Release(back);Surfaces();return Failure("create surfaces",hr);}
@@ -179,7 +213,9 @@ void CompositeDesktop(IDirect3DSurface9* eye,const RECT* crop){
     IDirect3DSurface9 *previous=nullptr,*desktop=nullptr,*depth=nullptr;
     if(FAILED(device->GetRenderTarget(0,&previous))||FAILED(device->GetBackBuffer(0,0,D3DBACKBUFFER_TYPE_MONO,&desktop))){Release(previous);Release(desktop);return;}
     const bool directWorld=DirectDesktopWorld(eye,crop,desktop);
-    const bool drawWorld=!directWorld&&CopyDesktopWorld(eye,crop);
+    IDirect3DTexture9* reusedWorld=nullptr;float reuseTransform[4]{},reuseClamp[4]{};
+    const bool reuseWorld=!directWorld&&PrepareDesktopSource(eye,crop,&reusedWorld,reuseTransform,reuseClamp);
+    const bool drawWorld=!directWorld&&(reuseWorld||CopyDesktopWorld(eye,crop));
     device->GetDepthStencilSurface(&depth);
     const bool bound=SUCCEEDED(device->SetRenderTarget(0,desktop));
     if(bound){device->SetDepthStencilSurface(nullptr);
@@ -196,15 +232,19 @@ void CompositeDesktop(IDirect3DSurface9* eye,const RECT* crop){
             D3DVIEWPORT9 vp{0,0,width,height,0,1};device->SetViewport(&vp);
             struct Vertex{float x,y,z,w,u,v;};const float w=(float)width-.5f,h=(float)height-.5f;
             const Vertex v[]={{-.5f,-.5f,0,1,0,0},{w,-.5f,0,1,1,0},{-.5f,h,0,1,0,1},{w,h,0,1,1,1}};
-            if(drawWorld){
-                device->SetTexture(0,desktopWorld);device->SetRenderState(D3DRS_ALPHABLENDENABLE,FALSE);
+            const bool combined=reuseWorld&&CompositeDesktopOnce(reusedWorld,reuseTransform,reuseClamp,v,sizeof(Vertex));
+            if(combined)++desktopCopiesAvoided;
+            if(drawWorld&&!combined){
+                device->SetTexture(0,reuseWorld?reusedWorld:desktopWorld);device->SetRenderState(D3DRS_ALPHABLENDENABLE,FALSE);
+                if(reuseWorld){device->SetPixelShader(desktopCropShader);device->SetPixelShaderConstantF(0,reuseTransform,1);device->SetPixelShaderConstantF(1,reuseClamp,1);}
                 device->DrawPrimitiveUP(D3DPT_TRIANGLESTRIP,2,v,sizeof(Vertex));
+                if(reuseWorld){device->SetPixelShader(nullptr);++desktopCopiesAvoided;}
                 device->SetTexture(0,texture);device->SetRenderState(D3DRS_ALPHABLENDENABLE,TRUE);
             }
-            device->DrawPrimitiveUP(D3DPT_TRIANGLESTRIP,2,v,sizeof(Vertex));device->EndScene();
+            if(!combined)device->DrawPrimitiveUP(D3DPT_TRIANGLESTRIP,2,v,sizeof(Vertex));device->EndScene();
         }
     }
-    device->SetRenderTarget(0,previous);device->SetDepthStencilSurface(depth);desktopState->Apply();Release(previous);Release(desktop);Release(depth);
+    device->SetRenderTarget(0,previous);device->SetDepthStencilSurface(depth);desktopState->Apply();Release(previous);Release(desktop);Release(depth);Release(reusedWorld);
 }
-void Reset(){if(active)End();Release(vehicleState);Release(vehicleShader);vehicleBlocked=vehicleReported=false;Release(desktopState);Release(back);Surfaces();ready=false;warned=false;desktopWarned=desktopReported=desktopBlocked=false;desktopDirectBlocked=desktopDirectReported=desktopCapsReady=false;desktopStretchCaps=0;}
+void Reset(){if(active)End();ResetDesktopComposite();Release(desktopCropShader);desktopReuseRejected=desktopReuseReported=hudShareRejected=hudSharingReady=false;desktopCopiesAvoided=0;Release(vehicleState);Release(vehicleShader);vehicleBlocked=vehicleReported=false;Release(desktopState);Release(back);Surfaces();ready=false;warned=false;desktopWarned=desktopReported=desktopBlocked=false;desktopDirectBlocked=desktopDirectReported=desktopCapsReady=false;desktopStretchCaps=0;}
 }}

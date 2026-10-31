@@ -51,7 +51,7 @@
       <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;_USRDLL;RFX_EXPORTS;NOMINMAX;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <SDLCheck>true</SDLCheck>
       <LanguageStandard>stdcpp14</LanguageStandard>
-      <AdditionalIncludeDirectories>$(ProjectDir)..\third_party\openxr\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)..\third_party\openxr\include;$(ProjectDir)..\third_party\minhook\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
     </ClCompile>
@@ -86,6 +86,16 @@
     <ClCompile Include="XrSessionClient.cpp"><WholeProgramOptimization>true</WholeProgramOptimization></ClCompile>
     <ClCompile Include="HudCapture.cpp"><WholeProgramOptimization>true</WholeProgramOptimization></ClCompile>
     <ClCompile Include="Bf2Adapter.cpp" />
+        <ClCompile Include="NativeExBackend.cpp" />
+    <ClCompile Include="NativeExResources.cpp" />
+    <ClCompile Include="NativeExReset.cpp" />
+    <ClCompile Include="LegacyShaderMemory.cpp" />
+    <ClCompile Include="SharedGpuTransfer.cpp" />
+    <ClCompile Include="CinemaGpu.cpp" />
+    <ClCompile Include="..\third_party\minhook\src\buffer.c" />
+    <ClCompile Include="..\third_party\minhook\src\hook.c" />
+    <ClCompile Include="..\third_party\minhook\src\trampoline.c" />
+    <ClCompile Include="..\third_party\minhook\src\hde\hde32.c" />
     <ClCompile Include="CleanVR.cpp"><WholeProgramOptimization>true</WholeProgramOptimization></ClCompile>
     <ClCompile Include="ControllerInput.cpp"><WholeProgramOptimization>true</WholeProgramOptimization></ClCompile>
     <ClCompile Include="ReloadAudio.cpp"><WholeProgramOptimization>true</WholeProgramOptimization></ClCompile>

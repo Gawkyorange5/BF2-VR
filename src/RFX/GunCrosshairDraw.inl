@@ -26,7 +26,7 @@ bool SetGunCrosshairState(){
     return ok;
 }
 void DrawGunCrosshair(){
-    float x=0,y=0,sx=0,sy=0,hitAlpha=0;DWORD hitColor=0x00ffffff;const bool crosshair=Engine::GunCrosshair(x,y,sx,sy,hitAlpha,hitColor);
+    float x=0,y=0,sx=0,sy=0,hitAlpha=0;bool drawReticle=false;DWORD hitColor=0x00ffffff;const bool crosshair=Engine::GunCrosshair(x,y,sx,sy,hitAlpha,hitColor,drawReticle);
     Engine::BodySlotMarker slots[7];const unsigned slotCount=Engine::BodySlotMarkers(slots);
     float dx=0,dy=0,dsx=0,dsy=0,progress=0;bool ready=false;
     const bool defib=Engine::DefibIndicator(dx,dy,dsx,dsy,progress,ready);
@@ -61,12 +61,12 @@ void DrawGunCrosshair(){
                     vertices[count++]=a;vertices[count++]={c.x,a.y,0,1,color};vertices[count++]=c;
                     vertices[count++]=a;vertices[count++]=c;vertices[count++]={a.x,c.y,0,1,color};
                 };
-                for(int pass=0;pass<2;++pass){
+                for(int pass=0;drawReticle&&pass<2;++pass){
                     const float border=pass?0:outline,h=stroke*.5f+border;const DWORD color=pass?0xffffffff:0xff101010;
                     rect(-sx-border,-h,-gap+border,h,color);rect(gap-border,-h,sx+border,h,color);
                     rect(-h,-sy-border,h,-gap+border,color);rect(-h,gap-border,h,sy+border,color);
                 }
-                ok=SUCCEEDED(device->DrawPrimitiveUP(D3DPT_TRIANGLELIST,count/3,vertices,sizeof(Vertex)));
+                if(count)ok=SUCCEEDED(device->DrawPrimitiveUP(D3DPT_TRIANGLELIST,count/3,vertices,sizeof(Vertex)));
                 if(ok&&hitAlpha>.001f){
                     // Four diagonal ticks around the SAME per-eye gun point.
                     // Native hit strength controls the fade; no new texture,

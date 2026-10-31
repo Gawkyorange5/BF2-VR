@@ -1,6 +1,6 @@
-Battlefield 2 VR v1.1.0 — installation and controls
+Battlefield 2 VR v1.2.0 — installation and controls
 
-# Installation and restoration — v1.1.0
+# Installation and restoration — v1.2.0
 
 ## 1. Make the normal game work first
 
@@ -135,7 +135,7 @@ Steam launch also loads VR; use restoration to return to your prior setup.
 
 ## Updating, preserving settings, and returning to the prior build
 
-Run this Setup over public v1.0.0 or the accepted private r134. Keep current
+Run this Setup over public v1.0.0 or the accepted private r141. Keep current
 resolution and leave controller bindings unchecked to retain your existing
 preferences. The installer refuses an unknown/newer runtime so it cannot
 silently overwrite a newer custom DLL build.
@@ -184,7 +184,7 @@ the edition name alone does not determine whether a hotfix is needed.
   Do not rename files just to defeat the compatibility check.
 
 
-# BF2-VR v1.1.0 controller layout
+# BF2-VR v1.2.0 controller layout
 
 For Touch-style controllers. Install through Setup; existing settings can be retained.
 
@@ -258,7 +258,7 @@ cancel the wheel without selecting a seat.
 
 The panel stays at its opening position while your hand moves to select a seat.
 
-### Open passenger seats with personal weapons (r134)
+### Open passenger seats with personal weapons (r141)
 
 Audited open passenger seats, including the stock Humvee rear seats, keep
 the native equipped handheld weapon glued to the tracked right hand
@@ -408,7 +408,7 @@ Resolution and custom scale take effect after a normal game restart. Keep
 current in Setup preserves them. Headset mode uses OpenXR's recommended eye
 size; Game mode uses BF2's rendering size. Neither promises a fixed frame rate.
 
-The catalog below is generated from the r134 settings definitions. Existing
+The catalog below is generated from the r141 settings definitions. Existing
 saved values take precedence. Numeric ranges are provided where helpful; slot
 offsets are in metres. Graphics switches are existing compatibility controls,
 not a recommendation to experiment before testing the accepted baseline.

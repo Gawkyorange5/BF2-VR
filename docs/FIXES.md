@@ -1,3 +1,11 @@
+# Fixes added in v1.2.0
+
+- Native AA surface handling now reaches the optimized resolve path in the
+  tested 8x configuration; redundant HUD/eye copies and desktop work are reduced.
+- Sight proximity no longer hides hit confirmation along with the crosshair.
+- Quick physical C4 release is less likely to be interpreted as reholstering.
+- Regular BF2 and DZB2 desktop shortcuts can coexist.
+
 # Fixes since public v1.0.0 / r45
 
 This is a user-facing summary of fixes retained in the accepted r134 build.
