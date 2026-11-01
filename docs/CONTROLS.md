@@ -209,3 +209,12 @@ ineligible target. Keep the target visible and allow acquisition.
 If the optional wingsuit is enabled, spread both arms while airborne to glide;
 bring them in to stop. Use A to request the parachute before the ground. Normal
 fall damage still applies; gliding alone does not give a safe landing.
+
+
+## Physical aiming — v1.2.1
+
+Raise a supported scoped/red-dot weapon toward your face and align its sight.
+This now engages BF2's native aimed state, including the weapon's normal
+aimed accuracy and slower movement. Lower it to leave aiming. Native spread,
+recoil and projectile behavior still apply; this is not perfect-accuracy mode.
+Scopes appear farther from your face and stay aligned as you move.

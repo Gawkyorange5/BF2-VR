@@ -1,78 +1,80 @@
-# BF2-VR v1.2.0 — performance and physical gear update
+# BF2-VR v1.2.1 — native aiming, scope alignment and terrain fixes
 
-This release uses the accepted **r141 gameplay code**, with the retained
-rendering improvements from r135–r139 and the physical-gear changes from
-r140–r141. It preserves the existing hold-to-sprint controls.
+This release uses the **tested and accepted r152 runtime**. It includes all
+accepted fixes since v1.2.0 and keeps the previous performance and gameplay
+improvements. The gameplay DLL has not been recompiled for public packaging.
 
-**Compatible with [DZB2](https://www.moddb.com/mods/dzb2).** Install DZB2 separately,
-then use the included DZB2 VR launcher. This update retains its weapon, gadget,
-scope and vehicle profiles. **DZB2 itself requests Medium Lighting** in its
-graphics setup; follow its linked settings instructions. Known limits are below.
+## Aiming and sights
 
-## Performance
+- **Pulling a supported scoped or red-dot weapon up to your face and lining up
+  the sight now activates Battlefield 2's native aiming behavior.** You get the
+  weapon's normal aimed accuracy and slower movement while aiming, just like
+  aiming in the original game. Previously, looking through a VR scope could
+  leave the weapon using its hip-fire accuracy.
+- The weapon's native spread, recoil and projectile behavior remain intact;
+  this activates its existing aimed state rather than giving every gun perfect
+  accuracy. Reloading and sprinting still use the native cancellation behavior.
+- Scope images and reticles stay aligned with the visible weapon while moving,
+  including the M24 and other supported stock/DZB2 optics.
+- Scopes become visible farther from your face, so you do not need to pull them
+  as close to look through them.
+- Removed the extra floating flat-screen red-dot/holographic HUD reticle that
+  could appear when raising the weapon. The correct sight stays on the gun.
+- Stronger, saturated red dots are easier to pick out against scenery. The
+  final version keeps the original red with stronger opacity, without the
+  washed-out pale center from the earlier private test.
+- Existing sniper reticles, launcher targeting artwork, guidance, lock feedback
+  and sounds are retained. Aim points and scope magnification are unchanged.
 
-- Native Direct3D 9Ex and shared GPU texture transfer avoid the CPU readback/upload
-  round trip on the supported path. Adapter matching and fallback handling remain.
-- Shared transfer for 2D menus and loading/cinema screens.
-- Improved multisample resolve handling for supported AA formats, including the
-  native A8 surface path used in the tested 8x AA configuration.
-- Reuse of existing HUD and eye images avoids redundant copies and resolves.
-- The desktop preview reuses an eye image and combines it with the HUD in one
-  composition pass; it does not render another world view.
-- Preserves OpenXR-recommended per-eye resolution, the game-resolution option,
-  and the player's AA setting. Supported paths also benefit 2x/4x AA; AA Off
-  retains the transfer and composition improvements without an MSAA resolve.
+## Terrain fix
 
-These changes reduce specific rendering costs. FPS still depends on GPU, CPU,
-OpenXR render size, AA, map, mod and streaming settings. No universal FPS or
-percentage gain is promised. Later experimental performance builds are excluded.
-GPU timing is off by default and draw instrumentation is compiled out.
+- Corrected a terrain-shader depth mismatch associated with black ground
+  flickering on Medium/High Terrain settings. The affected RTX 4090 tester
+  confirmed that the flickering was gone and the M24 scope stayed aligned while
+  moving. Low Terrain is no longer the required workaround for that reported
+  issue. Unknown custom terrain shaders are left unchanged.
 
-## Gameplay and usability
+## Installation and compatibility
 
-- Primary weapons and pistols briefly fly/tumble when dropped or thrown, then
-  rebound to their holsters much sooner. Reaching for the holster can reclaim
-  the weapon during its return.
-- Hit-confirmation markers remain visible while aiming through sights, even
-  when the ordinary gun-following crosshair is hidden.
-- Corrected physical C4 release so a quick close-to-body throw is less likely
-  to be mistaken for putting the item back in its holster.
-- Pistol chest holster by default, with a Chest/Hip choice on the first VR settings
-  page. Each placement has separately saved position and rotation.
-- In Slots, select a slot, squeeze either controller's grip near its highlighted
-  bubble, then move and rotate it physically. Release and choose **Apply** to save.
-  This replaces the old directional adjustment controls in the headset menu.
+Download **BF2-VR-Setup.exe** below, or the ZIP containing Setup and the guides.
+Close the game and VR Settings, run Setup, and select your existing game folder.
+**Keep current resolution setting** preserves your rendering choice; existing
+VR settings and physical-slot layouts are retained. Leave controller bindings
+unchecked when you want to keep your current bindings.
 
-## Installation
+- Supports updates from public v1.0.0, v1.1.0 and v1.2.0, plus accepted r141 and
+  the r147–r152 private previews. Setup keeps exact previous-file backups.
+- Separate regular BF2 and DZB2 shortcuts remain, with intro skipping via
+  `+restart`. The package includes **Launch DZB2 VR.cmd**.
+- **Compatible with [DZB2](https://www.moddb.com/mods/dzb2).** Install DZB2
+  separately. **DZB2 itself requests Medium Lighting** in its graphics setup;
+  follow that recommendation. This is Lighting, not the Terrain setting above.
+- The BF2 1.50 Alt-Tab hotfix remains conditional: only use it if Setup identifies
+  the older incompatible renderer. It is not required for everyone.
 
-- Updates public v1.0.0, v1.1.0 and the accepted private r141 installation.
-- Keeps existing VR preferences and custom slot layouts. Select **Keep current
-  resolution setting** to retain your rendering choice; graphics/AA profiles
-  are not reset. Controller bindings are optional on existing installations.
-- Selecting DZB2 creates **Battlefield 2 VR** and **Battlefield 2 DZB2 VR** shortcuts
-  separately. Selecting regular BF2 does not overwrite an existing DZB2 shortcut.
-- Includes **Launch DZB2 VR.cmd**. DZB2 is installed separately; use Medium Lighting
-  for its tested VR configuration. Launch arguments retain `+restart`.
-- The BF2 1.50 Alt-Tab hotfix is needed only for the specifically identified older
-  renderer. Compatible installations do not need another download.
+## Previous improvements remain
 
-## What remains included
+All accepted v1.2.0 rendering optimizations and gameplay features are included:
+GPU texture transfer and AA resolve improvements, weapon rebound, hit markers
+while aiming, physical slot positioning, chest/hip pistol holsters, manual
+reloads, physical gadgets, grenade cooking, C4/detonator controls, shoulder radio,
+vehicle seat wheel, death cameras and DZB2 support. No new experimental
+performance path or sprint-toggle behavior was added.
 
-The v1.1.0 features remain: physical reloads and gadgets, optional grenade cooking,
-C4 in one hand with the detonator in the other, the vehicle seat wheel, shoulder
-radio, optional helmet death views, DZB2 profiles and optics, and existing controls.
-See [previous release features](docs/CHANGES-v1.1.0.md) and [fixes](docs/FIXES.md).
+See [v1.2.0 changes](https://github.com/Gawkyorange5/BF2-VR/blob/main/docs/CHANGES-v1.2.0.md),
+[earlier features](https://github.com/Gawkyorange5/BF2-VR/blob/main/docs/CHANGES-v1.1.0.md)
+and [fixes](https://github.com/Gawkyorange5/BF2-VR/blob/main/docs/FIXES.md).
 
-## Verification and limits
+## Verification and existing limits
 
-The saved r141 gameplay DLL is not recompiled for this release. Distribution
-removes local debug-path metadata and game sound data; Setup rebuilds sounds
-from the player's own archives. Executable code and runtime data are checked
-against r141, alongside installation, upgrade, rollback and startup checks.
-The r141 private build was played and accepted; this final public packaging has
-not had a separate headset playtest. The maintainer authorized publication.
+Public packaging preserves r152 executable code and runtime data. Only game
+sound resources and local debug-path metadata are sanitized for distribution;
+Setup rebuilds sounds from the player's installed game files. Installation,
+upgrade, exact restoration, settings, shortcuts, audio reconstruction and x86
+startup checks were run on the final package. The accepted private build was
+tested in-game; the final public packaging has not had a separate headset test.
 
-Existing limits remain: DZB2 High Lighting and some remote-camera freezes,
-imperfect passenger poses, and native wreck disappearance. This release does
-not claim to fix every map, GPU, runtime or Steam installation. Keep Setup for
-**Restore previous**, and see [installation](docs/INSTALL.md) for troubleshooting.
+Existing DZB2 High Lighting/remote-camera freezes, imperfect passenger poses
+and native wreck disappearance are not claimed fixed. Performance still varies
+with hardware, map, AA and headset resolution. Keep Setup and its backup folders
+for **Restore previous**. See the [installation guide](https://github.com/Gawkyorange5/BF2-VR/blob/main/docs/INSTALL.md).

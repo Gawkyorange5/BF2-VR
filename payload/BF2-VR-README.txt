@@ -1,6 +1,6 @@
-Battlefield 2 VR v1.2.0 — installation and controls
+Battlefield 2 VR v1.2.1 — installation and controls
 
-# Installation and restoration — v1.2.0
+# Installation and restoration — v1.2.1
 
 ## 1. Make the normal game work first
 
@@ -135,7 +135,7 @@ Steam launch also loads VR; use restoration to return to your prior setup.
 
 ## Updating, preserving settings, and returning to the prior build
 
-Run this Setup over public v1.0.0 or the accepted private r141. Keep current
+Run this Setup over public v1.0.0/v1.1.0/v1.2.0 or r141/r147-r152 previews. Keep current
 resolution and leave controller bindings unchecked to retain your existing
 preferences. The installer refuses an unknown/newer runtime so it cannot
 silently overwrite a newer custom DLL build.
@@ -184,7 +184,7 @@ the edition name alone does not determine whether a hotfix is needed.
   Do not rename files just to defeat the compatibility check.
 
 
-# BF2-VR v1.2.0 controller layout
+# BF2-VR v1.2.1 controller layout
 
 For Touch-style controllers. Install through Setup; existing settings can be retained.
 
@@ -537,3 +537,12 @@ not a recommendation to experiment before testing the accepted baseline.
 
 
 
+
+
+v1.2.1 AIMING / TERRAIN UPDATE
+Raise a supported scoped/red-dot weapon toward your face and align the sight:
+BF2 native aiming now engages, with normal aimed accuracy and slower movement.
+Moving-scope alignment, earlier scope visibility, duplicate-dot suppression,
+stronger saturated red dots and the terrain-flicker correction are included.
+The affected RTX 4090 tester confirmed the reported ground flicker was fixed.
+Prior gameplay/performance changes remain. DZB2 still requests Medium Lighting.

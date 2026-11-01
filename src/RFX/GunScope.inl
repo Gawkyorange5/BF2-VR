@@ -4,6 +4,8 @@
 // 2 unmagnified reflex sight, 3 native heat-seeker sight. New lenses use their own aperture frame;
 // the ERYX's angled eyepiece redirects the view along the weapon bore.
 struct ScopeProfile {const char* name;Vec center;float radius;int kind=0;Vec up{0,1,0};const ScopeGeometry* geometry=nullptr;int nativeHud=0;bool connectionRing=false;};
+// Shared by capture preparation and the late, per-eye lens presentation.
+float ScopeFarRelief(bool reflex){return reflex?.85f:.62f;}
 const ScopeProfile scopeProfiles[]={
     // Measured stock geom0/LOD0 rear glass; inset inside the metal bezel.
     {"usrif_m24",{.00022f,.06772f,-.2485f},.0150f},
@@ -28,6 +30,11 @@ const ScopeProfile scopeProfiles[]={
 };
 #include "Dzb2ScopeProfiles.inl"
 #include "LauncherScopeProfiles.inl"
+const ScopeProfile* FindScopeProfile(const char* name){
+    for(const auto& p:scopeProfiles)if(!strcmp(name,p.name))return &p;
+    if(const auto* p=Dzb2ScopeProfile(name))return p;
+    return LauncherScopeProfile(name);
+}
 bool CustomAimedHandheld(const char* name){
     return Dzb2ScopeProfile(name)||LauncherScopeProfile(name);
 }
@@ -41,6 +48,20 @@ void ReadLauncherHudRaw(bool& heat,bool& clip){
 void ReadLauncherHud(bool& heat,bool& clip){__try{ReadLauncherHudRaw(heat,clip);}__except(EXCEPTION_EXECUTE_HANDLER){heat=clip=false;}}
 ScopeView scopeView{};bool scopeReady=false,scopeAvailable=true;
 void* scopeWeapon=nullptr;
+bool ReplaceNativeReflexHud(){
+    // Scoped to the native HUD canvas, including its second-eye reuse.
+    // Keep suppression through the short ADS exit grace: an eye moving off
+    // the lens must not expose the old floating dot for a frame. Availability
+    // and current ownership remain mandatory; never cache a HUD-node pointer.
+    if(!pair||scopePass||!scopeAvailable||!scopeView.reflex||!scopeWeapon||
+       scopeWeapon!=handWeapon||!Config().hands||!Tuning().gunScopes||
+       !referenceValid||!pairFrame.focused||!LocalAlive()||MenuActive())return false;
+    void* owner=Soldier();void* seat=Value<void*>(Value<void*>(Player(),0x80),4);
+    return owner&&(!seat||seat==owner||PassengerWeaponSeat(owner))&&
+        Value<void*>(scopeWeapon,0x28)==owner&&Value<int>(owner,0x2B8)==0&&
+        !Value<void*>(owner,0x254)&&!InventoryStowed(owner)&&
+        InventoryItem(owner,Value<int>(owner,0x1E0))==scopeWeapon;
+}
 void PrepareGunScope(){
     scopeWeapon=nullptr;
     if(!LocalAlive()){scopeReady=false;return;}
@@ -50,10 +71,7 @@ void PrepareGunScope(){
     void* owner=Soldier();void* seat=Value<void*>(Value<void*>(Player(),0x80),4);
     if(!owner||(seat&&seat!=owner&&!PassengerWeaponSeat(owner))||Value<int>(owner,0x2B8)!=0||Value<void*>(owner,0x254))return;
     char name[80]{};if(!handWeapon||!ReloadName(handWeapon,name))return;
-    const ScopeProfile* profile=nullptr;
-    for(const auto& p:scopeProfiles)if(!strcmp(name,p.name)){profile=&p;break;}
-    if(!profile)profile=Dzb2ScopeProfile(name);
-    if(!profile)profile=LauncherScopeProfile(name);
+    const ScopeProfile* profile=FindScopeProfile(name);
     if(!profile)return;
     FireFrame pose{};AcquireSRWLockShared(&fireLock);pose=fire;ReleaseSRWLockShared(&fireLock);
     if(pose.owner!=owner||pose.weapon!=handWeapon||Value<void*>(pose.weapon,0x28)!=owner||
@@ -100,7 +118,9 @@ void PrepareGunScope(){
         scopeView.gun=Mul(scopeView.aperture,pose.trackedWeapon);scopeView.center={};
     }
     const Vec center=scopeView.center;
-    const float farRelief=scopeView.reflex?.75f:.48f;
+    // r149: an extra 14cm for magnified optics (10cm for reflex sights).
+    // Keep the same aperture, eye alignment, magnification and near fade.
+    const float farRelief=ScopeFarRelief(scopeView.reflex);
     const Mat inverse=Inverse(scopeView.gun);float best=0;Vec eyes[2]{};
     for(int i=0;i<2;++i){
         const Mat eye=Compose(TrackingBase(views[0].source),reference,pairFrame.eyes[i],Config().units);

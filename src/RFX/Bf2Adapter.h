@@ -72,6 +72,7 @@ struct ScopeView {
     int nativeHud=0;bool connectionRing=false,seekerDirect=false,hudHeat=false,hudClip=false;
     Mat aperture{}; // local plane relative to the actual drawn native mesh
     Mat bore{}; // current drawn gun, distinct from the captured scene camera
+    Mat drawCamera{}; // captured optical frame carried by the current drawn gun
     const ScopeGeometry* geometry=nullptr;
 };
 // A canted reflex window is not the optical axis. Project the bore-zero ray

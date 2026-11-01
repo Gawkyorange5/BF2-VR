@@ -30,7 +30,7 @@ class PackageChecks {
    var mod=(ComboBox)f.GetType().GetField("mod",flags).GetValue(f);
    Check(mod.Items.Count==4&&mod.Items.Contains("bf2")&&mod.Items.Contains("DZB2")&&mod.Items.Contains("xpack")&&mod.Items.Contains("OtherMod"),"Public shortcut list excludes private entries and retains installed mods");
    Check(mod.Text=="bf2","Shortcut selection defaults to the base game");
-   Check(f.Text.Contains("v1.2.0")&&f.Text.Contains("r141"),"Setup identifies public v1.2.0 and accepted r141 basis");
+   Check(f.Text.Contains("v1.2.1")&&f.Text.Contains("r152"),"Setup identifies public v1.2.1 and accepted r152 basis");
    var resolution=(ComboBox)f.GetType().GetField("resolution",flags).GetValue(f);
    Check(resolution.Items.Count==3&&resolution.SelectedIndex==0,"Setup defaults to Keep current and offers both render modes");
    Check(!((CheckBox)f.GetType().GetField("steam",flags).GetValue(f)).Checked,"Steam loader is optional and off by default");

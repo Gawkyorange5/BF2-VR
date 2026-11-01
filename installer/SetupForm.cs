@@ -13,7 +13,7 @@ namespace BF2VR {
   CheckBox bindings=new CheckBox(),shortcut=new CheckBox(),ready=new CheckBox(),steam=new CheckBox();Button install=new Button(),remove=new Button(),browse=new Button();
   Label status=new Label();bool busy;
   public SetupForm(){
-   Text="BF2-VR Setup · v1.2.0 · r141";ClientSize=new Size(730,780);MinimumSize=Size;StartPosition=FormStartPosition.CenterScreen;Font=new Font("Segoe UI",10);AutoScaleMode=AutoScaleMode.Dpi;
+   Text="BF2-VR Setup · v1.2.1 · r152";ClientSize=new Size(730,780);MinimumSize=Size;StartPosition=FormStartPosition.CenterScreen;Font=new Font("Segoe UI",10);AutoScaleMode=AutoScaleMode.Dpi;
    var title=new Label{Text="Battlefield 2 VR",Font=new Font("Segoe UI",20,FontStyle.Bold),AutoSize=true,Location=new Point(20,15)};Controls.Add(title);
    AddText("1. Patch BF2 to 1.5 and play a map successfully flat-screen first.\n2. Connect your headset and select its OpenXR runtime.\n3. Close BF2, select the game folder and your profile, then install.",20,65,690,70);
    AddText("Battlefield 2 folder (contains BF2.exe)",20,143,600,25);folder.SetBounds(20,171,595,28);Controls.Add(folder);browse.Text="Browse…";browse.SetBounds(625,169,85,30);Controls.Add(browse);

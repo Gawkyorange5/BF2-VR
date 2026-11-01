@@ -1,5 +1,7 @@
 #include "Refractor.h"
 #include "ShaderHook.h"
+#include "TerrainPrecision.h"
+#include "VrSettings.h"
 
 D3DXCreateEffect_t pOrigD3DXCreateEffect = D3DXCreateEffect;
 
@@ -10,7 +12,8 @@ HRESULT WINAPI MyD3DXCreateEffect(LPDIRECT3DDEVICE9 pDevice, LPCVOID pSrcData, U
 	const char* begin = nullptr;
 	const char* end = nullptr;
 
-	while (*str && *str != '\n')
+	const char* limit = str + SrcDataLen;
+	while (str < limit && *str && *str != '\n')
 	{
 		if (*str == '"')
 		{
@@ -36,8 +39,27 @@ HRESULT WINAPI MyD3DXCreateEffect(LPDIRECT3DDEVICE9 pDevice, LPCVOID pSrcData, U
 		}
 	}
 
-	auto retVal = pOrigD3DXCreateEffect(pDevice, pSrcData, SrcDataLen, pDefines, pInclude, Flags, pPool, ppEffect, ppCompilationErrors);
-	if (name != "")
+	HRESULT retVal;
+	char disabled[8]{};
+	const bool enabled=!(GetEnvironmentVariableA("BF2VR_TERRAIN_PRECISION",disabled,sizeof(disabled))==1&&disabled[0]=='0');
+	if (name=="TerrainShader.fx"&&pInclude&&ppEffect&&enabled) {
+		TerrainPrecision::Includes includes(pInclude);
+		ID3DXEffect* candidate=nullptr;ID3DXBuffer* errors=nullptr;
+		retVal=pOrigD3DXCreateEffect(pDevice,pSrcData,SrcDataLen,pDefines,&includes,Flags,pPool,&candidate,ppCompilationErrors?&errors:nullptr);
+		CleanVR::Log("TERRAIN148 candidate source=TerrainShader.fx correctedFiles=%u unknownFiles=%u result=%08X",includes.applied,includes.unknown,static_cast<unsigned>(retVal));
+		if (FAILED(retVal)&&includes.applied) {
+			if(candidate)candidate->Release();
+			if(errors)errors->Release();
+			retVal=pOrigD3DXCreateEffect(pDevice,pSrcData,SrcDataLen,pDefines,pInclude,Flags,pPool,ppEffect,ppCompilationErrors);
+			CleanVR::Log("TERRAIN148 original shader fallback result=%08X",static_cast<unsigned>(retVal));
+		} else {
+			*ppEffect=candidate;if(ppCompilationErrors)*ppCompilationErrors=errors;
+		}
+	} else {
+		retVal=pOrigD3DXCreateEffect(pDevice,pSrcData,SrcDataLen,pDefines,pInclude,Flags,pPool,ppEffect,ppCompilationErrors);
+		if(name=="TerrainShader.fx")CleanVR::Log("TERRAIN148 original shader enabled=%d includeAvailable=%d result=%08X",enabled,pInclude!=nullptr,static_cast<unsigned>(retVal));
+	}
+	if (name != "" && SUCCEEDED(retVal) && ppEffect && *ppEffect)
 	{
 		DICE::detail::gShaders[name] = *ppEffect;
 	}

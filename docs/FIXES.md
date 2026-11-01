@@ -1,5 +1,18 @@
 # Fixes added in v1.2.0
 
+## v1.2.1 — r152 cumulative fixes
+
+- Physical aiming with supported optics activates BF2 native aimed accuracy
+  and its normal slower movement, instead of retaining hip-fire accuracy.
+- Scope image/reticle alignment follows the drawn weapon during movement.
+- Earlier scope visibility at a more comfortable distance from the face.
+- Duplicate floating native red-dot/holographic HUD reticles suppressed.
+- Saturated red-dot opacity strengthened for clearer contrast.
+- Medium/High terrain depth mismatch corrected; the affected RTX 4090 tester
+  confirmed the reported black ground flicker was fixed.
+- Keeps existing sniper/launcher targeting, gameplay and performance changes.
+
+
 - Native AA surface handling now reaches the optimized resolve path in the
   tested 8x configuration; redundant HUD/eye copies and desktop work are reduced.
 - Sight proximity no longer hides hit confirmation along with the crosshair.

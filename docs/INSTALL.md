@@ -1,4 +1,4 @@
-# Installation and restoration — v1.2.0
+# Installation and restoration — v1.2.1
 
 ## 1. Make the normal game work first
 
@@ -133,7 +133,7 @@ Steam launch also loads VR; use restoration to return to your prior setup.
 
 ## Updating, preserving settings, and returning to the prior build
 
-Run this Setup over public v1.0.0 or the accepted private r141. Keep current
+Run this Setup over public v1.0.0/v1.1.0/v1.2.0 or r141/r147-r152 previews. Keep current
 resolution and leave controller bindings unchecked to retain your existing
 preferences. The installer refuses an unknown/newer runtime so it cannot
 silently overwrite a newer custom DLL build.
@@ -181,11 +181,11 @@ the edition name alone does not determine whether a hotfix is needed.
 - If another project installed a newer RFX.dll, retain it and merge deliberately.
   Do not rename files just to defeat the compatibility check.
 
-## v1.2.0 update notes
+## v1.2.1 update notes
 
 DZB2 is available separately at [ModDB](https://www.moddb.com/mods/dzb2).
 
-The installer accepts public v1.0.0, v1.1.0 and private r141. Unknown custom
+The installer accepts public v1.0.0/v1.1.0/v1.2.0 and r141/r147-r152 previews. Unknown custom
 runtime code remains protected. Existing saved VR settings and AA are retained;
 use Keep current resolution and leave bindings unchecked to preserve controls.
 Choosing DZB2 creates both regular BF2 and DZB2 shortcuts with different names.

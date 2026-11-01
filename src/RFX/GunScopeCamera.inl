@@ -40,11 +40,14 @@ bool ScopeEye(ScopeView& out,Mat& gunToEye,Mat& projection,Vec& eyeInGun,float& 
     // The lens must use the SAME native instance transform as the visible
     // housing. Predicting it again from FireFrame before renderer interpolation
     // gave the M4/AK74U and angled ERYX a second, moving "ghost" glass disc.
-    // Keep the accepted sniper path unchanged (its aperture remains implicit).
-    if(out.reflex||Length(Position(out.aperture))>.001f){
+    // This applies to EVERY optic, including stock snipers whose aperture is
+    // implicit (identity transform plus center). Identity is not a reason to
+    // keep the pre-interpolation pose. Never fall back to a stale floating lens.
+    {
         void* mesh=Value<void*>(handWeapon,0x38);Mat drawn{};
         if(Value<void*>(mesh)!=render+0x21B350||Value<int>(mesh,0x28C)!=0||
            !Read(Value<void*>(Value<void*>(mesh,0x25C)),0,drawn)||!Rigid(drawn))return false;
+        out.drawCamera=Mul(Mul(out.camera,Inverse(out.bore)),drawn);
         out.bore=drawn;out.gun=Mul(out.aperture,drawn);
         if(out.geometry){
             const auto& g=*out.geometry;void* definition=Value<void*>(mesh,0x258);
@@ -60,12 +63,12 @@ bool ScopeEye(ScopeView& out,Mat& gunToEye,Mat& projection,Vec& eyeInGun,float& 
         }
         const Vec e=Point(Position(views[1].eye),Inverse(out.gun));
         const Vec forward=Direction(Row(views[1].eye,2),Inverse(out.gun));
-        const float relief=out.center.z-e.z,farRelief=out.reflex?.75f:.48f;
+        const float relief=out.center.z-e.z,farRelief=ScopeFarRelief(out.reflex);
         if(relief<.035f||relief>farRelief||forward.z<.88f)return false;
         const float radial=ScopeEyeOffset(out,e);
         const auto clamp=[](float v){return std::max(0.f,std::min(1.f,v));};
         out.visibility[activeEye]=clamp((1.2f-radial)*3.f)*clamp((relief-.035f)/.025f)*clamp((farRelief-relief)/.10f);
-        static unsigned reports=0;if(reports++<4)Log("SCOPE96 lens uses drawn native mesh; prediction difference=%.4fm",Length(Sub(Position(out.gun),Position(scopeView.gun))));
+        static unsigned reports=0;if(reports++<4)Log("SCOPE147 all optics use drawn native mesh; implicit=%d part=%u prediction difference=%.4fm",!out.geometry&&!out.reflex&&Length(Position(out.aperture))<=.001f,out.geometry?out.geometry->part:0,Length(Sub(Position(out.gun),Position(scopeView.gun))));
     }
     visibility=out.visibility[activeEye];if(visibility<.02f)return false;
     out.connected=(out.launcher||out.connectionRing)&&LauncherConnected(handWeapon);

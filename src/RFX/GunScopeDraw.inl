@@ -128,7 +128,7 @@ void DrawGunScope(){
     const Vec hit=Add(eye,Scale(Sub({0,0,100},eye),relief/(100-eye.z)));
     // Match the wider capture without zooming or enlarging the metal lens.
     const float scale=lens.relief/(relief*lens.coverage);
-    const bool drawnPose=lens.reflex||Length(Position(lens.aperture))>.001f;
+    const bool implicitAperture=!lens.geometry&&!lens.reflex&&Length(Position(lens.aperture))<=.001f;
     const Mat captureInverse=Inverse(lens.camera);
     const float corners[4][2]={{-1,-1},{-1,1},{1,-1},{1,1}};
     const unsigned count=lens.geometry?lens.geometry->count:4;
@@ -143,7 +143,7 @@ void DrawGunScope(){
         float sceneU=.5f+(local.x-hit.x)/lens.radius*.5f*scale;
         float sceneV=.5f-(local.y-hit.y)/lens.radius*.5f*scale;
         float reticleU=(sceneU-.5f)*lens.coverage,reticleV=(sceneV-.5f)*lens.coverage;
-        if(drawnPose){
+        {
             // Reproject the current drawn sight ray into this pair's capture.
             // Aperture offsets redirect through the bore for angled ERYX glass.
             // This also keeps 1x scenery aligned when the native pose advances
@@ -151,7 +151,14 @@ void DrawGunScope(){
             Vec ray={(local.x-hit.x)/(relief*lens.magnification),
                 (local.y-hit.y)/(relief*lens.magnification),1};
             if(lens.geometry&&!Engine::MeasuredScopeRay(lens,eye,local,ray,reticleU,reticleV))return;
-            const Vec captured=Direction(Direction(ray,lens.bore),captureInverse);
+            Vec captured{};
+            if(implicitAperture){
+                // Preserve the original sniper's exact zero/magnification/UV
+                // calibration when stationary, while carrying that optical
+                // frame with the same drawn pose as its lens and housing.
+                ray={(sceneU-.5f)*2*lens.tangent,(.5f-sceneV)*2*lens.tangent,1};
+                captured=Direction(Direction(ray,lens.drawCamera),captureInverse);
+            }else captured=Direction(Direction(ray,lens.bore),captureInverse);
             if(captured.z<=.05f)return;
             sceneU=.5f+captured.x/(captured.z*lens.tangent)*.5f;
             sceneV=.5f-captured.y/(captured.z*lens.tangent)*.5f;

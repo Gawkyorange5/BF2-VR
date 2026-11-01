@@ -1,5 +1,7 @@
 #include "Bf2Adapter.h"
 #include "SlotManipulation.h"
+#include "ScopeAdsPolicy.h"
+#include "NativeReflexHud.h"
 #include "CleanVR.h"
 #include "VrSettings.h"
 #include "Refractor.h"
@@ -372,6 +374,8 @@ thread_local bool hideInfantryHitPicture=false;
 using HudPictureDraw=void(__thiscall*)(void*,DWORD,DWORD,DWORD,DWORD,DWORD);
 HudPictureDraw originalHudPicture=nullptr;
 thread_local bool hideDefibHudPicture=false;
+thread_local bool hideNativeReflexPictures=false;
+bool ReplaceNativeReflexHud();
 // HudManager owns its BottomRight status block at +12C. Its native update
 // gets confirmed-hit strength from the local player's HUD data. Never infer
 // a hit from trigger input, a fired projectile, or a client-side raycast.
@@ -385,12 +389,16 @@ void SampleGunHit(void* hud){
 }
 
 void __fastcall HudPictureHook(void* self,void*,DWORD a,DWORD b,DWORD c,DWORD d,DWORD e){
-    if((hideDefibHudPicture||hideInfantryHitPicture)&&Value<void*>(self)==game+0x535128){
+    if((hideDefibHudPicture||hideInfantryHitPicture||hideNativeReflexPictures)&&Value<void*>(self)==game+0x535128){
         // Read the bounded node name, not a cached object pointer that could
         // outlive its map. The builder appends "PictureNode" to the HUD name.
         char name[96]{};const char* text=Value<const char*>(self,0x18);
         unsigned length=0;
         for(;length<sizeof(name)-1;++length)if(!Read(text,length,name[length])||!name[length])break;
+        if(hideNativeReflexPictures&&NativeReflexPicture(name)){
+            static unsigned reports=0;if(reports++<8)Log("HUD150 duplicate flat-screen reflex picture skipped: %s; native ADS retained",name);
+            return;
+        }
         if(hideDefibHudPicture&&!strcmp(name,"DefibrillatorCrosshairPictureNode")){
             static bool reported=false;if(!reported){reported=true;Log("HUD53 native defibrillator crosshair picture skipped");}return;
         }
@@ -423,10 +431,11 @@ void DrawNativeHud(void* self){
             (DWORD(std::min(1.f,rgb[1])*255.f+.5f)<<8)|DWORD(std::min(1.f,rgb[2])*255.f+.5f);
     }
     SampleGunHit(self);
-    const bool previous=hideDefibHudPicture,previousHit=hideInfantryHitPicture;
+    const bool previous=hideDefibHudPicture,previousHit=hideInfantryHitPicture,previousReflex=hideNativeReflexPictures;
     hideDefibHudPicture=hidden;
     hideInfantryHitPicture=pair&&gunCrosshairReady&&gunHitSampled;
-    originalHudDraw(self);hideDefibHudPicture=previous;hideInfantryHitPicture=previousHit;
+    hideNativeReflexPictures=ReplaceNativeReflexHud();
+    originalHudDraw(self);hideDefibHudPicture=previous;hideInfantryHitPicture=previousHit;hideNativeReflexPictures=previousReflex;
     if(hidden)Copy(static_cast<BYTE*>(layer)+0x184,&saved,sizeof(saved));
 }
 void __fastcall HudDrawHook(void* self,void*){
@@ -624,6 +633,7 @@ HandTargets Targets(const Mat& camera,const Mat& body,const Runtime::Frame& samp
 #include "StingerGuidance.inl"
 #include "GunCrosshair.inl"
 #include "GunScope.inl"
+#include "NativeScopeAds.inl"
 bool ReadBodyHandTargets(void* owner,const Mat& nativeWorld,const Runtime::Frame& frame,Mat& camera,Mat& leftPalm,Mat& rightPalm,Vec wrists[2],bool& chargingContact,void*& selectedWeapon,bool& akSupport){
     chargingContact=false;selectedWeapon=nullptr;akSupport=false;
     FireFrame pose{};AcquireSRWLockShared(&fireLock);pose=fire;ReleaseSRWLockShared(&fireLock);
@@ -892,7 +902,7 @@ bool InstallHands(){
 void ResetBodyResources(){bodyReady=bodyDepthShared=false;ReleaseBodyDepth();ReleaseBodyMasks();}
 bool Install(){
     if(attempted)return installed;attempted=true;game=reinterpret_cast<BYTE*>(GetModuleHandleA(nullptr));render=reinterpret_cast<BYTE*>(GetModuleHandleA("RendDX9.dll"));if(!game||!render)return false;
-    Log("BUILD r90 private preview: XR-cadence smooth-turn presentation with native heading follow; r87 crosshair correction and r86 reload fixes retained");
+    Log("BUILD r152 private preview: saturated red reflex dots with stronger opacity; cumulative scope accuracy, HUD suppression and terrain correction retained");
     // Renderer slot 10, after BF2+533AB installs this frame's player camera.
     // Slot 11 (+2C2E0) has a different ABI and is NOT the frame entry point.
     const BYTE scene[]={0x55,0x8B,0xEC,0x83,0xE4,0xF8};
@@ -913,6 +923,7 @@ bool Install(){
     if(!InstallHudDraw())Log("HUD draw profile rejected; keeping native canvas");
     Log("HUD53 defibrillator picture profile=%d",InstallDefibHud());
     if(Config().hands&&!InstallHands())Log("HANDS profile rejected; native hands disabled");
+    if(Config().hands&&!InstallScopeAds())Log("ADS149 native zoom profile rejected; automatic ADS disabled");
     Log("GUIDANCE96 local SRAW/ERYX native wire-update profile=%d",Config().hands&&InstallLauncherGuidance());
     Log("STINGER116 native heat-seeker controller profile=%d",Config().hands&&InstallStingerGuidance());
     reloadProfile=InstallReload();reloadSoundProfile=InstallReloadSound();
@@ -1042,7 +1053,7 @@ bool KnifeControls(const Runtime::Frame& f,bool enabled,bool& firing){return Upd
 void ClearDefibControls(){ResetDefib();ResetKnife();}
 void Recenter(const Runtime::Frame& frame){if(!frame.valid)return;ClearFootCommand();++referenceGeneration;CancelManualReload();ResetBodySlots();ResetDefib();ResetKnife();ResetC4();if(helmet.active){helmet.tracking=frame.head;helmet.origin=frame.origin;}handAim={};wasSupport=false;handPoseTime=0;reference=Level(frame.head);referenceValid=true;vehicleSample={};vehicleTick=0;vehicleViewValid=false;Log("TRACKING shared head/eye/hand reference reset frame=%llu",frame.id);}
 Mat Reference(){return reference;}
-void StopLocomotion(){ClearFootCommand();}
+void StopLocomotion(){ResetScopeAds();ClearFootCommand();}
 bool FootLocomotion(const Runtime::Frame& f,Vec stick,float snap,float smoothRate,bool enabled){
     void* owner=nullptr;void* identity=nullptr;
     if(!locomotionProfile||!enabled||!f.valid||!f.focused||!FootOwner(owner,identity)||!Rigid(f.head)||!std::isfinite(stick.x+stick.z+snap+smoothRate)){
@@ -1143,21 +1154,22 @@ VehicleInput Vehicle(const Runtime::Frame& f,float yawStep,float pitchStep){
     out.aimValid=std::isfinite(out.yawError+out.pitchError);return out;
 }
 bool BeginPair(const Runtime::Frame& frame){
-    if(pair||!installed||!frame.valid||!frame.shouldRender||FlatMenuActive())return false;
-    if(!referenceValid)Recenter(frame);if(!ResolveViews()){static bool warned=false;if(!warned){warned=true;Log("STEREO waiting for verified native world/weapon render views");}return false;}
-    for(auto& v:views){if(!Copy(v.bytes,static_cast<BYTE*>(v.object)+0x18,sizeof(v.bytes))||!Read(v.object,0x3C,v.source)||!Rigid(v.source))return false;
+    if(pair)return false;
+    if(!installed||!frame.valid||!frame.shouldRender||FlatMenuActive()){ResetScopeAds();return false;}
+    if(!referenceValid)Recenter(frame);if(!ResolveViews()){ResetScopeAds();static bool warned=false;if(!warned){warned=true;Log("STEREO waiting for verified native world/weapon render views");}return false;}
+    for(auto& v:views){if(!Copy(v.bytes,static_cast<BYTE*>(v.object)+0x18,sizeof(v.bytes))||!Read(v.object,0x3C,v.source)||!Rigid(v.source)){ResetScopeAds();return false;}
         v.nearZ=Value<float>(v.object,0x28);v.farZ=v.nearZ+Value<float>(v.object,0x2C);
-        if(!std::isfinite(v.nearZ+v.farZ)||v.nearZ<=0||v.farZ<=v.nearZ)return false;
+        if(!std::isfinite(v.nearZ+v.farZ)||v.nearZ<=0||v.farZ<=v.nearZ){ResetScopeAds();return false;}
     }
     // The native renderer copies WORLD -> WEAPON at +30215. Its weapon view
     // still contains the previous frame here. Both eyes must use the fresh
     // world camera, including on the very first frame after deployment.
     views[1].source=views[0].source;
     UpdateHelmetView(frame,views[0].source);
-    if(!LocalAlive()&&!helmet.active)return false;
+    if(!LocalAlive()&&!helmet.active){ResetScopeAds();return false;}
     UpdateVehicleView(views[0].source);
     static unsigned frames=0;if(++frames<=3||frames%1800==1)Log("CAMERA native frame=%llu position=(%.3f %.3f %.3f) world=%p weapon=%p",frame.id,Position(views[0].source).x,Position(views[0].source).y,Position(views[0].source).z,views[0].object,views[1].object);
-    pairFrame=frame;pair=true;PrepareGunCrosshair();PrepareGunScope();
+    pairFrame=frame;pair=true;PrepareGunCrosshair();PrepareGunScope();UpdateScopeAds();
     if(scopeReady&&Tuning().hideCrosshairAtSights)gunCrosshairAiming=true;
     BeginFullBodyPair();BeginInventoryGear();
     bodyDepthShared=bodyReady&&bodyDepthProfile&&Tuning().bodyWeaponDepth;

@@ -1,15 +1,15 @@
-# Battlefield 2 VR — v1.2.0
+# Battlefield 2 VR — v1.2.1
 
 PC VR for Battlefield 2, with OpenXR head tracking, tracked hands and weapons,
 physical reloading and equipment, vehicle controls, and DZB2 compatibility.
-This package uses the accepted **r141 gameplay code**.
+This package uses the accepted **r152 gameplay code**, including the terrain and aiming fixes.
 
 **DZB2 compatible:** [Download DZB2 from ModDB](https://www.moddb.com/mods/dzb2),
 install it separately, then use **Battlefield 2 DZB2 VR** or the included
 **Launch DZB2 VR.cmd**. **DZB2 itself requests Medium Lighting in its graphics setup.** Follow its
 linked graphics-settings instructions; keep Medium Lighting for VR.
 
-[Download v1.2.0](https://github.com/Gawkyorange5/BF2-VR/releases/tag/v1.2.0) · [Features and changes](RELEASE-NOTES.md) · [Bug fixes](docs/FIXES.md)
+[Download v1.2.1](https://github.com/Gawkyorange5/BF2-VR/releases/tag/v1.2.1) · [Features and changes](RELEASE-NOTES.md) · [Bug fixes](docs/FIXES.md)
 
 ## Start here
 
@@ -39,7 +39,7 @@ should apply the included controller profile.
 - `docs/INSTALL.md`: complete installation, DZB2, updating and restoration.
 - `docs/CONTROLS.md`: on-foot, reload, equipment, radio and vehicle controls.
 - `docs/SETTINGS.md`: saved options, resolution choices and slot adjustment.
-- `RELEASE-NOTES.md`: performance and gameplay changes since v1.1.0, plus known limits.
+- `RELEASE-NOTES.md`: aiming, scope and terrain fixes since v1.2.0, plus known limits.
 - `docs/CHANGES-v1.1.0.md`: the previous release's full feature list.
 - `docs/FIXES.md`: the retained bug fixes since the first public release.
 - `THIRD_PARTY.md` and `licenses/`: credits and dependency notices.

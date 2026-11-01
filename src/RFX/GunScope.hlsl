@@ -23,6 +23,11 @@ float4 main(float2 aperture : TEXCOORD0, float2 uv : TEXCOORD1, float2 reticle :
     float dotRadius = params.y * 1.5;
     float dotAA = max(.0001, fwidth(length(reticle)) * .65);
     float center = 1 - smoothstep(max(0, dotRadius-dotAA), dotRadius+dotAA, length(reticle));
+    // Keep the accepted saturated red. Give the antialiased reflex dot a
+    // stronger opacity so bright scenery cannot wash its small core out.
+    // Radius/position stay unchanged; sniper coverage and native HUD gates
+    // stay as before. No white/pink centre, halo or additional rendering pass.
+    center = saturate(center * (1 + .8 * params.w));
     float crosshair = max(
         (1 - step(params.y, d.x)) * step(params.y * 4, d.y) * (1 - step(.23, d.y)),
         (1 - step(params.y, d.y)) * step(params.y * 4, d.x) * (1 - step(.23, d.x)));

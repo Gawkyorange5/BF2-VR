@@ -17,20 +17,20 @@ class InstallerChecks {
   string stock=H(Path.Combine(f,"BF2.exe")),renderer=H(Path.Combine(f,"RendDX9.dll"));PeImage.ValidateGame(f);
   var bytes=File.ReadAllBytes(Path.Combine(f,"BF2.exe"));var pe=new PeImage(bytes);byte[] patched=pe.AddRfxImport();Check(new PeImage(patched).HasRfx()&&new PeImage(patched).TextHash()==pe.TextHash(),"EXE import edit preserves executable code");Check(PeImage.Hash(new PeImage(patched).AddRfxImport())==PeImage.Hash(patched),"EXE import operation is idempotent");
   var e=new InstallEngine{Log=Console.WriteLine,FailAfter=3};Check(Refused(()=>e.Install(f,profile,false,"bf2")),"injected installation failure reported");Check(!File.Exists(Path.Combine(f,"RFX.dll"))&&!Directory.Exists(Path.Combine(f,".bf2-vr")),"failed fresh install rolls back completely");
-  e.FailAfter=-1;e.Install(f,profile,false,"bf2",0);Check(Text(Path.Combine(f,"RFX.dll"))==Text(baseline),"clean install keeps exact accepted r141 code");
+  e.FailAfter=-1;e.Install(f,profile,false,"bf2",0);Check(Text(Path.Combine(f,"RFX.dll"))==Text(baseline),"clean install keeps exact accepted r152 code");
   Check(File.ReadAllText(Path.Combine(f,"vr_stereo.ini")).Contains("resolution_mode=0"),"headset resolution choice saved");
   Check(H(Path.Combine(profile,"Controls.con"))==H(Path.Combine(repo,"profiles","Controls.con")),"current controller profile installed");
   Check(File.Exists(Path.Combine(f,"Launch DZB2 VR.cmd"))&&File.Exists(Path.Combine(f,"BF2-VR-DZB2.exe")),"DZB2 command/helper installed before DZB2 is present");
   byte[] exe=File.ReadAllBytes(Path.Combine(f,"BF2-VR.exe"));int nt=BitConverter.ToInt32(exe,0x3c);Check((BitConverter.ToUInt16(exe,nt+22)&32)!=0,"generated VR executable is large-address-aware");
   File.Copy(Path.Combine(f,"RFX.dll"),Path.Combine(root,"stock-generated.dll"));e.Uninstall(f);Check(!File.Exists(Path.Combine(f,"RFX.dll"))&&File.ReadAllText(Path.Combine(profile,"Controls.con"))=="original-controls","fresh uninstall restores profile and removes owned runtime");
-  // Emulate an existing v1 installation subsequently updated to accepted r141.
+  // Emulate an existing v1 installation subsequently updated to accepted r152.
   Directory.CreateDirectory(Path.Combine(f,".bf2-vr","backup"));File.Copy(baseline,Path.Combine(f,"RFX.dll"));
   var oldState=new InstallState{Version="1.0.0-r45",Game=f,Complete=true};oldState.Files.Add(new InstalledFile{Target=Path.Combine(f,"RFX.dll"),InstalledHash=H(old)});
   string oldJson=new JavaScriptSerializer().Serialize(oldState);File.WriteAllText(Path.Combine(f,".bf2-vr","install.json"),oldJson);
   string prefs="[graphics]\r\nresolution_mode=0\r\n[body]\r\ncustom_slot=1.234\r\n[inventory]\r\npistol_chest=0\r\nsecondary_chest_x=0.1234\r\nsecondary_chest_yaw=47.5000\r\n[performance]\r\ngpu_timing=0\r\ndraw_profiling=0\r\n";File.WriteAllText(Path.Combine(f,"vr_stereo.ini"),prefs);
-  e.FailAfter=3;Check(Refused(()=>e.Install(f,null,false,"bf2")),"failed upgrade reported");Check(H(Path.Combine(f,"RFX.dll"))==H(baseline)&&File.ReadAllText(Path.Combine(f,".bf2-vr","install.json"))==oldJson,"failed upgrade restores r141 and exact old journal");
+  e.FailAfter=3;Check(Refused(()=>e.Install(f,null,false,"bf2")),"failed upgrade reported");Check(H(Path.Combine(f,"RFX.dll"))==H(baseline)&&File.ReadAllText(Path.Combine(f,".bf2-vr","install.json"))==oldJson,"failed upgrade restores r152 and exact old journal");
   e.FailAfter=-1;e.Install(f,null,false,"bf2");Check(File.ReadAllText(Path.Combine(f,"vr_stereo.ini"))==prefs,"Keep current preserves settings and slot data byte for byte");
-  e.Uninstall(f);Check(H(Path.Combine(f,"RFX.dll"))==H(baseline)&&File.ReadAllText(Path.Combine(f,".bf2-vr","install.json"))==oldJson,"successful upgrade can return to exact r141 with original journal");
+  e.Uninstall(f);Check(H(Path.Combine(f,"RFX.dll"))==H(baseline)&&File.ReadAllText(Path.Combine(f,".bf2-vr","install.json"))==oldJson,"successful upgrade can return to exact r152 with original journal");
   e.Install(f,null,false,"bf2",2);Check(File.ReadAllText(Path.Combine(f,"vr_stereo.ini")).Contains("resolution_mode=2")&&File.ReadAllText(Path.Combine(f,"vr_stereo.ini")).Contains("custom_slot=1.234"),"game resolution changes only requested preference");e.Uninstall(f);Check(File.ReadAllText(Path.Combine(f,"vr_stereo.ini"))==prefs,"restore recovers exact pre-choice settings");
   File.Copy(old,Path.Combine(f,"RFX.dll"),true);e.Install(f,null,false,"bf2");e.Uninstall(f);Check(H(Path.Combine(f,"RFX.dll"))==H(old),"public v1 upgrade and restore");
   File.WriteAllBytes(Path.Combine(f,"RFX.dll"),new byte[9]);Check(Refused(()=>e.Install(f,null,false,"bf2")),"unknown/newer runtime rejected before changes");File.Copy(baseline,Path.Combine(f,"RFX.dll"),true);
@@ -38,8 +38,15 @@ class InstallerChecks {
   // Public 1.1.0 upgrade uses the installed-code guard, not file-size guesses.
   string public11=Path.Combine(repo,"..","public-v1.1.0-revision2","payload","RFX.dll");
   File.Copy(public11,Path.Combine(f,"RFX.dll"),true);e.Install(f,null,false,"bf2");
-  Check(Text(Path.Combine(f,"RFX.dll"))==Text(baseline),"public 1.1.0 upgrades to exact r141 code");
+  Check(Text(Path.Combine(f,"RFX.dll"))==Text(baseline),"public 1.1.0 upgrades to exact r152 code");
   e.Uninstall(f);Check(H(Path.Combine(f,"RFX.dll"))==H(public11),"public 1.1.0 restored exactly");File.Copy(baseline,Path.Combine(f,"RFX.dll"),true);
+  foreach(string prior in args.Skip(5)){
+   File.Copy(prior,Path.Combine(f,"RFX.dll"),true);e.Install(f,null,false,"bf2");
+   Check(Text(Path.Combine(f,"RFX.dll"))==Text(baseline),"older public/private build upgrades to exact r152");
+   Check(File.ReadAllText(Path.Combine(f,"vr_stereo.ini"))==prefs,"upgrade retains preferences");
+   e.Uninstall(f);Check(H(Path.Combine(f,"RFX.dll"))==H(prior),"older public/private build restored byte for byte");
+  }
+  File.Copy(baseline,Path.Combine(f,"RFX.dll"),true);
   // Install DZB2 after the base installation. Archive links are read-only inputs.
   foreach(string a in audio.Where(a=>a.mod=="DZB2"&&a.archive!="").Select(a=>a.archive).Distinct())Link(Path.Combine(game,a.Replace('/','\\')),Path.Combine(f,a.Replace('/','\\')));
   File.Copy(Path.Combine(game,"mods","DZB2","Mod.desc"),Path.Combine(f,"mods","DZB2","Mod.desc"));
@@ -54,7 +61,7 @@ class InstallerChecks {
   string cache=Path.Combine(root,"DZB2 cache");string dest=Dzb2Launcher.Prepare(f,cache,Console.WriteLine);
   Check(File.Exists(Path.Combine(dest,"mods","DZB2","Mod.desc")),"DZB2 mods junction resolves to installed assets");Check(H(Path.Combine(dest,"d3dx9_25.dll"))==PeImage.Hash(Dzb2Launcher.Resource("payload.DZB2-shader-compat.dll")),"exact tested shader proxy installed only in compatibility copy");
   Check(H(Path.Combine(f,"d3dx9_25.dll"))==Dzb2Launcher.OriginalShader,"original root renderer dependency unchanged");Check(!File.Exists(Path.Combine(dest,"dinput8.dll")),"renamed compatibility runtime does not copy optional Steam loader");
-  Check(Text(Path.Combine(dest,"RFX.dll"))==Text(baseline),"DZB2 runtime preserves exact r141 code");File.Copy(Path.Combine(dest,"RFX.dll"),Path.Combine(root,"dzb2-generated.dll"));
+  Check(Text(Path.Combine(dest,"RFX.dll"))==Text(baseline),"DZB2 runtime preserves exact r152 code");File.Copy(Path.Combine(dest,"RFX.dll"),Path.Combine(root,"dzb2-generated.dll"));
   File.AppendAllText(Path.Combine(dest,"vr_stereo.ini"),"\r\n[local]\r\nretained=1\r\n");string saved=H(Path.Combine(dest,"vr_stereo.ini"));Dzb2Launcher.Prepare(f,cache,Console.WriteLine);Check(H(Path.Combine(dest,"vr_stereo.ini"))==saved,"DZB2 preferences survive subsequent launches");
   byte[] installedIni=File.ReadAllBytes(Path.Combine(f,"vr_stereo.ini"));File.AppendAllText(Path.Combine(f,"vr_stereo.ini"),"\r\n[new-root]\r\nchanged=1\r\n");Dzb2Launcher.Prepare(f,cache,Console.WriteLine);Check(H(Path.Combine(dest,"vr_stereo.ini"))==H(Path.Combine(f,"vr_stereo.ini"))&&File.Exists(Path.Combine(dest,"vr_stereo.ini.before-root-settings.bak")),"changed main settings propagated with compatibility backup");File.WriteAllBytes(Path.Combine(f,"vr_stereo.ini"),installedIni);
   e.Uninstall(f);Check(!File.Exists(Path.Combine(f,"dinput8.dll")),"restore removes owned Steam loader");
