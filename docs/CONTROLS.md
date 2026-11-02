@@ -213,7 +213,9 @@ fall damage still applies; gliding alone does not give a safe landing.
 
 ## Physical aiming — v1.2.1
 
-Raise a supported scoped/red-dot weapon toward your face and align its sight.
+Raise a supported weapon toward your face and align its iron sights, scope or
+red-dot/holographic sight. This includes applicable stock BF2 and DZB2 weapons.
+Iron sights keep normal scene FOV; existing optic magnification is retained.
 This now engages BF2's native aimed state, including the weapon's normal
 aimed accuracy and slower movement. Lower it to leave aiming. Native spread,
 recoil and projectile behavior still apply; this is not perfect-accuracy mode.

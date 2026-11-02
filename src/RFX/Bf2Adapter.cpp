@@ -1,6 +1,7 @@
 #include "Bf2Adapter.h"
 #include "SlotManipulation.h"
 #include "ScopeAdsPolicy.h"
+#include "IronSightAim.h"
 #include "NativeReflexHud.h"
 #include "CleanVR.h"
 #include "VrSettings.h"
@@ -902,7 +903,7 @@ bool InstallHands(){
 void ResetBodyResources(){bodyReady=bodyDepthShared=false;ReleaseBodyDepth();ReleaseBodyMasks();}
 bool Install(){
     if(attempted)return installed;attempted=true;game=reinterpret_cast<BYTE*>(GetModuleHandleA(nullptr));render=reinterpret_cast<BYTE*>(GetModuleHandleA("RendDX9.dll"));if(!game||!render)return false;
-    Log("BUILD r152 private preview: saturated red reflex dots with stronger opacity; cumulative scope accuracy, HUD suppression and terrain correction retained");
+    Log("BUILD r154 private preview: native iron-sight aiming; accepted r152 optics, terrain, gameplay and rendering retained");
     // Renderer slot 10, after BF2+533AB installs this frame's player camera.
     // Slot 11 (+2C2E0) has a different ABI and is NOT the frame entry point.
     const BYTE scene[]={0x55,0x8B,0xEC,0x83,0xE4,0xF8};

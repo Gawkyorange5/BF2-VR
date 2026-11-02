@@ -1,4 +1,4 @@
-"""Zero only game-audio resource bytes from locally built r152 for distribution.
+"""Zero only game-audio resource bytes from locally built r154 for distribution.
 Preserve resource directory, Windows manifest and section address space exactly.
 Usage: python tools/prepare_runtime.py path/to/local/RFX.dll payload/RFX.dll
 """
@@ -22,7 +22,7 @@ def visit(relative,level,resource_type=None):
   elif kind==10:
    rva,size=struct.unpack_from('<II',b,resource+target);raw=offset(rva);b[raw:raw+size]=bytes(size);count+=1
 visit(0,0)
-assert count==822,('Unexpected r152 audio count',count)
+assert count==822,('Unexpected r154 audio count',count)
 # Remove the local linker PDB path only; keep GUID/age and all runtime code.
 pos=b.find(b'RSDS')
 if pos>=0:

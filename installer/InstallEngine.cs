@@ -8,7 +8,7 @@ using System.Web.Script.Serialization;
 
 namespace BF2VR {
  public sealed class InstalledFile { public string Target,Backup,OriginalHash,InstalledHash; }
- public sealed class InstallState { public string Version="1.2.1-r152",Game,Profile,PreviousState,ShortcutMod; public List<InstalledFile> Files=new List<InstalledFile>(); public bool Complete; }
+ public sealed class InstallState { public string Version="1.2.1-r154",Game,Profile,PreviousState,ShortcutMod; public List<InstalledFile> Files=new List<InstalledFile>(); public bool Complete; }
  public sealed class InstallEngine {
   public const string StateFolder=".bf2-vr";
   public static readonly string[] GameFiles={"BF2-VR.exe","RFX.dll","openxr_loader.dll","stl_8_wrapper.dll","BF2-VR-Settings.exe","vr_stereo.ini","BF2-VR-README.txt","BF2-VR-DZB2.exe","Launch DZB2 VR.cmd","dinput8.dll"};
@@ -59,7 +59,7 @@ namespace BF2VR {
    string installedRuntime=Path.Combine(folder,"RFX.dll");
    if(File.Exists(installedRuntime)){
     string code=new PeImage(File.ReadAllBytes(installedRuntime)).TextHash();
-    if(!new[]{"f824ba53583c621c68533a0c94ef8808d8abcd6d16ab136a32eaa17fcc19ad38","8c500e1b3be73b111525b00f574aa403c1006283caa203589cc3ebb4d10bafe5","25bda20576a04f0102262e5044ecaf830e1cc83160f7cb9aa35a7d9c0100b724","674c9be62695393f4999bf5c48826dafcee0e2d1b0ce48f57a4f227198bcb925","13c7bceda2944c602489a14bafbfb2605e3cc36e988002da86d31dbe51d86717","5f96d9aeaad9b6632f581cd16a7ee3ced2996d7140f271b513ed835ef06db805","dcc5ad5af0848351a11ecdd7ae00a73d908aea80d0498f4e4a86a209132ae03c","8f65950c7d8250d88b9fc52495f35809aa876e67aa113159ab1f471960c67dd4","c70d652c9d6f99cbb5d858adb1e11b2a1073bc0572763d320327e770a097adba"}.Contains(code))throw new IOException("The installed VR code is not a supported public release or r141/r147-r152 preview. It may contain a newer custom build. No files changed; merge that build before installing this release.");
+    if(!new[]{"f824ba53583c621c68533a0c94ef8808d8abcd6d16ab136a32eaa17fcc19ad38","8c500e1b3be73b111525b00f574aa403c1006283caa203589cc3ebb4d10bafe5","25bda20576a04f0102262e5044ecaf830e1cc83160f7cb9aa35a7d9c0100b724","674c9be62695393f4999bf5c48826dafcee0e2d1b0ce48f57a4f227198bcb925","13c7bceda2944c602489a14bafbfb2605e3cc36e988002da86d31dbe51d86717","5f96d9aeaad9b6632f581cd16a7ee3ced2996d7140f271b513ed835ef06db805","dcc5ad5af0848351a11ecdd7ae00a73d908aea80d0498f4e4a86a209132ae03c","8f65950c7d8250d88b9fc52495f35809aa876e67aa113159ab1f471960c67dd4","c70d652c9d6f99cbb5d858adb1e11b2a1073bc0572763d320327e770a097adba","843b0feebd04b6d426e31393c13267e908527aae52a92328be50711eaec2a8be","5b27adff6dc4ee5a08f01ca72918f3c64f40aa6b6b22ee0cee9173cb0121d0d9"}.Contains(code))throw new IOException("The installed VR code is not a supported public release or r141/r147-r154 preview. It may contain a newer custom build. No files changed; merge that build before installing this release.");
    }
    if(steam&&File.Exists(Path.Combine(folder,"dinput8.dll"))&&HashFile(Path.Combine(folder,"dinput8.dll"))!=PeImage.Hash(Resource("payload.dinput8.dll")))throw new IOException("Another dinput8.dll loader is already installed. It was not replaced.");
    string stateDir=Path.Combine(folder,StateFolder);string previous=null;

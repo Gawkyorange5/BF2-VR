@@ -1,16 +1,20 @@
 # BF2-VR v1.2.1 — native aiming, scope alignment and terrain fixes
 
-This release uses the **tested and accepted r152 runtime**. It includes all
+This release uses the **tested and accepted r154 runtime**. It includes all
 accepted fixes since v1.2.0 and keeps the previous performance and gameplay
 improvements. The gameplay DLL has not been recompiled for public packaging.
 
 ## Aiming and sights
 
-- **Pulling a supported scoped or red-dot weapon up to your face and lining up
-  the sight now activates Battlefield 2's native aiming behavior.** You get the
+- **Pulling a supported weapon up to your face and lining up its iron sights,
+  scope or red-dot/holographic sight now activates Battlefield 2's native aiming behavior.** You get the
   weapon's normal aimed accuracy and slower movement while aiming, just like
   aiming in the original game. Previously, looking through a VR scope could
   leave the weapon using its hip-fire accuracy.
+- Includes supported iron-sight pistols, SMGs, rifles, LMGs and shotguns in
+  stock BF2 and DZB2. Iron-sight aiming keeps scenery detail stable instead of
+  applying the flat-screen camera zoom. Existing scoped-weapon magnification,
+  red-dot/holographic sights and launcher optics retain their previous behavior.
 - The weapon's native spread, recoil and projectile behavior remain intact;
   this activates its existing aimed state rather than giving every gun perfect
   accuracy. Reloading and sprinting still use the native cancellation behavior.
@@ -42,8 +46,8 @@ Close the game and VR Settings, run Setup, and select your existing game folder.
 VR settings and physical-slot layouts are retained. Leave controller bindings
 unchecked when you want to keep your current bindings.
 
-- Supports updates from public v1.0.0, v1.1.0 and v1.2.0, plus accepted r141 and
-  the r147–r152 private previews. Setup keeps exact previous-file backups.
+- Supports updates from public v1.0.0, v1.1.0, v1.2.0 and the earlier v1.2.1 files, plus accepted r141 and
+  the r147–r154 private previews. Setup keeps exact previous-file backups.
 - Separate regular BF2 and DZB2 shortcuts remain, with intro skipping via
   `+restart`. The package includes **Launch DZB2 VR.cmd**.
 - **Compatible with [DZB2](https://www.moddb.com/mods/dzb2).** Install DZB2
@@ -67,12 +71,12 @@ and [fixes](https://github.com/Gawkyorange5/BF2-VR/blob/main/docs/FIXES.md).
 
 ## Verification and existing limits
 
-Public packaging preserves r152 executable code and runtime data. Only game
+Public packaging preserves r154 executable code and runtime data. Only game
 sound resources and local debug-path metadata are sanitized for distribution;
 Setup rebuilds sounds from the player's installed game files. Installation,
 upgrade, exact restoration, settings, shortcuts, audio reconstruction and x86
-startup checks were run on the final package. The accepted private build was
-tested in-game; the final public packaging has not had a separate headset test.
+startup checks were run on the final package. The private iron-sight update was
+tested in-game; scoped paths were preserved and checked automatically; the final public packaging has not had a separate headset test.
 
 Existing DZB2 High Lighting/remote-camera freezes, imperfect passenger poses
 and native wreck disappearance are not claimed fixed. Performance still varies

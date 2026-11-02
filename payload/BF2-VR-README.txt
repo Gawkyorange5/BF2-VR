@@ -135,7 +135,7 @@ Steam launch also loads VR; use restoration to return to your prior setup.
 
 ## Updating, preserving settings, and returning to the prior build
 
-Run this Setup over public v1.0.0/v1.1.0/v1.2.0 or r141/r147-r152 previews. Keep current
+Run this Setup over public v1.0.0/v1.1.0/v1.2.0 or r141/r147-r154 previews. Keep current
 resolution and leave controller bindings unchecked to retain your existing
 preferences. The installer refuses an unknown/newer runtime so it cannot
 silently overwrite a newer custom DLL build.

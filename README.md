@@ -2,7 +2,7 @@
 
 PC VR for Battlefield 2, with OpenXR head tracking, tracked hands and weapons,
 physical reloading and equipment, vehicle controls, and DZB2 compatibility.
-This package uses the accepted **r152 gameplay code**, including the terrain and aiming fixes.
+This package uses the accepted **r154 gameplay code**, including the terrain fix and native aiming for supported iron sights and optics.
 
 **DZB2 compatible:** [Download DZB2 from ModDB](https://www.moddb.com/mods/dzb2),
 install it separately, then use **Battlefield 2 DZB2 VR** or the included

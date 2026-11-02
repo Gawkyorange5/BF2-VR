@@ -196,7 +196,7 @@ void Click(ULONGLONG now){
 }
 void Draw(){
     Box(0,0,width,height,RGB(15,24,35));Text("BATTLEFIELD 2 VR SETTINGS",24,20,760,titleFont,RGB(237,247,255));
-    Text("r152",924,28,70,smallFont,RGB(135,174,196));
+    Text("r154",924,28,70,smallFont,RGB(135,174,196));
     for(int i=0;i<pageCount;++i)Button(pages[i],24+i*tabStep,82,tabWidth,44,page==i,true);
     int row=0;char value[80];
     if(page==9)DrawSlots();

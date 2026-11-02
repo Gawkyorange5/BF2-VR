@@ -16,7 +16,7 @@ std::atomic<void*> scopeAdsVisualWeapon{nullptr};
 
 bool ReadScopeZoom(void* weapon,ScopeZoom& result){
     char name[80]{};
-    if(!ReloadName(weapon,name)||!FindScopeProfile(name))return false;
+    if(!ReloadName(weapon,name)||(!FindScopeProfile(name)&&!IsAimedHandheld(weapon)))return false;
     // Only GenericFireArm's bounded component fields, with exact interface,
     // base, template and owner identities. Components are resolved afresh:
     // DZB2 can recreate them when switching a launcher's firing mode.
@@ -49,12 +49,15 @@ bool CurrentScopeWeapon(void* weapon,void* owner,void* identity){
     if(seat&&seat!=owner&&!PassengerWeaponSeat(owner))return false;
     return InventoryItem(owner,Value<int>(owner,0x1E0))==weapon;
 }
+#include "IronSightAds.inl"
+#include "IronSightSceneFov.inl"
 void ResetScopeAds(){
     ScopeZoom zoom{};
     const auto& s=nativeScopeAds;
     if(s.owned&&nativeScopeZoom&&CurrentScopeWeapon(s.weapon,s.owner,s.identity)&&ReadScopeZoom(s.weapon,zoom)&&zoom.step)
         nativeScopeZoom(zoom.base,0,false);
     nativeScopeAds={};scopeAdsVisualWeapon.store(nullptr,std::memory_order_release);
+    ironSightSceneWeapon.store(nullptr,std::memory_order_release);
 }
 void __fastcall ScopeLodHook(void* self,void*,int lod){
     void* weapon=scopeAdsVisualWeapon.load(std::memory_order_acquire);
@@ -69,36 +72,47 @@ void __fastcall ScopeLodHook(void* self,void*,int lod){
 }
 void UpdateScopeAds(){
     void* owner=Soldier();void* identity=Value<void*>(Player(),0xCC);ScopeZoom zoom{};
-    if(!scopeAdsProfile||!scopeWeapon||!Config().hands||!Tuning().gunScopes||!scopeAvailable||
+    if(!scopeAdsProfile||!Config().hands||
        !pairFrame.focused||!referenceValid||!binding.rightReady||MenuActive()||InventoryStowed(owner)||
-       !CurrentScopeWeapon(scopeWeapon,owner,identity)||!ReadScopeZoom(scopeWeapon,zoom)){
+       !LocalAlive()){
         ResetScopeAds();return;
     }
-    if(nativeScopeAds.weapon!=scopeWeapon||nativeScopeAds.owner!=owner||nativeScopeAds.identity!=identity||nativeScopeAds.origin!=pairFrame.origin){
-        ResetScopeAds();nativeScopeAds.weapon=scopeWeapon;nativeScopeAds.owner=owner;
-        nativeScopeAds.identity=identity;nativeScopeAds.origin=pairFrame.origin;
-        if(!ReadScopeZoom(scopeWeapon,zoom))return;
+    void* aimedWeapon=scopeWeapon;float alignment=0.f;bool iron=false;
+    if(aimedWeapon){
+        // Preserve the accepted optic path, including disabled/unavailable
+        // scopes: they must never fall through to iron-sight activation.
+        if(!Tuning().gunScopes||!scopeAvailable){ResetScopeAds();return;}
+        alignment=scopeReady?std::max(scopeView.visibility[0],scopeView.visibility[1]):0.f;
+    }else{
+        if(!PrepareIronSightAds(aimedWeapon,alignment)){ResetScopeAds();return;}
+        iron=true;
     }
-    scopeAdsVisualWeapon.store(scopeWeapon,std::memory_order_release);
+    if(!CurrentScopeWeapon(aimedWeapon,owner,identity)||!ReadScopeZoom(aimedWeapon,zoom)){ResetScopeAds();return;}
+    if(nativeScopeAds.weapon!=aimedWeapon||nativeScopeAds.owner!=owner||nativeScopeAds.identity!=identity||nativeScopeAds.origin!=pairFrame.origin){
+        ResetScopeAds();nativeScopeAds.weapon=aimedWeapon;nativeScopeAds.owner=owner;
+        nativeScopeAds.identity=identity;nativeScopeAds.origin=pairFrame.origin;
+        if(!ReadScopeZoom(aimedWeapon,zoom))return;
+    }
+    scopeAdsVisualWeapon.store(aimedWeapon,std::memory_order_release);
+    ironSightSceneWeapon.store(iron?aimedWeapon:nullptr,std::memory_order_release);
     bool reloading=false;
     AcquireSRWLockShared(&reloadLock);
-    if(reload.owner==owner&&reload.weapon==scopeWeapon)
+    if(reload.owner==owner&&reload.weapon==aimedWeapon)
         reloading=ReloadBlocksFire()||reload.ammo.state>=2;
     ReleaseSRWLockShared(&reloadLock);
     const bool sprinting=Value<BYTE>(Player(),0x187)!=0;
     auto& s=nativeScopeAds;
     const bool cancelled=s.owned&&!zoom.step;
     if(cancelled)s.owned=false;
-    const float alignment=scopeReady?std::max(scopeView.visibility[0],scopeView.visibility[1]):0.f;
     const bool desired=s.policy.Update(alignment,reloading||sprinting,cancelled,GetTickCount64());
     if(desired&&!zoom.step){
         nativeScopeZoom(zoom.base,1,false);
         ScopeZoom after{};
-        if(ReadScopeZoom(scopeWeapon,after)&&after.step==1){
+        if(ReadScopeZoom(aimedWeapon,after)&&after.step==1){
             s.owned=true;
             static unsigned reports=0;
-            if(reports++<32){char name[80]{};ReloadName(scopeWeapon,name);
-                Log("ADS149 native ADS entered weapon=%s step=1 factor=%.3f alignment=%.2f; original spread/recoil, visible LOD0",name,after.factor,alignment);}
+            if(reports++<32){char name[80]{};ReloadName(aimedWeapon,name);
+                Log("ADS154 native ADS entered weapon=%s sight=%s step=1 factor=%.3f alignment=%.2f; original spread/recoil, visible LOD0",name,iron?"iron":"optic",after.factor,alignment);}
         }
     }else if(!desired&&s.owned){
         if(zoom.step)nativeScopeZoom(zoom.base,0,false);
@@ -114,5 +128,6 @@ bool InstallScopeAds(){
        Value<void*>(game+0x4F58F8,0x98)!=game+0x206DE0||Value<void*>(game+0x4F59B8,0x44)!=game+0x206980)return false;
     if(!Jump(game+0x206980,lod,sizeof(lod),reinterpret_cast<void*>(&ScopeLodHook),reinterpret_cast<void**>(&originalScopeLod)))return false;
     nativeScopeZoom=reinterpret_cast<ScopeSetZoom>(game+0x206C20);scopeAdsProfile=true;
-    Log("ADS149 verified native zoom/LOD: shared supported-optic path; per-weapon native ADS, no spread overrides");return true;
+    InstallIronSightSceneFov();
+    Log("ADS154 verified native zoom/LOD: iron sights and retained supported optics; per-weapon native ADS, no spread overrides");return true;
 }

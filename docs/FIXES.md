@@ -1,6 +1,9 @@
 # Fixes added in v1.2.0
 
-## v1.2.1 — r152 cumulative fixes
+## v1.2.1 — r154 cumulative fixes
+
+- Native aiming also activates for supported iron-sight guns, including applicable DZB2 pistols and other weapon classes.
+- Raising/lowering iron sights keeps scenery detail stable while preserving native aimed accuracy and slower movement. Existing scopes and launchers keep their previous behavior.
 
 - Physical aiming with supported optics activates BF2 native aimed accuracy
   and its normal slower movement, instead of retaining hip-fire accuracy.
